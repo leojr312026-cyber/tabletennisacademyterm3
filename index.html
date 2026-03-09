@@ -7,243 +7,229 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
-        body { background: #080808; color: #e5e7eb; font-family: 'Inter', sans-serif; letter-spacing: -0.02em; }
-        .isd-glass { background: rgba(17, 17, 17, 0.9); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); }
-        .status-invited { border: 2px solid #eab308; background: rgba(234, 179, 8, 0.05); }
-        .status-joining { border: 2px solid #4ade80; background: rgba(34, 197, 94, 0.05); }
-        .status-paid { border: 2px solid #22c55e; background: #15803d; color: white; }
-        .stat-card { background: #111; border-radius: 20px; padding: 1.25rem; border: 1px solid #222; }
-        .day-btn.active { background: #eab308; color: black; }
-        input, select { background: #1a1a1a !important; border: 1px solid #333 !important; color: white !important; border-radius: 12px; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        :root { --isd-yellow: #eab308; --isd-pink: #f472b6; --isd-blue: #3b82f6; }
+        body { background: #050505; color: #eee; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+        .frame-u8 { border: 4px solid var(--isd-pink); box-shadow: 0 0 15px rgba(244, 114, 182, 0.2); }
+        .frame-u12 { border: 4px solid var(--isd-yellow); box-shadow: 0 0 15px rgba(234, 179, 8, 0.2); }
+        .frame-u16 { border: 4px solid var(--isd-blue); box-shadow: 0 0 15px rgba(59, 130, 246, 0.2); }
+        .frame-isdb { border: 4px solid #fbbf24 !important; background: linear-gradient(145deg, #064e3b, #022c22) !important; box-shadow: 0 0 25px #fbbf24 !important; }
+        .status-joining { background: var(--isd-yellow) !important; color: #000 !important; }
+        .status-paid { background: #22c55e !important; color: #fff !important; }
+        .stat-card { background: #111; border: 1px solid #222; border-radius: 16px; padding: 1rem; }
+        .island-btn { width: 70px; height: 70px; background: var(--isd-yellow); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; cursor: pointer; border: 3px solid #fff; transition: 0.3s; position: relative; }
+        .bday-glow { border-color: #f472b6 !important; animation: pulse-bday 2s infinite; }
+        @keyframes pulse-bday { 0%, 100% { box-shadow: 0 0 0px #f472b6; } 50% { box-shadow: 0 0 20px #f472b6; } }
     </style>
 </head>
 <body class="p-4 lg:p-8">
 
     <div class="max-w-[1600px] mx-auto">
-        <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-8 gap-4">
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-6">
             <div>
-                <h1 class="text-5xl font-black italic text-yellow-500 uppercase leading-none tracking-tighter">ISD TABLE TENNIS TERM TRACKER</h1>
-                <p class="text-[9px] font-bold text-gray-500 uppercase mt-3 tracking-[0.2em]">created by Leo for ISD Racket Sports</p>
+                <h1 class="text-4xl lg:text-6xl font-black text-yellow-500 italic uppercase leading-none tracking-tighter">ISD TABLE TENNIS TERM TRACKER</h1>
+                <p class="text-[10px] font-bold text-gray-500 mt-2 tracking-[0.3em] uppercase">created by Leo for ISD Racket Sports</p>
             </div>
-            <div class="flex flex-wrap gap-2">
-                <button onclick="downloadReport()" class="bg-blue-600 text-white px-5 py-2.5 rounded-xl text-[10px] font-black uppercase">Weekly Report</button>
-                <button onclick="toggleWidget('bdayWidget')" class="bg-pink-600/20 text-pink-500 border border-pink-500/30 px-5 py-2.5 rounded-xl text-[10px] font-black uppercase">Birthdays</button>
+            <div class="flex items-center gap-4">
+                <button onclick="showWeeklyReport()" class="bg-white text-black font-black px-6 py-3 rounded-xl uppercase text-[10px]">Manager's Report</button>
+                <div onclick="openReg()" class="island-btn">🏓<span class="text-lg absolute bottom-0 right-0 bg-black text-white rounded-full w-6 h-6 flex items-center justify-center">+</span></div>
+            </div>
+        </header>
+
+        <div id="stats" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-11 gap-2 mb-8"></div>
+
+        <div class="flex flex-col lg:flex-row gap-4 mb-6">
+            <input type="text" id="search" onkeyup="render()" placeholder="Search 53 students..." class="flex-1 bg-neutral-900 p-4 rounded-xl border border-neutral-800 outline-none text-white">
+            <div class="flex gap-2">
+                <button onclick="currentTab='active'; render()" class="px-8 py-4 bg-yellow-500 text-black font-black rounded-xl text-[10px] uppercase">Active Roster</button>
+                <button onclick="currentTab='vault'; render()" class="px-8 py-4 bg-neutral-900 text-gray-500 font-black rounded-xl text-[10px] uppercase border border-neutral-800">Not Joining</button>
+                <button onclick="downloadCSV()" class="px-4 py-4 bg-blue-600/20 text-blue-400 border border-blue-600/30 rounded-xl"><i class="fas fa-download"></i></button>
             </div>
         </div>
 
-        <div class="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-3 mb-8">
-            <div class="stat-card"><p class="text-[8px] font-black text-gray-500 uppercase mb-1">Total Revenue</p><h3 id="stat-rev" class="text-lg font-black text-green-500">0 AED</h3></div>
-            <div class="stat-card"><p class="text-[8px] font-black text-gray-500 uppercase mb-1">Cash/Card/Link</p><h3 id="stat-split" class="text-[10px] font-bold">0 / 0 / 0</h3></div>
-            <div class="stat-card"><p class="text-[8px] font-black text-gray-500 uppercase mb-1">ISDB Done</p><h3 id="stat-isdb" class="text-lg font-black text-blue-400">0</h3></div>
-            <div class="stat-card"><p class="text-[8px] font-black text-gray-500 uppercase mb-1">Registered (T3)</p><h3 id="stat-reg" class="text-lg font-black text-yellow-500">0</h3></div>
-            <div class="stat-card"><p class="text-[8px] font-black text-gray-500 uppercase mb-1">Not Joining</p><h3 id="stat-exit" class="text-lg font-black text-red-500">0</h3></div>
-            <div class="stat-card"><p class="text-[8px] font-black text-gray-500 uppercase mb-1">Age Moves</p><h3 id="stat-age" class="text-lg font-black text-orange-500">0</h3></div>
-            <div class="stat-card bg-yellow-500/5"><p class="text-[8px] font-black text-yellow-500 uppercase mb-1">Slots Taken</p><h3 id="stat-slots" class="text-lg font-black text-yellow-500">0/150</h3></div>
-        </div>
+        <div id="mainGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"></div>
+    </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <div class="lg:col-span-4">
-                <div class="isd-glass p-6 rounded-[32px] sticky top-6">
-                    <h3 class="text-[10px] font-black uppercase mb-6 text-gray-500 tracking-widest text-center">Operation Control</h3>
-                    <form id="mainForm" onsubmit="handleRegistration(event)" class="space-y-3">
-                        <input type="hidden" id="editId">
-                        <input type="text" id="kName" placeholder="Student Name" required class="w-full p-4 text-sm">
-                        <div class="grid grid-cols-2 gap-2">
-                            <select id="ageGrp" class="p-4 text-xs font-bold uppercase" onchange="autoCalc()"><option value="U8">U8</option><option value="U12" selected>U12</option><option value="U16">U16</option></select>
-                            <input type="date" id="dob" class="p-4 text-xs">
-                        </div>
-                        <input type="text" id="pName" placeholder="Parent Name" class="w-full p-4 text-sm">
-                        <input type="tel" id="pPhone" placeholder="WhatsApp Number" class="w-full p-4 text-sm">
-                        <div class="bg-black/50 p-4 rounded-2xl border border-white/5">
-                            <div class="flex gap-1 mb-3" id="daySelector">
-                                <button type="button" onclick="toggleDay(this,'Mon')" class="day-btn flex-1 py-2 rounded-lg border border-neutral-800 text-[10px] font-black">M</button>
-                                <button type="button" onclick="toggleDay(this,'Tue')" class="day-btn flex-1 py-2 rounded-lg border border-neutral-800 text-[10px] font-black">T</button>
-                                <button type="button" onclick="toggleDay(this,'Wed')" class="day-btn flex-1 py-2 rounded-lg border border-neutral-800 text-[10px] font-black">W</button>
-                                <button type="button" onclick="toggleDay(this,'Thu')" class="day-btn flex-1 py-2 rounded-lg border border-neutral-800 text-[10px] font-black">T</button>
-                                <button type="button" onclick="toggleDay(this,'Fri')" class="day-btn flex-1 py-2 rounded-lg border border-neutral-800 text-[10px] font-black">F</button>
-                            </div>
-                            <select id="timeSlots" class="w-full p-4 text-[10px] font-bold uppercase" multiple size="4">
-                                <option value="3:00 PM - 4:00 PM">3:00 PM - 4:00 PM</option><option value="4:00 PM - 5:00 PM">4:00 PM - 5:00 PM</option><option value="5:00 PM - 6:00 PM">5:00 PM - 6:00 PM</option><option value="6:00 PM - 7:00 PM">6:00 PM - 7:00 PM</option>
-                            </select>
-                        </div>
-                        <div class="flex justify-between items-center p-4 bg-black rounded-2xl">
-                            <span class="text-[10px] font-black text-gray-500 uppercase">Fee</span>
-                            <h2 id="feeDisplay" class="text-xl font-black text-yellow-500">0 AED</h2>
-                        </div>
-                        <button type="submit" class="w-full bg-yellow-500 text-black font-black py-4 rounded-2xl uppercase text-xs">Update Profile</button>
-                    </form>
+    <div id="regModal" class="fixed inset-0 bg-black/95 backdrop-blur-md hidden z-50 flex items-center justify-center p-4">
+        <div id="modalFrame" class="bg-neutral-900 p-8 rounded-[40px] w-full max-w-2xl border-4 transition-all">
+            <h2 class="text-3xl font-black text-yellow-500 mb-6 uppercase italic">New Student Form</h2>
+            <form onsubmit="saveNewKid(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input type="text" id="nkName" placeholder="Kid's Full Name" required class="p-4 rounded-xl bg-black border border-neutral-800 text-white outline-none">
+                <input type="date" id="nkDob" onchange="updateModalFrame()" class="p-4 rounded-xl bg-white text-black font-bold outline-none">
+                <input type="text" id="npName" placeholder="Parents Full Name" required class="p-4 rounded-xl bg-black border border-neutral-800 text-white">
+                <input type="email" id="npEmail" placeholder="Email Address" required class="p-4 rounded-xl bg-black border border-neutral-800 text-white">
+                <input type="tel" id="npPhone" placeholder="Contact (971...)" required class="p-4 rounded-xl bg-black border border-neutral-800 text-white">
+                <div class="col-span-full bg-black p-4 rounded-2xl border border-neutral-800">
+                    <p class="text-[10px] font-bold text-gray-500 uppercase mb-3">Schedule</p>
+                    <input type="text" id="nkSchedule" placeholder="e.g. Mon 4pm, Wed 5pm" class="w-full bg-neutral-900 p-3 rounded-lg text-white border border-neutral-700 outline-none">
                 </div>
-            </div>
-
-            <div class="lg:col-span-8">
-                <div class="flex gap-3 mb-6">
-                    <input type="text" id="search" onkeyup="render()" placeholder="Search active kids..." class="flex-1 bg-neutral-900 border-none rounded-2xl px-6 py-4 text-sm outline-none">
-                    <button onclick="setView('active')" id="btn-active" class="px-6 py-4 rounded-2xl text-[10px] font-black uppercase bg-yellow-500 text-black">Active</button>
-                    <button onclick="setView('vault')" id="btn-vault" class="px-6 py-4 rounded-2xl text-[10px] font-black uppercase bg-neutral-900 text-gray-500">Vault</button>
-                </div>
-                <div id="roster" class="space-y-3"></div>
-            </div>
+                <button type="submit" class="col-span-full bg-yellow-500 text-black font-black py-5 rounded-2xl uppercase text-lg">Register Now</button>
+                <button type="button" onclick="closeReg()" class="col-span-full text-gray-600 text-[10px] uppercase font-bold mt-2 text-center">Cancel</button>
+            </form>
         </div>
     </div>
 
-    <div id="bdayWidget" class="fixed inset-0 bg-black/95 hidden z-50 p-6 flex items-center justify-center">
-        <div class="isd-glass p-8 rounded-[32px] w-full max-w-md">
-            <h2 class="text-2xl font-black text-pink-500 uppercase mb-6 italic">Monthly Birthdays</h2>
-            <div id="bdayList" class="space-y-2"></div>
-            <button onclick="toggleWidget('bdayWidget')" class="mt-6 text-gray-500 uppercase text-[10px] font-bold">Close</button>
+    <div id="reportModal" class="fixed inset-0 bg-black/98 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-neutral-900 p-10 rounded-[40px] w-full max-w-3xl border border-white/5 max-h-[90vh] overflow-y-auto">
+            <div id="reportContent"></div>
+            <button onclick="document.getElementById('reportModal').classList.add('hidden')" class="mt-8 w-full bg-white text-black font-black py-4 rounded-2xl uppercase">Close</button>
         </div>
     </div>
 
     <script>
-        const MASTER_DATA = [
-            { name: "Musa Junego", age: 9, dob: "2017-08-16", pName: "Reena Babar", phone: "0547773836", schedule: "Monday 4pm" },
-            { name: "Samuel Greiner", age: 12, dob: "2013-04-06", pName: "Patrick / Miriam", phone: "0507588134", schedule: "Fri 4pm & Mon 5pm" },
-            { name: "Ishaan Kumar", age: 8, dob: "2017-09-09", pName: "Ashish Kumar", phone: "0522976720", schedule: "Tue & Thu 4pm" },
-            { name: "Artem Arzhanov", age: 12, dob: "2013-06-11", pName: "Natalia Arzanova", phone: "+79858021467", schedule: "Wed 5pm & Fri 3pm" },
-            { name: "Yuri Kurdyukov", age: 11, dob: "2014-05-06", pName: "Anastasia", phone: "506651911", schedule: "Tuesday 5pm" },
-            { name: "Gherman Mustiviy", age: 9, dob: "2016-06-13", pName: "Nickolay Mustiviy", phone: "0507701485", schedule: "Friday 3pm" },
-            { name: "Ryan Kim", age: 10, dob: "2015-06-20", pName: "Rina Kwon", phone: "0584496888", schedule: "Monday 5pm" },
-            { name: "Elai Fatykhov", age: 10, dob: "2015-03-24", pName: "Elvira Fatykhov", phone: "0527332988", schedule: "Monday 5pm" },
-            { name: "Arjun Arun", age: 10, dob: "2015-11-10", pName: "Arun Viswanathan", phone: "0522667290", schedule: "Tuesday 4pm" },
-            { name: "Mark Krutko", age: 10, dob: "2015-06-18", pName: "Tanya Prykhozhia", phone: "0551344751", schedule: "Tue & Thu 5pm" },
-            { name: "Daniel Fady", age: 9, dob: "2016-03-02", pName: "Fady Awny", phone: "0551915601", schedule: "Friday 3pm" },
-            { name: "Haider Hasan", age: 12, dob: "2013-07-13", pName: "Asiya Ali", phone: "0525987691", schedule: "Wed 5pm" },
-            { name: "Mark Dorogya", age: 10, dob: "2015-05-10", pName: "Julia Dorogaya", phone: "0558631023", schedule: "Wednesday 5pm" },
-            { name: "Jayden Chan", age: 10, dob: "2015-10-02", pName: "Ellen Li", phone: "85291283715", schedule: "Thursday 4pm" },
-            { name: "Petr", age: 13, dob: "2012-06-10", pName: "Natalia Shaikina", phone: "+971551785179", schedule: "Monday 5pm" },
-            { name: "Daniil Gasparin", age: 6, dob: "2019-03-11", pName: "Anastasia", phone: "0505121542", schedule: "Thursday 4pm" },
-            { name: "Louis Verrotte", age: 12, dob: "2013-04-03", pName: "Solene Verrotte", phone: "+6591449569", schedule: "Friday 4pm" },
-            { name: "Cameron Miller", age: 12, dob: "2013-07-03", pName: "Maria Miller", phone: "0558505245", schedule: "Thursday 4pm" },
-            { name: "Borong Song", age: 7, dob: "2018-01-22", pName: "Xue Zhang", phone: "0558309836", schedule: "Thursday 4pm" },
-            { name: "Shivam Vallabh", age: 10, dob: "2015-07-10", pName: "Jyoti Vallabh", phone: "0505731997", schedule: "Wednesday 4pm" },
-            { name: "Veronika Ivanuis", age: 9, dob: "2016-09-28", pName: "Tatiana Ivanuis", phone: "+971556839342", schedule: "Wednesday 5pm" },
-            { name: "Atuka Mandzhiev", age: 8, dob: "2017-03-04", pName: "Alsa Mandzhieva", phone: "971582484252", schedule: "Mon & Wed 4pm" },
-            { name: "Hani Omari", age: 12, dob: "2013-01-16", pName: "Jummar Al JAlawi", phone: "0551769290", schedule: "Tuesday 5pm" },
-            { name: "Zaid Omari", age: 9, dob: "2016-04-28", pName: "Jummar Al JAlawi", phone: "0551769290", schedule: "Tuesday 5pm" },
-            { name: "Judy El Masri", age: 8, dob: "2017-04-13", pName: "Shadi El Masri", phone: "+971508887325", schedule: "Friday 3pm" },
-            { name: "Charlie Pinchbeck", age: 13, dob: "2012-11-16", pName: "Henry Pinchbeck", phone: "+971543441062", schedule: "Tue 4pm & 5pm" },
-            { name: "Julia Abdelmalek", age: 12, dob: "2013-03-17", pName: "Mary Raouf", phone: "+971554558291", schedule: "Mon & Thu 5pm" },
-            { name: "Ziad Biyouk", age: 14, dob: "2011-01-20", pName: "Dina Qumuq", phone: "+971502528780", schedule: "Friday 4pm" },
-            { name: "Zahra Adnan", age: 9, dob: "2015-11-01", pName: "Adnan/Javaria", phone: "971529604599", schedule: "Friday 4pm" },
-            { name: "Abdul Hadi Adnan", age: 12, dob: "2013-09-04", pName: "Adnan/Javaria", phone: "971529604599", schedule: "Friday 3pm" },
-            { name: "Vihan Asarpota", age: 11, dob: "2014-08-18", pName: "Hitesh Asarpota", phone: "0504529515", schedule: "Tue & Thu 5pm" },
-            { name: "Marc Galice", age: 10, dob: "2015-06-30", pName: "Diana Galice", phone: "+971527161988", schedule: "Wednesday 4pm" },
-            { name: "Cagan Soylemez", age: 9, dob: "2016-07-08", pName: "Murat Soylemez", phone: "971521992091", schedule: "Thursday 5pm" },
-            { name: "Alqaisar Wanous", age: 7, dob: "2018-05-05", pName: "Bayla Kanji", phone: "+971506624001", schedule: "Wed 4pm & Fri 3pm" },
-            { name: "Ishana", age: 12, dob: "2013-02-03", pName: "Ram Virto", phone: "+971557008012", schedule: "Mon & Thu 5pm" },
-            { name: "Vihaan Gupta", age: 10, dob: "2015-09-14", pName: "Ankita Jain", phone: "971509720285", schedule: "Mon & Fri" },
-            { name: "Aryan Bansal", age: 14, dob: "2011-04-11", pName: "Mitali Bansal", phone: "+971551047207", schedule: "Fri 4pm & Mon 5pm" },
-            { name: "Anna Mazkun", age: 7, dob: "2019-04-29", pName: "Veronika Mazkun", phone: "0505613510", schedule: "Tue 4pm & Fri 3pm" },
-            { name: "Anwita Shastri", age: 12, dob: "2013-04-06", pName: "Navin Shastri", phone: "+971503475404", schedule: "Thursday 5pm" },
-            { name: "Theo Copper", age: 13, dob: "2012-07-19", pName: "Chris Cooper", phone: "971503959040", schedule: "Wed 5pm" },
-            { name: "Leo Girichev", age: 13, dob: "2012-01-30", pName: "Andrei Girichev", phone: "+971553531050", schedule: "Tue & Wed 5pm" },
-            { name: "Gian Hotchandani", age: 12, dob: "2013-04-05", pName: "Vishakha", phone: "+971502624034", schedule: "Monday 5pm" },
-            { name: "Khloie Siniakina", age: 6, dob: "2019-05-30", pName: "Viktor Siniakin", phone: "+971585809829", schedule: "Monday 4pm" },
-            { name: "Metodi", age: 9, dob: "2016-02-25", pName: "Lilian Mute", phone: "585265378", schedule: "Tue & Wed 5pm" },
-            { name: "Jaden", age: 12, dob: "2013-10-02", pName: "Lilian Mute", phone: "585265378", schedule: "Tue & Wed 5pm" },
-            { name: "Tehzeeb Ali", age: 16, dob: "2010-05-22", pName: "Gows Basha", phone: "+971552025369", schedule: "Wed 5pm & Fri 4pm" },
-            { name: "Flora Bae", age: 11, dob: "2014-10-16", pName: "Sojin Park", phone: "971585980512", schedule: "Wed 5pm" },
-            { name: "Humayd Gani", age: 10, dob: "2015-02-26", pName: "Mischka Tayob", phone: "505042823", schedule: "Wednesday 4pm" },
-            { name: "Uthman Gani", age: 9, dob: "2016-04-20", pName: "Mischka Tayob", phone: "505042823", schedule: "Wednesday 4pm" },
-            { name: "Aurele", age: 10, dob: "2015-09-06", pName: "Cedric Barraud", phone: "+41764255292", schedule: "Wed & Fri 4pm" },
-            { name: "Michele Ferriani", age: 11, dob: "2014-04-05", pName: "Alina Makakaeva", phone: "971506068869", schedule: "Friday 4pm" },
-            { name: "Parker Selt", age: 7, dob: "2018-06-19", pName: "Jessica Selt", phone: "971507735635", schedule: "Monday 4pm" },
-            { name: "Aydan Tejani", age: 11, dob: "2014-11-26", pName: "Zhara Tejani", phone: "447557118196", schedule: "Thursday 5pm" }
+        const INITIAL_KIDS = [
+            { name: "Musa Junego", dob: "2017-08-16", pName: "Reena Babar", email: "reena7musa@gmail.com", phone: "971547773836", schedule: "Monday 4pm" },
+            { name: "Samuel Greiner", dob: "2013-04-06", pName: "Patrick / Miriam", email: "info@miriam-greiner.de", phone: "971507588134", schedule: "Fri 4pm & Mon 5pm" },
+            { name: "Ishaan Kumar", dob: "2017-09-09", pName: "Ashish Kumar", email: "ashish.kumar02@gmail.com", phone: "971522976720", schedule: "Tue & Thu 4pm" },
+            { name: "Artem Arzhanov", dob: "2013-06-11", pName: "Natalia Arzanova", email: "natalia@avispromservices.com", phone: "79858021467", schedule: "Wed 5pm & Fri 3pm" },
+            { name: "Yuri Kurdyukov", dob: "2014-05-06", pName: "Anastasia", email: "akurdyukova@gmail.com", phone: "971506651911", schedule: "Tuesday 5pm" },
+            { name: "Gherman Mustiviy", dob: "2016-06-13", pName: "Nickolay Mustiviy", email: "n.mustiviy@gmail.com", phone: "971507701485", schedule: "Friday 3pm" },
+            { name: "Ryan Kim", dob: "2015-06-20", pName: "Rina Kwon", email: "Riana.Kwon@gmail.com", phone: "971584496888", schedule: "Monday 5pm" },
+            { name: "Elai Fatykhov", dob: "2015-03-24", pName: "Elvira Fatykhov", email: "Elviradxb@gmail.com", phone: "971527332988", schedule: "Monday 5pm" },
+            { name: "Arjun Arun", dob: "2015-11-10", pName: "Arun Viswanathan", email: "rani.subassarunran@gmail.com", phone: "971522667290", schedule: "Tuesday 4pm" },
+            { name: "Mark Krutko", dob: "2015-06-18", pName: "Tanya Prykhozhia", email: "pryhozhaya@gmail.com", phone: "971551344751", schedule: "Tue & Thu 5pm" },
+            { name: "Daniel Fady", dob: "2016-03-02", pName: "Fady Awny", email: "fady.awny@gmail.com", phone: "971551915601", schedule: "Friday 3pm" },
+            { name: "Haider Hasan", dob: "2013-07-13", pName: "Asiya Ali", email: "aayari0@gmail.com", phone: "971525987691", schedule: "Wed 5pm" },
+            { name: "Mark Dorogya", dob: "2015-05-10", pName: "Julia Dorogaya", email: "juldorogaya@gmail.com", phone: "971558631023", schedule: "Wednesday 5pm" },
+            { name: "Jayden Chan", dob: "2015-10-02", pName: "Ellen Li", email: "", phone: "85291283715", schedule: "Thursday 4pm" },
+            { name: "Petr", dob: "2012-06-10", pName: "Natalia Shaikina", email: "nat7shaikina@gmail.com", phone: "971551785179", schedule: "Monday 5pm" },
+            { name: "Daniil Gasparin", dob: "2019-03-11", pName: "Anastasia", email: "nasty.kiseleva@gmail.com", phone: "971505121542", schedule: "Thursday 4pm" },
+            { name: "Louis Verrotte", dob: "2013-04-03", pName: "Solene Verrotte", email: "solene.verrotte@gmail.com", phone: "6591449569", schedule: "Friday 4pm" },
+            { name: "Cameron Miller", dob: "2013-07-03", pName: "Maria Miller", email: "mariamiller007@yahoo.com", phone: "971558505245", schedule: "Thursday 4pm" },
+            { name: "Borong Song", dob: "2018-01-22", pName: "Xue Zhang", email: "", phone: "971558309836", schedule: "Thursday 4pm" },
+            { name: "Shivam Vallabh", dob: "2015-07-10", pName: "Jyoti Vallabh", email: "Jyoti.vldd@gmail.com", phone: "971505731997", schedule: "Wednesday 4pm" },
+            { name: "Veronika Ivanuis", dob: "2016-09-28", pName: "Tatiana Ivanuis", email: "tturchina84@mail.com", phone: "971556839342", schedule: "Wednesday 5pm" },
+            { name: "Atuka Mandzhiev", dob: "2017-03-04", pName: "Alsa Mandzhieva", email: "mandzhieva.a.v@gmail.com", phone: "971582484252", schedule: "Mon & Wed 4pm" },
+            { name: "Hani Omari", dob: "2013-01-16", pName: "Jummar Al JAlawi", email: "J.Aljalawi@hotmail.com", phone: "971551769290", schedule: "Tuesday 5pm" },
+            { name: "Zaid Omari", dob: "2016-04-28", pName: "Jummar Al JAlawi", email: "J.Aljalawi@hotmail.com", phone: "971551769290", schedule: "Tuesday 5pm" },
+            { name: "Judy El Masri", dob: "2017-04-13", pName: "Shadi El Masri", email: "shadi2013@gmail.com", phone: "971508887325", schedule: "Friday 3pm" },
+            { name: "Charlie Pinchbeck", dob: "2012-11-16", pName: "Henry Pinchbeck", email: "henrypinchbeck@yahoo.com", phone: "971543441062", schedule: "Tue 4pm & 5pm" },
+            { name: "Julia Abdelmalek", dob: "2013-03-17", pName: "Mary Raouf", email: "mary_raouf@hotmail.com", phone: "971554558291", schedule: "Mon & Thu 5pm" },
+            { name: "Ziad Biyouk", dob: "2011-01-20", pName: "Dina Qumuq", email: "dinaqumuq@gmail.com", phone: "971502528780", schedule: "Friday 4pm" },
+            { name: "Zahra Adnan", dob: "2015-11-01", pName: "Adnan/Javaria", email: "adnanniaz@gmail.com", phone: "971529604599", schedule: "Friday 4pm" },
+            { name: "Abdul Hadi Adnan", dob: "2013-09-04", pName: "Adnan/Javaria", email: "adnanniaz@gmail.com", phone: "971529604599", schedule: "Friday 3pm" },
+            { name: "Vihan Asarpota", dob: "2014-08-18", pName: "Hitesh Asarpota", email: "hitesh13@gmail.com", phone: "971504529515", schedule: "Tue & Thu 5pm" },
+            { name: "Marc Galice", dob: "2015-06-30", pName: "Diana Galice", email: "dianagalice@gmail.com", phone: "971527161988", schedule: "Wednesday 4pm" },
+            { name: "Cagan Soylemez", dob: "2016-07-08", pName: "Murat Soylemez", email: "Cagan.soylemez@outlook", phone: "971521992091", schedule: "Thursday 5pm" },
+            { name: "Alqaisar Wanous", dob: "2018-05-05", pName: "Bayla Kanji", email: "Baylasanaikan@gmail.com", phone: "971506624001", schedule: "Wed 4pm & Fri 3pm" },
+            { name: "Ishana", dob: "2013-02-03", pName: "Ram Virto", email: "vash77.m@gmail.com", phone: "971557008012", schedule: "Mon & Thu 5pm" },
+            { name: "Vihaan Gupta", dob: "2015-09-14", pName: "Ankita Jain", email: "najistanford@gmail.com", phone: "971509720285", schedule: "Mon & Fri" },
+            { name: "Aryan Bansal", dob: "2011-11-04", pName: "Mitali Bansal", email: "mitalinath@gmail.com", phone: "971551047207", schedule: "Fri 4pm & Mon 5pm" },
+            { name: "Anna Mazkun", dob: "2019-04-29", pName: "Veronika Mazkun", email: "worklist1111@yandex.ru", phone: "971505613510", schedule: "Tue 4pm & Fri 3pm" },
+            { name: "Anwita Shastri", dob: "2013-04-06", pName: "Navin Shastri", email: "Navin.shastri@udtrucks.com", phone: "971503475404", schedule: "Thursday 5pm" },
+            { name: "Theo Copper", dob: "2012-07-19", pName: "Chris Cooper", email: "chriscopp8@gmail.com", phone: "971503959040", schedule: "Wed 5pm" },
+            { name: "Leo Girichev", dob: "2012-01-30", pName: "Andrei Girichev", email: "andreigirichev@gmail.com", phone: "971553531050", schedule: "Tue & Wed 5pm" },
+            { name: "Gian Hotchandani", dob: "2013-04-05", pName: "Vishakha", email: "vishahotchandani@live.com", phone: "971502624034", schedule: "Monday 5pm" },
+            { name: "Khloie Siniakina", dob: "2019-05-30", pName: "Viktor Siniakin", email: "siniakin89@icloud.com", phone: "971585809829", schedule: "Monday 4pm" },
+            { name: "Metodi", dob: "2016-02-25", pName: "Lilian Mute", email: "nutellilian@yahoo.com", phone: "971585265378", schedule: "Tue & Wed 5pm" },
+            { name: "Jaden", dob: "2013-10-02", pName: "Lilian Mute", email: "nutellilian@yahoo.com", phone: "971585265378", schedule: "Tue & Wed 5pm" },
+            { name: "Tehzeeb Ali", dob: "2010-05-22", pName: "Gows Basha", email: "bashatehzeebali@gmail.com", phone: "971552025369", schedule: "Wed 5pm & Fri 4pm" },
+            { name: "Flora Bae", dob: "2014-10-16", pName: "Sojin Park", email: "jknowsmile@gmail.com", phone: "971585980512", schedule: "Wed 5pm" },
+            { name: "Humayd Gani", dob: "2015-02-26", pName: "Mischka Tayob", email: "Mischktagani@gmail.com", phone: "971505042823", schedule: "Wednesday 4pm" },
+            { name: "Uthman Gani", dob: "2016-04-20", pName: "Mischka Tayob", email: "Mischktagani@gmail.com", phone: "971505042823", schedule: "Wednesday 4pm" },
+            { name: "Aurele", dob: "2015-09-06", pName: "Cedric Barraud", email: "aford.alferd@gmail.com", phone: "41764255292", schedule: "Wed & Fri 4pm" },
+            { name: "Michele Ferriani", dob: "2014-04-05", pName: "Alina Makakaeva", email: "alina.makakaeva@gmail.com", phone: "971506068869", schedule: "Friday 4pm" },
+            { name: "Parker Selt", dob: "2018-06-19", pName: "Jessica Selt", email: "jessicaselt@icloud.com", phone: "971507735635", schedule: "Monday 4pm" },
+            { name: "Aydan Tejani", dob: "2014-11-26", pName: "Zhara Tejani", email: "zhara_mughal@hotmail.com", phone: "447557118196", schedule: "Thursday 5pm" }
         ];
 
-        const RATES = { 'U8': [0, 1390, 2645, 3962], 'U12': [0, 1695, 3220, 4830], 'U16': [0, 1695, 3220, 4830] };
-        let students = JSON.parse(localStorage.getItem('isd_final_tracker')) || MASTER_DATA.map((s,i) => ({ ...s, id: i+1, status: 'pending', days: [], slots: [], isPaid: false, isdb: false }));
-        let archived = JSON.parse(localStorage.getItem('isd_final_archived')) || [];
-        let selectedDays = []; let currentView = 'active';
+        const RATES = { 'U8': [0, 1390, 2645, 3962, 5200], 'U12': [0, 1695, 3220, 4830, 6000], 'U16': [0, 1695, 3220, 4830, 6000] };
+        let students = JSON.parse(localStorage.getItem('isd_final_v6_registry')) || INITIAL_KIDS.map((k, i) => ({
+            ...k, id: Date.now() + i, status: 'pending', vault: false, isdb: false,
+            fee: calculateFee(k.dob, k.schedule)
+        }));
+        let currentTab = 'active';
 
-        const save = () => { localStorage.setItem('isd_final_tracker', JSON.stringify(students)); localStorage.setItem('isd_final_archived', JSON.stringify(archived)); };
-
-        function toggleDay(btn, d) {
-            if(selectedDays.includes(d)) { selectedDays = selectedDays.filter(x => x !== d); btn.classList.remove('active'); }
-            else { selectedDays.push(d); btn.classList.add('active'); }
-            autoCalc();
+        function calculateAgeGrp(dob) {
+            const age = new Date().getFullYear() - new Date(dob).getFullYear();
+            return age < 8 ? 'U8' : (age < 12 ? 'U12' : 'U16');
         }
 
-        function autoCalc() {
-            const grp = document.getElementById('ageGrp').value;
-            const price = RATES[grp][selectedDays.length] || 0;
-            document.getElementById('feeDisplay').innerText = `${price.toLocaleString()} AED`;
-            return price;
+        function calculateFee(dob, schedule) {
+            const grp = calculateAgeGrp(dob);
+            const count = (schedule.match(/&/g) || schedule.match(/,/g) || []).length + 1;
+            return RATES[grp][count] || RATES[grp][1];
         }
 
-        function handleRegistration(e) {
-            e.preventDefault();
-            const id = document.getElementById('editId').value;
-            const data = {
-                id: id || Date.now(),
-                name: document.getElementById('kName').value,
-                pName: document.getElementById('pName').value,
-                phone: document.getElementById('pPhone').value,
-                ageGrp: document.getElementById('ageGrp').value,
-                dob: document.getElementById('dob').value,
-                days: [...selectedDays],
-                slots: Array.from(document.getElementById('timeSlots').selectedOptions).map(o => o.value),
-                fee: autoCalc()
-            };
-            const idx = students.findIndex(x => x.id == id);
-            if(idx !== -1) students[idx] = { ...students[idx], ...data };
-            else students.push({ ...data, status: 'pending', isPaid: false });
-            save(); resetForm(); render();
-        }
-
-        function setStatus(id, st) { const s = students.find(x => x.id == id); s.status = st; if(st==='paid') s.isPaid = true; save(); render(); }
-        function setISDB(id) { const s = students.find(x => x.id == id); s.isdb = true; s.isPaid = true; s.status = 'paid'; save(); render(); }
-        function setArchive(id) { const idx = students.findIndex(x => x.id == id); archived.push(students.splice(idx,1)[0]); save(); render(); }
-        function setView(v) { currentView = v; render(); }
-
-        function sendInvite(id, follow = false) {
-            const s = students.find(x => x.id == id);
-            const msg = follow ? `Following up for *${s.name}*'s Term 3 spot at ISD. - Leo` : `Confirming Term 3 for *${s.name}*. Booked: ${s.schedule}. Confirm?`;
-            window.open(`https://wa.me/${s.phone}?text=${encodeURIComponent(msg)}`);
-            if(!follow) { s.status = 'invited'; save(); render(); }
-        }
+        function save() { localStorage.setItem('isd_final_v6_registry', JSON.stringify(students)); render(); }
+        function setStatus(id, st) { const s = students.find(x => x.id == id); s.status = st; if(st==='joining') sendWhatsApp(id,'confirm'); save(); }
+        function resetStatus(id) { const s = students.find(x => x.id == id); s.status = 'pending'; s.isdb = false; save(); }
+        function toggleISDB(id) { const s = students.find(x => x.id == id); s.isdb = !s.isdb; if(s.isdb) s.status = 'paid'; save(); }
+        function toggleVault(id) { const s = students.find(x => x.id == id); s.vault = !s.vault; save(); }
 
         function render() {
-            const container = document.getElementById('roster');
+            const grid = document.getElementById('mainGrid');
             const search = document.getElementById('search').value.toLowerCase();
-            container.innerHTML = '';
-            let rev=0, isdb=0, reg=0, slots=0;
-            const list = currentView === 'active' ? students : archived;
+            grid.innerHTML = '';
+            const list = students.filter(s => s.name.toLowerCase().includes(search) && (currentTab==='active' ? !s.vault : s.vault));
 
             list.forEach(s => {
-                if(!s.name.toLowerCase().includes(search)) return;
-                if(s.isPaid) rev += s.fee || 0;
-                if(s.isdb) isdb++;
-                if(s.status === 'joining' || s.isPaid) reg++;
-                slots += s.days.length;
-
-                let cls = 'isd-card';
-                if(s.status === 'invited') cls = 'status-invited';
-                if(s.status === 'joining') cls = 'status-joining';
-                if(s.isPaid || s.isdb) cls = 'status-paid';
-
-                container.innerHTML += `
-                    <div class="stat-card ${cls} flex flex-col md:flex-row justify-between items-center gap-4">
-                        <div class="flex-1 w-full"><h4 class="text-lg font-black uppercase italic">${s.name} ${s.isdb?'✅':''}</h4><p class="text-[8px] font-bold text-gray-500 uppercase">${s.schedule} • ${s.pName}</p></div>
-                        <div class="flex flex-wrap gap-1">
-                            <button onclick="sendInvite(${s.id})" class="bg-yellow-500 text-black p-2 rounded-lg text-[8px] font-black uppercase">Invite</button>
-                            <button onclick="setStatus(${s.id}, 'joining')" class="bg-green-500/20 text-green-400 p-2 rounded-lg text-[8px] font-black uppercase">Joining</button>
-                            <button onclick="setArchive(${s.id})" class="bg-red-900/20 text-red-500 p-2 rounded-lg text-[8px] font-black uppercase">Exit</button>
-                            <button onclick="setStatus(${s.id}, 'paid')" class="bg-green-600 p-2 rounded-lg text-[8px] font-black uppercase">Paid</button>
-                            <button onclick="setISDB(${s.id})" class="bg-blue-600 p-2 rounded-lg text-[8px] font-black uppercase">ISDB</button>
+                const grp = calculateAgeGrp(s.dob);
+                const isBday = new Date(s.dob).getDate() === new Date().getDate() && new Date(s.dob).getMonth() === new Date().getMonth();
+                grid.innerHTML += `
+                    <div class="stat-card frame-${grp.toLowerCase()} ${s.isdb?'frame-isdb':''} ${isBday?'bday-glow':''} relative">
+                        ${isBday ? '<div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-pink-500 text-[8px] font-black px-4 py-1 rounded-full uppercase">🎂 ISD B-DAY WISHES!</div>' : ''}
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="text-xl font-black italic uppercase">${s.name}</h3>
+                                <p class="text-[9px] font-bold text-gray-500 uppercase mt-1">${s.pName} • ${grp}</p>
+                            </div>
+                            <div class="text-right"><p class="text-xl font-black text-yellow-500">${s.fee} AED</p></div>
                         </div>
-                    </div>`;
+                        <div class="bg-black/50 p-3 rounded-xl mb-4 text-[10px] border border-white/5">
+                            <p class="text-white font-black"><i class="fas fa-calendar-day mr-2 text-yellow-500"></i>${s.schedule}</p>
+                            <p class="text-gray-500 mt-1 uppercase">${s.phone} | ${s.email || 'No Email'}</p>
+                        </div>
+                        <div class="grid grid-cols-3 gap-1">
+                            <button ondblclick="resetStatus(${s.id})" onclick="sendWhatsApp(${s.id}, 'invite')" class="bg-green-600/20 text-green-400 border border-green-600/30 p-2 rounded-lg text-[8px] font-black uppercase">
+                                <i class="fab fa-whatsapp text-lg mr-1"></i> ${s.status === 'invited' ? 'SENT' : 'INVITE'}
+                            </button>
+                            <button ondblclick="resetStatus(${s.id})" onclick="setStatus(${s.id}, 'joining')" class="p-2 rounded-lg text-[8px] font-black uppercase ${s.status==='joining'?'status-joining':'bg-neutral-800 text-gray-500'}">Joining</button>
+                            <button ondblclick="resetStatus(${s.id})" onclick="setStatus(${s.id}, 'paid')" class="p-2 rounded-lg text-[8px] font-black uppercase ${s.status==='paid'?'status-paid':'bg-neutral-800 text-gray-500'}">Paid</button>
+                            <button ondblclick="resetStatus(${s.id})" onclick="toggleISDB(${s.id})" class="col-span-full p-2 rounded-lg text-[8px] font-black uppercase bg-blue-900 mt-1 ${s.isdb?'bg-yellow-600 text-black':''}">ISDB DONE</button>
+                        </div>
+                        <button onclick="toggleVault(${s.id})" class="w-full mt-3 text-[8px] font-bold text-gray-700 uppercase">${s.vault ? 'Restore' : 'Not Joining'}</button>
+                    </div>
+                `;
             });
-            document.getElementById('stat-rev').innerText = rev.toLocaleString() + ' AED';
-            document.getElementById('stat-isdb').innerText = isdb;
-            document.getElementById('stat-reg').innerText = reg;
-            document.getElementById('stat-exit').innerText = archived.length;
-            document.getElementById('stat-slots').innerText = `${slots}/150`;
+            updateStats();
         }
 
-        function toggleWidget(id) { document.getElementById(id).classList.toggle('hidden'); }
-        function resetForm() { document.getElementById('mainForm').reset(); selectedDays = []; document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active')); }
+        function updateStats() {
+            const stats = { rev:0, reg:0, isdb:0, vault:0, paid:0, u8:0, u12:0, u16:0 };
+            students.forEach(s => {
+                if(s.vault) { stats.vault++; return; }
+                const g = calculateAgeGrp(s.dob).toLowerCase(); stats[g]++;
+                if(s.status==='paid' || s.isdb) { stats.rev += s.fee; stats.paid++; }
+                if(s.status==='joining' || s.status==='paid') stats.reg++;
+                if(s.isdb) stats.isdb++;
+            });
+            const bar = document.getElementById('stats'); bar.innerHTML = '';
+            const data = [["Revenue", stats.rev.toLocaleString(), "text-green-500"], ["Registered", stats.reg, "text-yellow-500"], ["ISDB", stats.isdb, "text-blue-400"], ["Paid", stats.paid, "text-green-400"]];
+            data.forEach(d => { bar.innerHTML += `<div class="stat-card"><p class="text-[8px] font-black text-gray-500 uppercase">${d[0]}</p><h3 class="text-xl font-black ${d[2]}">${d[1]}</h3></div>`; });
+        }
+
+        function sendWhatsApp(id, type) {
+            const s = students.find(x => x.id == id);
+            let msg = "";
+            if(type === 'invite') msg = `🏓 ISD Invitation\n\nDear ${s.pName},\nWe invite ${s.name} for Term 3.\nSchedule: ${s.schedule}.\nConfirm to reserve.`;
+            if(type === 'confirm') msg = `🏓 ISD Confirmation\n\nDear ${s.pName},\nConfirmed ${s.name} for Term 3!`;
+            window.open(`https://wa.me/${s.phone}?text=${encodeURIComponent(msg)}`);
+            if(type === 'invite') { s.status = 'invited'; save(); }
+        }
+
+        function showWeeklyReport() {
+            const stats = { rev:0, reg:0, isdb:0, vault:0, u8:0, u12:0, u16:0 };
+            students.forEach(s => { if(s.vault) stats.vault++; else { stats[calculateAgeGrp(s.dob).toLowerCase()]++; if(s.isdb||s.status==='paid') stats.rev+=s.fee; if(s.status==='joining'||s.status==='paid') stats.reg++; if(s.isdb) stats.isdb++; }});
+            document.getElementById('reportContent').innerHTML = `<h2 class="text-3xl font-black text-yellow-500 mb-6 italic uppercase">Manager Report</h2><div class="grid grid-cols-2 gap-4 mb-6"><div class="bg-black p-4 rounded-2xl"><p class="text-[10px] text-gray-500 font-bold uppercase">Revenue</p><p class="text-2xl font-black text-green-500">${stats.rev.toLocaleString()} AED</p></div><div class="bg-black p-4 rounded-2xl"><p class="text-[10px] text-gray-500 font-bold uppercase">Registered</p><p class="text-2xl font-black text-yellow-500">${stats.reg}</p></div></div><div class="space-y-2 text-[12px] font-bold uppercase"><div class="flex justify-between border-b border-white/5 pb-2"><span>U8:</span><span class="text-pink-500">${stats.u8}</span></div><div class="flex justify-between border-b border-white/5 pb-2"><span>U12:</span><span class="text-yellow-500">${stats.u12}</span></div><div class="flex justify-between border-b border-white/5 pb-2"><span>U16:</span><span class="text-blue-500">${stats.u16}</span></div></div>`;
+            document.getElementById('reportModal').classList.remove('hidden');
+        }
+
+        function openReg() { document.getElementById('regModal').classList.remove('hidden'); }
+        function closeReg() { document.getElementById('regModal').classList.add('hidden'); }
+        function saveNewKid(e) { e.preventDefault(); const dob = document.getElementById('nkDob').value; const sched = document.getElementById('nkSchedule').value; students.push({ id: Date.now(), name: document.getElementById('nkName').value, dob, pName: document.getElementById('npName').value, email: document.getElementById('npEmail').value, phone: document.getElementById('npPhone').value, schedule: sched, fee: calculateFee(dob, sched), status: 'pending', vault: false, isdb: false }); save(); closeReg(); alert("Welcome to ISD Family!"); }
+        function downloadCSV() { let csv = "Name,Age,Parent,Phone,Schedule,Fee,Status\n"; students.forEach(s => csv += `"${s.name}","${calculateAgeGrp(s.dob)}","${s.pName}","${s.phone}","${s.schedule}","${s.fee}","${s.status}"\n`); window.open('data:text/csv;charset=utf-8,' + encodeURI(csv)); }
+
         render();
     </script>
 </body>
