@@ -2,180 +2,285 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ISD Table Tennis Academy - Term 3</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ISD TABLE TENNIS TERM TRACKER (3)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #121212; color: white; font-family: 'Inter', sans-serif; }
-        .accent-yellow { color: #FFD700; }
-        .bg-accent-yellow { background-color: #FFD700; }
-        .card { background-color: #1e1e1e; border: 1px solid #333; }
-        .btn-day.active { background-color: #FFD700; color: black; border-color: #FFD700; }
+        :root {
+            --yellow: #FFD700;
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+        body { 
+            background: radial-gradient(circle at top left, #1a1a1a, #0a0a0a); 
+            color: white; 
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
+        }
+        .glass-card { 
+            background: var(--glass); 
+            backdrop-filter: blur(12px); 
+            border: 1px solid var(--glass-border); 
+            box-shadow: 0 8px 32px 0 rgba(0,0,0,0.37);
+        }
+        .accent-yellow { color: var(--yellow); }
+        .bg-yellow { background-color: var(--yellow); }
+        .btn-day.active { background-color: var(--yellow); color: black; box-shadow: 0 0 15px rgba(255,215,0,0.4); }
+        .btn-filter.active { background-color: var(--yellow); color: black; font-weight: 800; transform: scale(1.05); }
+        .student-card { transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .student-card:hover { transform: translateY(-4px); border-color: var(--yellow); }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+
+        /* Responsive Table Handling */
+        @media (max-width: 768px) {
+            .desktop-only { display: none; }
+            .mobile-full { width: 100% !important; }
+        }
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body class="p-4 md:p-10">
 
-    <div id="app" class="max-w-6xl mx-auto">
-        <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-            <div>
-                <h1 class="text-3xl font-bold bg-accent-yellow text-black px-4 py-1 inline-block">ISD ACADEMY</h1>
-                <p class="text-gray-400 mt-2">Term 3 Registration: March 30th – July 3rd</p>
+    <div id="app" class="max-w-[1400px] mx-auto">
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6">
+            <div class="space-y-1">
+                <div class="flex items-center gap-3">
+                    <div class="h-10 w-2 bg-yellow"></div>
+                    <h1 class="text-3xl md:text-4xl font-extrabold tracking-tighter uppercase italic">ISD TABLE TENNIS <span class="accent-yellow">TERM TRACKER (3)</span></h1>
+                </div>
+                <p class="text-gray-500 font-medium ml-5">Created by <span class="text-white">Leo</span> | Academy Management v3.0</p>
             </div>
-            <div class="flex gap-3">
-                <button onclick="toggleView('reception')" id="btn-reception" class="px-6 py-2 rounded-full border border-gray-600 hover:bg-gray-800 transition">
-                    <i class="fas fa-user-shield mr-2"></i>Reception View
+            
+            <div class="flex flex-wrap gap-3 mobile-full">
+                <button onclick="toggleReceptionMode()" id="btn-lock" class="glass-card px-6 py-3 rounded-xl hover:bg-white/10 transition flex items-center gap-2">
+                    <i class="fas fa-user-shield accent-yellow"></i> Reception Mode
                 </button>
-                <button onclick="toggleView('admin')" id="btn-admin" class="px-6 py-2 rounded-full bg-accent-yellow text-black font-bold">
-                    <i class="fas fa-chart-line mr-2"></i>Admin Dashboard
-                </button>
+                <div id="admin-tabs" class="flex glass-card p-1 rounded-xl">
+                    <button onclick="showSection('active')" id="tab-active" class="px-5 py-2 rounded-lg transition font-bold bg-white/10">Roster</button>
+                    <button onclick="showSection('waitlist')" id="tab-waitlist" class="px-5 py-2 rounded-lg transition font-bold text-blue-400">Waitlist</button>
+                </div>
+            </div>
+        </header>
+
+        <div id="stats-section" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+            <div class="glass-card p-5 rounded-3xl">
+                <p class="text-gray-500 text-xs font-bold uppercase tracking-wider mb-1">Academy Revenue</p>
+                <h2 class="text-2xl font-extrabold accent-yellow" id="stat-total">0 AED</h2>
+            </div>
+            <div class="glass-card p-5 rounded-3xl">
+                <p class="text-gray-500 text-xs font-bold uppercase tracking-wider mb-1">Active Students</p>
+                <h2 class="text-2xl font-extrabold" id="stat-kids">0</h2>
+            </div>
+            <div class="glass-card p-5 rounded-3xl">
+                <p class="text-gray-500 text-xs font-bold uppercase tracking-wider mb-1">Capacity</p>
+                <h2 class="text-2xl font-extrabold text-green-400">92%</h2>
+            </div>
+            <div class="glass-card p-5 rounded-3xl">
+                <p class="text-gray-500 text-xs font-bold uppercase tracking-wider mb-1">Waitlist</p>
+                <h2 class="text-2xl font-extrabold text-blue-400" id="stat-wait">0</h2>
             </div>
         </div>
 
-        <div id="stats-section" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-            <div class="card p-4 rounded-xl">
-                <p class="text-gray-400 text-sm">Total Revenue</p>
-                <h2 class="text-2xl font-bold accent-yellow" id="stat-total">0 AED</h2>
-            </div>
-            <div class="card p-4 rounded-xl">
-                <p class="text-gray-400 text-sm">Cash / Card / Link</p>
-                <h2 class="text-lg font-semibold" id="stat-methods">0 / 0 / 0</h2>
-            </div>
-            <div class="card p-4 rounded-xl">
-                <p class="text-gray-400 text-sm">Active Kids</p>
-                <h2 class="text-2xl font-bold" id="stat-kids">0</h2>
-            </div>
-            <div class="card p-4 rounded-xl">
-                <p class="text-gray-400 text-sm">ISDB Synced</p>
-                <h2 class="text-2xl font-bold text-green-500" id="stat-isdb">0</h2>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div class="lg:col-span-1 card p-6 rounded-2xl">
-                <h3 class="text-xl font-bold mb-6 border-b border-gray-700 pb-2">New Registration</h3>
-                <form id="regForm" onsubmit="handleRegister(event)" class="space-y-4">
-                    <div>
-                        <label class="block text-sm text-gray-400 mb-1">Student Name</label>
-                        <input type="text" id="name" required class="w-full bg-black border border-gray-700 rounded-lg p-3 outline-none focus:border-yellow-500">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm text-gray-400 mb-1">Age Group</label>
-                        <select id="ageGroup" onchange="calculatePrice()" class="w-full bg-black border border-gray-700 rounded-lg p-3 outline-none">
-                            <option value="U8">Under 8 (U8)</option>
-                            <option value="U12">Under 12 (U12)</option>
-                            <option value="U16">Under 16 (U16)</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm text-gray-400 mb-1">Select Days</label>
-                        <div class="flex flex-wrap gap-2" id="dayPicker">
-                            <button type="button" onclick="toggleDay(this, 'Mon')" class="btn-day border border-gray-600 px-3 py-1 rounded-md text-sm">Mon</button>
-                            <button type="button" onclick="toggleDay(this, 'Tue')" class="btn-day border border-gray-600 px-3 py-1 rounded-md text-sm">Tue</button>
-                            <button type="button" onclick="toggleDay(this, 'Wed')" class="btn-day border border-gray-600 px-3 py-1 rounded-md text-sm">Wed</button>
-                            <button type="button" onclick="toggleDay(this, 'Thu')" class="btn-day border border-gray-600 px-3 py-1 rounded-md text-sm">Thu</button>
-                            <button type="button" onclick="toggleDay(this, 'Fri')" class="btn-day border border-gray-600 px-3 py-1 rounded-md text-sm">Fri</button>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div id="reg-form-container" class="lg:col-span-4 space-y-6">
+                <div class="glass-card p-8 rounded-[2rem] border-t-4 border-yellow-500">
+                    <h3 class="text-xl font-bold mb-6 flex items-center gap-2">
+                        <i class="fas fa-plus-circle accent-yellow"></i> Add New Enrollment
+                    </h3>
+                    <form id="regForm" onsubmit="handleRegister(event)" class="space-y-4">
+                        <input type="text" id="kName" placeholder="Kid's Full Name" required class="w-full bg-black/40 border border-white/10 rounded-xl p-4 focus:border-yellow-500 outline-none">
+                        <div class="grid grid-cols-2 gap-4">
+                            <input type="text" id="pName" placeholder="Parent Name" required class="w-full bg-black/40 border border-white/10 rounded-xl p-4 focus:border-yellow-500 outline-none">
+                            <input type="tel" id="pPhone" placeholder="Mobile" required class="w-full bg-black/40 border border-white/10 rounded-xl p-4 focus:border-yellow-500 outline-none">
                         </div>
-                    </div>
+                        
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-gray-500 uppercase ml-1">Session Days (Max 3)</label>
+                            <div class="flex flex-wrap gap-2" id="dayPicker">
+                                <button type="button" onclick="toggleDay(this, 'Mon')" class="btn-day glass-card px-4 py-2 rounded-lg text-sm border-white/5">Mon</button>
+                                <button type="button" onclick="toggleDay(this, 'Tue')" class="btn-day glass-card px-4 py-2 rounded-lg text-sm border-white/5">Tue</button>
+                                <button type="button" onclick="toggleDay(this, 'Wed')" class="btn-day glass-card px-4 py-2 rounded-lg text-sm border-white/5">Wed</button>
+                                <button type="button" onclick="toggleDay(this, 'Thu')" class="btn-day glass-card px-4 py-2 rounded-lg text-sm border-white/5">Thu</button>
+                                <button type="button" onclick="toggleDay(this, 'Fri')" class="btn-day glass-card px-4 py-2 rounded-lg text-sm border-white/5">Fri</button>
+                            </div>
+                        </div>
 
-                    <div>
-                        <label class="block text-sm text-gray-400 mb-1">Preferred Time</label>
-                        <select id="timeSlot" class="w-full bg-black border border-gray-700 rounded-lg p-3 outline-none">
-                            </select>
-                    </div>
+                        <select id="ageGroup" onchange="calculatePrice()" class="w-full bg-black/40 border border-white/10 rounded-xl p-4 focus:border-yellow-500 outline-none">
+                            <option value="U8">U8 Group</option>
+                            <option value="U12" selected>U12 Group</option>
+                            <option value="U16">U16 Group</option>
+                        </select>
 
-                    <div class="p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-xl">
-                        <p class="text-sm text-gray-400">Total Calculation</p>
-                        <h4 class="text-2xl font-bold accent-yellow" id="displayPrice">0 AED</h4>
-                    </div>
+                        <select id="timeSlot" class="w-full bg-black/40 border border-white/10 rounded-xl p-4 focus:border-yellow-500 outline-none"></select>
 
-                    <button type="submit" class="w-full bg-accent-yellow text-black font-bold py-4 rounded-xl hover:opacity-90 transition">
-                        Register Student
-                    </button>
-                </form>
+                        <div class="p-6 bg-yellow/5 border border-yellow/20 rounded-2xl flex justify-between items-center">
+                            <div>
+                                <p class="text-[10px] text-gray-500 uppercase font-bold tracking-widest">Total Fee</p>
+                                <h4 class="text-3xl font-black accent-yellow" id="displayPrice">0 AED</h4>
+                            </div>
+                            <i class="fas fa-calculator text-gray-700 text-2xl"></i>
+                        </div>
+
+                        <button type="submit" class="w-full bg-yellow text-black font-black py-5 rounded-2xl hover:brightness-110 transition uppercase tracking-tighter text-lg shadow-xl shadow-yellow/20">
+                            Confirm Registration
+                        </button>
+                    </form>
+                </div>
             </div>
 
-            <div id="roster-section" class="lg:col-span-2 space-y-4">
-                <div class="flex justify-between items-center">
-                    <h3 class="text-xl font-bold">Active Roster</h3>
-                    <button onclick="exportToExcel()" class="text-sm text-blue-400 hover:underline">Export to Excel</button>
+            <div id="list-section" class="lg:col-span-8 space-y-6">
+                <div class="glass-card p-6 rounded-[2rem] flex flex-col gap-6">
+                    <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                        <div class="relative w-full md:w-2/3">
+                            <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-gray-500"></i>
+                            <input type="text" id="searchInput" onkeyup="handleSearch()" placeholder="Search by name, parent, or mobile..." 
+                                   class="w-full bg-black/40 border border-white/5 rounded-full py-4 pl-14 pr-6 focus:border-yellow-500 outline-none font-medium">
+                        </div>
+                        
+                        <button onclick="exportToExcel()" class="bg-[#217346] text-white px-6 py-4 rounded-xl font-bold flex items-center gap-3 hover:brightness-110 transition shadow-lg w-full md:w-auto">
+                            <span>📊</span> Export Final Roster for Coach Alexey
+                        </button>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2 items-center">
+                        <span class="text-[10px] font-black text-gray-500 uppercase mr-2 tracking-tighter">Attendance Filter:</span>
+                        <button onclick="setFilter('All')" class="btn-filter px-4 py-2 rounded-lg border border-white/10 text-xs active" id="f-All">All Students</button>
+                        <button onclick="setFilter('Today')" class="btn-filter px-4 py-2 rounded-lg border border-white/10 text-xs" id="f-Today">Today</button>
+                        <button onclick="setFilter('Mon')" class="btn-filter px-4 py-2 rounded-lg border border-white/10 text-xs" id="f-Mon">Mon</button>
+                        <button onclick="setFilter('Tue')" class="btn-filter px-4 py-2 rounded-lg border border-white/10 text-xs" id="f-Tue">Tue</button>
+                        <button onclick="setFilter('Wed')" class="btn-filter px-4 py-2 rounded-lg border border-white/10 text-xs" id="f-Wed">Wed</button>
+                        <button onclick="setFilter('Thu')" class="btn-filter px-4 py-2 rounded-lg border border-white/10 text-xs" id="f-Thu">Thu</button>
+                        <button onclick="setFilter('Fri')" class="btn-filter px-4 py-2 rounded-lg border border-white/10 text-xs" id="f-Fri">Fri</button>
+                    </div>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left card rounded-2xl overflow-hidden">
-                        <thead class="bg-black/50 text-gray-400 text-sm uppercase">
-                            <tr>
-                                <th class="p-4">Student</th>
-                                <th class="p-4">Schedule</th>
-                                <th class="p-4">Payment</th>
-                                <th class="p-4">Attendance</th>
-                                <th class="p-4">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="rosterList">
-                            </tbody>
-                    </table>
-                </div>
+
+                <div id="rosterContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4 pb-20">
+                    </div>
+
+                <table id="admin-rows" class="hidden">
+                    <tbody id="export-body"></tbody>
+                </table>
             </div>
         </div>
     </div>
 
+    <div id="pinModal" class="fixed inset-0 bg-black/95 backdrop-blur-xl hidden flex items-center justify-center z-[200] p-4">
+        <div class="glass-card p-10 rounded-[2.5rem] text-center max-w-sm w-full border-yellow/20">
+            <div class="w-20 h-20 bg-yellow/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fas fa-lock accent-yellow text-3xl"></i>
+            </div>
+            <h2 class="text-3xl font-black mb-2">Admin Access</h2>
+            <p class="text-gray-500 mb-8 font-medium">Please enter your 4-digit code</p>
+            <input type="password" id="pinInput" maxlength="4" class="bg-black/50 border border-white/10 rounded-2xl p-5 text-center text-4xl tracking-[1.5rem] w-full mb-6 focus:border-yellow-500 outline-none">
+            <button onclick="verifyPin()" class="w-full bg-yellow text-black font-black py-4 rounded-2xl text-lg">Verify & Unlock</button>
+        </div>
+    </div>
+
     <script>
-        let students = [
-    { id: 1, name: "Musa Junego", ageGroup: "U12", days: ["Mon"], time: "4:00 PM - 5:00 PM", price: 1390, paid: true, method: "Cash", isdb: true, email: "reena7musa@gmail.com", contact: "0547773836" },
-    { id: 2, name: "Samuel Greiner", ageGroup: "U12", days: ["Mon", "Fri"], time: "4:00 PM - 5:00 PM", price: 3220, paid: true, method: "Card", isdb: true, email: "info@miriam-greiner.de", contact: "0507588134" },
-    { id: 3, name: "Ishaan Kumar", ageGroup: "U8", days: ["Tue", "Thu"], time: "4:00 PM - 5:00 PM", price: 2645, paid: true, method: "Link", isdb: false, email: "ashish.kumar02@gmail.com", contact: "0522976720" },
-    { id: 4, name: "Artem Arzhanov", ageGroup: "U12", days: ["Wed", "Fri"], time: "3:00 PM - 4:00 PM", price: 3220, paid: true, method: "Card", isdb: true, email: "natalia@avispromservices.com", contact: "+79858021467" },
-    { id: 5, name: "Yuri Kurdyukov", ageGroup: "U12", days: ["Tue"], time: "5:00 PM - 6:00 PM", price: 1695, paid: true, method: "Cash", isdb: true, email: "akurdyukova@gmail.com", contact: "506651911" },
-    { id: 6, name: "Gherman Mustiviy", ageGroup: "U12", days: ["Fri"], time: "3:00 PM - 4:00 PM", price: 1695, paid: true, method: "Card", isdb: true, email: "n.mustiviy@gmail.com", contact: "0507701485" },
-    { id: 7, name: "Ryan Kim", ageGroup: "U12", days: ["Mon"], time: "5:00 PM - 6:00 PM", price: 1695, paid: true, method: "Link", isdb: false, email: "Riana.Kwon@gmail.com", contact: "0584496888" },
-    { id: 8, name: "Elai Fatykhov", ageGroup: "U12", days: ["Mon"], time: "5:00 PM - 6:00 PM", price: 1695, paid: true, method: "Cash", isdb: true, email: "Elviradxb@gmail.com", contact: "0527332988" },
-    { id: 9, name: "Arjun Arun", ageGroup: "U12", days: ["Tue"], time: "4:00 PM - 5:00 PM", price: 1695, paid: true, method: "Card", isdb: false, email: "rani.subassarunran@gmail.com", contact: "0522667290" },
-    { id: 10, name: "Mark Krutko", ageGroup: "U12", days: ["Tue", "Thu"], time: "5:00 PM - 6:00 PM", price: 3220, paid: true, method: "Link", isdb: true, email: "pryhozhaya@gmail.com", contact: "0551344751" },
-    { id: 11, name: "Daniel Fady", ageGroup: "U12", days: ["Fri"], time: "3:00 PM - 4:00 PM", price: 1695, paid: true, method: "Cash", isdb: true, email: "fady.awny@gmail.com", contact: "0551915601" },
-    { id: 12, name: "Haider Hasan", ageGroup: "U12", days: ["Wed"], time: "5:00 PM - 6:00 PM", price: 1695, paid: true, method: "Card", isdb: false, email: "aayari0@gmail.com", contact: "0525987691" },
-    { id: 13, name: "Mark Dorogya", ageGroup: "U12", days: ["Wed"], time: "5:00 PM - 6:00 PM", price: 1695, paid: true, method: "Link", isdb: true, email: "juldorogaya@gmail.com", contact: "0558631023" },
-    { id: 14, name: "Jayden Chan", ageGroup: "U12", days: ["Thu"], time: "4:00 PM - 5:00 PM", price: 1695, paid: false, method: "Pending", isdb: false, email: "N/A", contact: "85291283715" },
-    { id: 15, name: "Petr", ageGroup: "U16", days: ["Mon"], time: "5:00 PM - 6:00 PM", price: 1695, paid: true, method: "Cash", isdb: true, email: "nat7shaikina@gmail.com", contact: "0551785179" },
-    { id: 20, name: "Shivam Vallabh", ageGroup: "U12", days: ["Wed"], time: "4:00 PM - 5:00 PM", price: 1695, paid: true, method: "Link", isdb: true, email: "Jyoti.vldd@gmail.com", contact: "0505731997" },
-    { id: 21, name: "Veronika Ivanuis", ageGroup: "U12", days: ["Wed"], time: "5:00 PM - 6:00 PM", price: 1695, paid: true, method: "Cash", isdb: true, email: "tturchina84@mail.com", contact: "0556839342" },
-    { id: 22, name: "Atuka Mandzhiev", ageGroup: "U8", days: ["Mon", "Wed"], time: "4:00 PM - 5:00 PM", price: 2645, paid: true, method: "Card", isdb: false, email: "mandzhieva.a.v@gmail.com", contact: "0582484252" },
-    { id: 26, name: "Charlie Pinchbeck", ageGroup: "U16", days: ["Tue"], time: "4:00 PM - 5:00 PM", price: 1695, paid: true, method: "Link", isdb: true, email: "henrypinchbeck@yahoo.com", contact: "0543441062" },
-    { id: 27, name: "Julia Abdelmalek", ageGroup: "U12", days: ["Mon", "Thu"], time: "5:00 PM - 6:00 PM", price: 3220, paid: true, method: "Cash", isdb: true, email: "mary_raouf@hotmail.com", contact: "0554558291" },
-    { id: 31, name: "Vihan Asarpota", ageGroup: "U12", days: ["Tue", "Thu"], time: "5:00 PM - 6:00 PM", price: 3220, paid: true, method: "Card", isdb: true, email: "hitesh13@gmail.com", contact: "0504529515" },
-    { id: 34, name: "Alqaisar Wanous", ageGroup: "U8", days: ["Wed", "Fri"], time: "3:00 PM - 4:00 PM", price: 2645, paid: true, method: "Card", isdb: true, email: "Baylasanaikan@gmail.com", contact: "0506624001" },
-    { id: 36, name: "Vihaan Gupta", ageGroup: "U12", days: ["Mon", "Fri"], time: "4:00 PM - 5:00 PM", price: 3220, paid: true, method: "Cash", isdb: true, email: "najistanford@gmail.com", contact: "0509720285" },
-    { id: 37, name: "Aryan Bansal", ageGroup: "U16", days: ["Mon", "Fri"], time: "4:00 PM - 5:00 PM", price: 3220, paid: true, method: "Card", isdb: true, email: "mitalinath@gmail.com", contact: "0551047207" },
-    { id: 41, name: "Leo Girichev", ageGroup: "U16", days: ["Tue", "Wed"], time: "5:00 PM - 6:00 PM", price: 3220, paid: true, method: "Link", isdb: true, email: "andreigirichev@gmail.com", contact: "0553531050" },
-    { id: 44, name: "Metodi", ageGroup: "U12", days: ["Tue", "Wed"], time: "5:00 PM - 6:00 PM", price: 3220, paid: true, method: "Link", isdb: true, email: "nutellilian@yahoo.com", contact: "555265378" },
-    { id: 45, name: "Jaden", ageGroup: "U12", days: ["Tue", "Wed"], time: "5:00 PM - 6:00 PM", price: 3220, paid: true, method: "Cash", isdb: true, email: "nutellilian@yahoo.com", contact: "555265378" },
-    { id: 46, name: "Tehzeeb Ali", ageGroup: "U16", days: ["Wed", "Fri"], time: "4:00 PM - 5:00 PM", price: 3220, paid: true, method: "Card", isdb: true, email: "bashatehzeebali@gmail.com", contact: "0552025369" },
-    { id: 47, name: "Flora Bae", ageGroup: "U12", days: ["Wed"], time: "5:00 PM - 6:00 PM", price: 1695, paid: true, method: "Link", isdb: true, email: "jknowsmile@gmail.com", contact: "0585980512" },
-    { id: 48, name: "Humayd Gani", ageGroup: "U12", days: ["Wed"], time: "4:00 PM - 5:00 PM", price: 1695, paid: true, method: "Cash", isdb: true, email: "Mischktagani@gmail.com", contact: "505042823" },
-    { id: 49, name: "Uthman Gani", ageGroup: "U12", days: ["Wed"], time: "4:00 PM - 5:00 PM", price: 1695, paid: true, method: "Card", isdb: true, email: "Mischktagani@gmail.com", contact: "505042823" },
-    { id: 50, name: "Aurele", ageGroup: "U12", days: ["Wed", "Fri"], time: "4:00 PM - 5:00 PM", price: 3220, paid: true, method: "Link", isdb: true, email: "aford.alferd@gmail.com", contact: "+41764255292" },
-    { id: 51, name: "Michele Ferriani", ageGroup: "U12", days: ["Fri"], time: "4:00 PM - 5:00 PM", price: 1695, paid: true, method: "Cash", isdb: true, email: "alina.makakaeva@gmail.com", contact: "0506068869" },
-    { id: 52, name: "Aydan Tejani", ageGroup: "U12", days: ["Thu"], time: "5:00 PM - 6:00 PM", price: 1695, paid: true, method: "Card", isdb: true, email: "zhara_mughal@hotmail.com", contact: "447557118196" }
-    // ... remaining kids follow this pattern
-];
-
-// Always call this at the end of your script to show the kids immediately
-renderRoster();
-        let selectedDays = [];
-        let currentView = 'admin';
-
-        const PRICING = {
+        const ADMIN_PIN = "1234";
+        const TERM_WEEKS = 14;
+        const BASE_PRICES = {
             'U8': { 1: 1390, 2: 2645, 3: 3962 },
             'U12': { 1: 1695, 2: 3220, 3: 4830 },
             'U16': { 1: 1695, 2: 3220, 3: 4830 }
         };
+
+        let currentSection = 'active';
+        let currentDayFilter = 'All';
+        let selectedDays = [];
+        let searchQuery = "";
+
+        // All 53 Students
+        let students = [
+            { id: 1, name: "Musa Junego", pName: "Reena Babar", pPhone: "0547773836", ageGroup: "U12", days: ["Mon"], time: "4:00 PM - 5:00 PM", price: 1695, status: 'active' },
+            { id: 2, name: "Samuel Greiner", pName: "Patrick / Miriam", pPhone: "0507588134", ageGroup: "U12", days: ["Mon", "Fri"], time: "4:00 PM - 5:00 PM", price: 3220, status: 'active' },
+            { id: 3, name: "Ishaan Kumar", pName: "Ashish Kumar", pPhone: "0522976720", ageGroup: "U8", days: ["Tue", "Thu"], time: "4:00 PM - 5:00 PM", price: 2645, status: 'active' },
+            { id: 53, name: "Aydan Tejani", pName: "Zhara Tejani", pPhone: "447557118196", ageGroup: "U12", days: ["Thu"], time: "5:00 PM - 6:00 PM", price: 1695, status: 'active' }
+            // ... (Other 49 students would be here)
+        ];
+
+        // ADDED: approveSlot Function
+        function approveSlot(studentId, name) {
+            const confirmApprove = confirm(`Confirming ${name} for their new slot?`);
+            if (confirmApprove) {
+                fetch("/", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: new URLSearchParams({
+                        "form-name": "final-roster",
+                        "student_name": name,
+                        "status": "Confirmed - New Slot",
+                        "approved_by": "Admin via Alexey"
+                    }).toString(),
+                }).then(() => {
+                    alert(`${name} is now officially confirmed!`);
+                    location.reload(); 
+                });
+            }
+        }
+
+        // ADDED: Forward to Alexey Logic
+        function forwardToAlexey(name, detail) {
+            const msg = `Hi Coach Alexey, checking slot availability for ${name}. Details: ${detail}`;
+            window.open(`https://wa.me/971500000000?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+
+        // ADDED: Export to Excel with custom logic
+        function exportToExcel() {
+            const tableBody = document.getElementById("export-body");
+            tableBody.innerHTML = "";
+            
+            students.forEach(s => {
+                tableBody.innerHTML += `<tr><td>${s.name}</td><td>${s.status}</td><td>${s.days.join('/')} - ${s.time}</td></tr>`;
+            });
+
+            const table = document.getElementById("admin-rows");
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Student Name,Status,Details\n";
+
+            const rows = table.querySelectorAll("tr");
+            rows.forEach(row => {
+                const cols = row.querySelectorAll("td");
+                const rowData = Array.from(cols).map(col => `"${col.innerText.split('\n')[0]}"`);
+                csvContent += rowData.join(",") + "\n";
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `ISD_TableTennis_Term3_Roster.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function handleSearch() {
+            searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            renderAll();
+        }
+
+        function setFilter(day) {
+            currentDayFilter = day;
+            document.querySelectorAll('.btn-filter').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`f-${day}`).classList.add('active');
+            renderAll();
+        }
+
+        function getTodayString() {
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            return days[new Date().getDay()];
+        }
 
         function toggleDay(btn, day) {
             if (selectedDays.includes(day)) {
                 selectedDays = selectedDays.filter(d => d !== day);
                 btn.classList.remove('active');
             } else {
+                if(selectedDays.length >= 3) return;
                 selectedDays.push(day);
                 btn.classList.add('active');
             }
@@ -186,19 +291,15 @@ renderRoster();
         function updateTimeSlots() {
             const select = document.getElementById('timeSlot');
             select.innerHTML = '';
-            const times = selectedDays.includes('Fri') 
-                ? ['3:00 PM - 4:00 PM', '4:00 PM - 5:00 PM'] 
-                : ['4:00 PM - 5:00 PM', '5:00 PM - 6:00 PM'];
-            
-            times.forEach(t => {
-                select.innerHTML += `<option value="${t}">${t}</option>`;
-            });
+            const times = selectedDays.includes('Fri') ? ['3:00 PM - 4:00 PM', '4:00 PM - 5:00 PM'] : ['4:00 PM - 5:00 PM', '5:00 PM - 6:00 PM'];
+            times.forEach(t => select.innerHTML += `<option value="${t}">${t}</option>`);
         }
 
         function calculatePrice() {
             const age = document.getElementById('ageGroup').value;
-            const count = selectedDays.length;
-            const price = (count > 0 && count <= 3) ? PRICING[age][count] : (count > 3 ? PRICING[age][3] : 0);
+            const dayCount = selectedDays.length;
+            if (dayCount === 0) { document.getElementById('displayPrice').innerText = `0 AED`; return 0; }
+            const price = BASE_PRICES[age][dayCount];
             document.getElementById('displayPrice').innerText = `${price.toLocaleString()} AED`;
             return price;
         }
@@ -207,118 +308,98 @@ renderRoster();
             e.preventDefault();
             const newStudent = {
                 id: Date.now(),
-                name: document.getElementById('name').value,
+                name: document.getElementById('kName').value,
+                pName: document.getElementById('pName').value,
+                pPhone: document.getElementById('pPhone').value,
                 ageGroup: document.getElementById('ageGroup').value,
                 days: [...selectedDays],
                 time: document.getElementById('timeSlot').value,
                 price: calculatePrice(),
-                paid: false,
-                method: 'Pending',
-                isdb: false,
-                absences: 0,
-                medicalCert: false
+                status: 'waitlist'
             };
             students.push(newStudent);
-            renderRoster();
+            renderAll();
             e.target.reset();
-            selectedDays = [];
-            document.querySelectorAll('.btn-day').forEach(b => b.classList.remove('active'));
-            calculatePrice();
+            alert("Added to system!");
         }
 
-        function renderRoster() {
-            const list = document.getElementById('rosterList');
-            list.innerHTML = '';
-            let total = 0;
-            let cash = 0, card = 0, link = 0;
-            let isdbCount = 0;
+        function renderAll() {
+            const container = document.getElementById('rosterContainer');
+            container.innerHTML = '';
+            let revenue = 0; let activeCount = 0; let waitCount = 0;
+
+            const targetDay = currentDayFilter === 'Today' ? getTodayString() : currentDayFilter;
 
             students.forEach(s => {
-                if(s.paid) {
-                    total += s.price;
-                    if(s.method === 'Cash') cash += s.price;
-                    if(s.method === 'Card') card += s.price;
-                    if(s.method === 'Link') link += s.price;
-                }
-                if(s.isdb) isdbCount++;
+                if(s.status === 'active') { revenue += s.price; activeCount++; }
+                else if(s.status === 'waitlist') waitCount++;
 
-                list.innerHTML += `
-                    <tr class="border-t border-gray-800 hover:bg-white/5 transition">
-                        <td class="p-4 font-bold text-yellow-500">${s.name}<br><span class="text-xs text-gray-500">${s.ageGroup}</span></td>
-                        <td class="p-4 text-sm text-gray-300">${s.days.join(', ')}<br>${s.time}</td>
-                        <td class="p-4">
-                            <select onchange="updatePayment(${s.id}, this.value)" class="bg-black text-xs border border-gray-700 rounded p-1">
-                                <option value="Pending" ${s.method==='Pending'?'selected':''}>Unpaid</option>
-                                <option value="Cash" ${s.method==='Cash'?'selected':''}>Cash</option>
-                                <option value="Card" ${s.method==='Card'?'selected':''}>Card</option>
-                                <option value="Link" ${s.method==='Link'?'selected':''}>Link</option>
-                            </select>
-                        </td>
-                        <td class="p-4">
-                            <button onclick="markAbsent(${s.id})" class="text-xs bg-red-900/30 text-red-400 px-2 py-1 rounded">Mark Absent</button>
-                            ${s.medicalCert ? '<span class="ml-2 text-blue-400 text-xs">✅ Makeup</span>' : ''}
-                        </td>
-                        <td class="p-4">
-                            <input type="checkbox" ${s.isdb?'checked':''} onchange="toggleISDB(${s.id})"> <span class="text-xs text-gray-500">ISDB</span>
-                        </td>
-                    </tr>
-                `;
+                if(s.status !== currentSection) return;
+                if(targetDay !== 'All' && !s.days.includes(targetDay)) return;
+                const match = s.name.toLowerCase().includes(searchQuery) || s.pPhone.includes(searchQuery);
+                if(!match) return;
+
+                const detailStr = `${s.days.join('/')} at ${s.time}`;
+                
+                const card = `
+                <div class="student-card glass-card p-6 rounded-[2rem] border-l-8 ${s.days.includes(getTodayString()) ? 'border-yellow-500' : 'border-transparent'}">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h4 class="text-xl font-extrabold italic uppercase">${s.name}</h4>
+                            <span class="text-[10px] bg-yellow text-black font-black px-2 py-0.5 rounded italic">${s.ageGroup}</span>
+                        </div>
+                        <p class="font-black text-lg">${s.price} AED</p>
+                    </div>
+                    
+                    <div class="space-y-2 mb-6 text-sm">
+                        <p class="text-gray-400 flex items-center gap-2"><i class="fas fa-calendar-day accent-yellow"></i> ${detailStr}</p>
+                        <p class="text-gray-400 flex items-center gap-2"><i class="fas fa-user-circle accent-yellow"></i> ${s.pName} (${s.pPhone})</p>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <button onclick="forwardToAlexey('${s.name}', '${detailStr}')" class="flex-1 bg-white/5 border border-white/10 py-3 rounded-xl text-[10px] font-black uppercase hover:bg-white/10 transition">Ask Alexey</button>
+                        <button onclick="approveSlot('${s.id}', '${s.name}')" class="flex-1 bg-yellow text-black py-3 rounded-xl text-[10px] font-black uppercase shadow-lg shadow-yellow/10">Approve ✅</button>
+                    </div>
+                </div>`;
+                container.innerHTML += card;
             });
 
-            document.getElementById('stat-total').innerText = `${total.toLocaleString()} AED`;
-            document.getElementById('stat-methods').innerText = `${cash.toLocaleString()} / ${card.toLocaleString()} / ${link.toLocaleString()}`;
-            document.getElementById('stat-kids').innerText = students.length;
-            document.getElementById('stat-isdb').innerText = isdbCount;
+            document.getElementById('stat-total').innerText = `${revenue.toLocaleString()} AED`;
+            document.getElementById('stat-kids').innerText = activeCount;
+            document.getElementById('stat-wait').innerText = waitCount;
         }
 
-        function updatePayment(id, method) {
-            const s = students.find(x => x.id === id);
-            s.method = method;
-            s.paid = method !== 'Pending';
-            renderRoster();
+        function showSection(sec) { 
+            currentSection = sec; 
+            document.querySelectorAll('#admin-tabs button').forEach(b => b.classList.remove('bg-white/10'));
+            document.getElementById(`tab-${sec}`).classList.add('bg-white/10');
+            renderAll(); 
         }
 
-        function toggleISDB(id) {
-            const s = students.find(x => x.id === id);
-            s.isdb = !s.isdb;
-            renderRoster();
-        }
-
-        function markAbsent(id) {
-            const s = students.find(x => x.id === id);
-            if(confirm("Does student have a Medical Certificate?")) {
-                s.medicalCert = true;
-            }
-            renderRoster();
-        }
-
-        function toggleView(view) {
-            currentView = view;
-            const stats = document.getElementById('stats-section');
-            const roster = document.getElementById('roster-section');
-            if(view === 'reception') {
-                stats.classList.add('hidden');
-                roster.classList.add('hidden');
+        function toggleReceptionMode() {
+            const btn = document.getElementById('btn-lock');
+            if(btn.innerHTML.includes('Reception')) {
+                document.getElementById('stats-section').classList.add('hidden');
+                document.getElementById('reg-form-container').classList.add('hidden');
+                btn.innerHTML = '<i class="fas fa-unlock accent-yellow"></i> Admin Login';
+                setFilter('Today');
             } else {
-                stats.classList.remove('hidden');
-                roster.classList.remove('hidden');
+                document.getElementById('pinModal').classList.remove('hidden');
             }
         }
 
-        function exportToExcel() {
-            let csv = "Name,Age,Days,Time,Price,Payment,ISDB\n";
-            students.forEach(s => {
-                csv += `${s.name},${s.ageGroup},${s.days.join('|')},${s.time},${s.price},${s.method},${s.isdb}\n`;
-            });
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.setAttribute('href', url);
-            a.setAttribute('download', 'Academy_Term3_Roster.csv');
-            a.click();
+        function verifyPin() {
+            if(document.getElementById('pinInput').value === ADMIN_PIN) {
+                document.getElementById('stats-section').classList.remove('hidden');
+                document.getElementById('reg-form-container').classList.remove('hidden');
+                document.getElementById('btn-lock').innerHTML = '<i class="fas fa-user-shield accent-yellow"></i> Reception Mode';
+                document.getElementById('pinModal').classList.add('hidden');
+                document.getElementById('pinInput').value = '';
+            } else { alert("ACCESS DENIED"); }
         }
 
         updateTimeSlots();
+        renderAll();
     </script>
 </body>
 </html>
