@@ -2,283 +2,224 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ISD TABLE TENNIS | TERM 3 MASTER HUB</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISD TABLE TENNIS TERM TRACKER (3)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { --isd-yellow: #FFD700; --isd-green: #228B22; --isd-green-light: #90EE90; --isd-red: #ff4d4d; }
-        body { background: radial-gradient(circle at top left, #121212, #000000); color: white; font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100vh; }
-        .glass { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(20px); }
+        :root { --isd-yellow: #FFD700; --isd-green-light: #90EE90; --isd-green-bold: #228B22; }
+        body { background: #0f0f0f; color: white; font-family: 'Inter', sans-serif; }
+        .glass { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); }
         
-        /* Attendance Dots */
-        .dot { width: 14px; height: 14px; border-radius: 4px; border: 1px solid #333; cursor: pointer; transition: all 0.2s; }
-        .dot.present { background: var(--isd-green); box-shadow: 0 0 10px var(--isd-green); border-color: transparent; }
-        .dot.absent { background: var(--isd-red); box-shadow: 0 0 10px var(--isd-red); border-color: transparent; }
-        
-        /* Row Statuses */
-        .status-invited { background: rgba(255, 215, 0, 0.08) !important; border-left: 4px solid var(--isd-yellow); }
-        .status-confirmed { background: rgba(144, 238, 144, 0.08) !important; border-left: 4px solid var(--isd-green-light); }
-        .status-paid { background: rgba(34, 139, 34, 0.15) !important; border-left: 4px solid var(--isd-green); border-right: 1px solid var(--isd-green); }
+        /* Status Colors */
+        .status-pending { border-left: 5px solid #444; }
+        .status-invited { background: rgba(255, 215, 0, 0.15) !important; border-left: 5px solid var(--isd-yellow); }
+        .status-confirmed { background: rgba(144, 238, 144, 0.15) !important; border-left: 5px solid var(--isd-green-light); }
+        .status-paid { background: rgba(34, 139, 34, 0.25) !important; border-left: 5px solid var(--isd-green-bold); border: 2px solid var(--isd-green-bold); }
 
-        .makeup-badge { background: var(--isd-red); color: white; font-size: 9px; padding: 2px 7px; border-radius: 12px; font-weight: 900; }
-        .tab-btn { transition: 0.3s; border-bottom: 2px solid transparent; }
-        .tab-btn.active { color: var(--isd-yellow); border-color: var(--isd-yellow); font-weight: 800; }
+        .list-row { transition: all 0.2s; border-bottom: 1px solid #222; }
+        .list-row:hover { background: rgba(255,255,255,0.05); }
         
-        @media (max-width: 768px) { .hide-mobile { display: none; } }
+        button { transition: transform 0.1s; }
+        button:active { transform: scale(0.95); }
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body class="p-4 md:p-10">
 
-    <div class="max-w-[1440px] mx-auto">
-        <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-6">
-            <div class="space-y-1">
-                <h1 class="text-3xl md:text-5xl font-black italic tracking-tighter uppercase">ISD <span class="text-yellow-500">TERM 3</span> TRACKER</h1>
-                <p class="text-gray-500 text-[10px] font-bold tracking-[0.4em] ml-1">CREATED BY LEO | TABLE TENNIS ADMINISTRATION</p>
-            </div>
-            
-            <nav class="flex gap-6 overflow-x-auto w-full md:w-auto glass p-2 rounded-2xl">
-                <button onclick="switchTab('roster')" id="btn-roster" class="tab-btn active px-4 py-2 text-xs uppercase font-black">Roster</button>
-                <button onclick="switchTab('makeup')" id="btn-makeup" class="tab-btn px-4 py-2 text-xs uppercase font-black">Makeups <span id="m-count-badge" class="makeup-badge ml-1">0</span></button>
-                <button onclick="switchTab('report')" id="btn-report" class="tab-btn px-4 py-2 text-xs uppercase font-black">Management Report</button>
-            </nav>
+    <div class="max-w-7xl mx-auto">
+        <header class="mb-10 text-center md:text-left">
+            <h1 class="text-4xl font-black italic tracking-tighter italic">ISD TABLE TENNIS <span class="text-[#FFD700]">TERM TRACKER (3)</span></h1>
+            <p class="text-gray-500 font-bold uppercase text-xs tracking-widest mt-1">Created by Leo | Invitation & Enrollment Suite</p>
         </header>
 
-        <main>
-            <section id="tab-roster" class="space-y-4">
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                    <div class="glass p-5 rounded-3xl border-b-2 border-yellow-500/50">
-                        <p class="text-[9px] font-black uppercase text-gray-500 tracking-widest">Invited</p>
-                        <h2 id="stat-invited" class="text-2xl font-black">0</h2>
-                    </div>
-                    <div class="glass p-5 rounded-3xl border-b-2 border-green-400/50">
-                        <p class="text-[9px] font-black uppercase text-gray-500 tracking-widest">Confirmed</p>
-                        <h2 id="stat-confirmed" class="text-2xl font-black">0</h2>
-                    </div>
-                    <div class="glass p-5 rounded-3xl border-b-2 border-green-600">
-                        <p class="text-[9px] font-black uppercase text-gray-500 tracking-widest">Paid (ISDB DONE)</p>
-                        <h2 id="stat-paid" class="text-2xl font-black">0</h2>
-                    </div>
-                    <div class="glass p-5 rounded-3xl">
-                        <p class="text-[9px] font-black uppercase text-gray-500 tracking-widest">Total Revenue</p>
-                        <h2 id="stat-revenue" class="text-2xl font-black text-green-400">0 AED</h2>
-                    </div>
-                </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div class="glass p-4 rounded-2xl">
+                <p class="text-gray-500 text-[10px] font-bold uppercase">Total Roster</p>
+                <h2 class="text-2xl font-bold" id="stat-total-count">53</h2>
+            </div>
+            <div class="glass p-4 rounded-2xl">
+                <p class="text-gray-500 text-[10px] font-bold uppercase text-yellow-500">Invited</p>
+                <h2 class="text-2xl font-bold" id="stat-invited">0</h2>
+            </div>
+            <div class="glass p-4 rounded-2xl">
+                <p class="text-gray-500 text-[10px] font-bold uppercase text-green-300">Confirmed</p>
+                <h2 class="text-2xl font-bold" id="stat-confirmed">0</h2>
+            </div>
+            <div class="glass p-4 rounded-2xl">
+                <p class="text-gray-500 text-[10px] font-bold uppercase text-green-600">Paid/Done</p>
+                <h2 class="text-2xl font-bold" id="stat-paid">0</h2>
+            </div>
+        </div>
 
-                <div class="glass rounded-[2rem] overflow-hidden">
-                    <div class="p-5 flex flex-wrap gap-4 items-center justify-between border-b border-white/5">
-                        <div class="relative w-full md:w-96">
-                            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-600"></i>
-                            <input type="text" id="search" onkeyup="render()" placeholder="Search Student or Phone..." class="w-full bg-black/40 border border-white/10 rounded-xl py-3 pl-12 pr-4 outline-none focus:border-yellow-500">
-                        </div>
-                        <button onclick="exportToExcel()" class="bg-[#217346] px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:brightness-110 transition">📊 Export Final Roster</button>
-                    </div>
-
-                    <div class="hidden md:grid grid-cols-12 gap-4 p-4 text-[10px] font-black uppercase text-gray-500 border-b border-white/5 bg-white/5">
-                        <div class="col-span-3">Student / Parent</div>
-                        <div class="col-span-2 text-center">Schedule</div>
-                        <div class="col-span-2 text-center">Attendance (M-F)</div>
-                        <div class="col-span-5 text-right">Action Status Tracking</div>
-                    </div>
-                    <div id="roster-list" class="divide-y divide-white/5"></div>
+        <div class="glass rounded-[2rem] overflow-hidden">
+            <div class="p-6 border-b border-white/10 flex flex-col md:flex-row justify-between gap-4">
+                <div class="relative flex-1">
+                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
+                    <input type="text" id="search" onkeyup="renderList()" placeholder="Search kids or parents..." class="w-full bg-black/50 border border-white/10 rounded-xl py-3 pl-12 pr-4 outline-none focus:border-yellow-500">
                 </div>
-            </section>
+                <button onclick="exportToExcel()" class="bg-[#217346] px-6 py-3 rounded-xl font-bold text-sm">📊 Export Final Roster</button>
+            </div>
 
-            <section id="tab-makeup" class="hidden space-y-6">
-                <div class="max-w-4xl mx-auto">
-                    <div class="flex items-center gap-3 mb-6">
-                        <div class="h-8 w-2 bg-red-600"></div>
-                        <h2 class="text-2xl font-black italic uppercase">Owed Lessons List</h2>
-                    </div>
-                    <div id="makeup-list" class="grid gap-4"></div>
-                </div>
-            </section>
+            <div class="hidden md:grid grid-cols-12 gap-4 p-4 bg-white/5 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                <div class="col-span-3">Student & Parent</div>
+                <div class="col-span-2">Schedule</div>
+                <div class="col-span-2">Quick Actions</div>
+                <div class="col-span-5 text-right">Status Updates</div>
+            </div>
 
-            <section id="tab-report" class="hidden">
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div class="glass p-10 rounded-[3rem]">
-                        <h3 class="text-xl font-black uppercase italic mb-8 flex items-center gap-3"><i class="fas fa-chart-line text-yellow-500"></i> Finance Summary</h3>
-                        <div id="rep-finance" class="space-y-6 text-lg"></div>
-                    </div>
-                    <div class="glass p-10 rounded-[3rem]">
-                        <h3 class="text-xl font-black uppercase italic mb-8 flex items-center gap-3"><i class="fas fa-users text-blue-500"></i> Weekly Slot Load</h3>
-                        <div id="rep-slots" class="space-y-4"></div>
-                    </div>
+            <div id="student-list" class="divide-y divide-white/5">
                 </div>
-            </section>
-        </main>
+        </div>
     </div>
 
     <script>
-        const PRICES = { 1: 1695, 2: 3220, 3: 4830 };
-        
+        // FULL 53 STUDENT ROSTER (Reset: No payment, No activation)
         let students = [
-            { id: 1, name: "Musa Junego", pName: "Reena Babar", pPhone: "971547773836", days: ["Mon"], time: "4:00-5:00 PM", status: 'Pending', att: [0,0,0,0,0], makeups: 0 },
-            { id: 2, name: "Samuel Greiner", pName: "Patrick / Miriam", pPhone: "971507588134", days: ["Mon", "Fri"], time: "4:00-5:00 PM", status: 'Pending', att: [0,0,0,0,0], makeups: 0 },
-            { id: 3, name: "Ishaan Kumar", pName: "Ashish Kumar", pPhone: "971522976720", days: ["Tue", "Thu"], time: "4:00-5:00 PM", status: 'Pending', att: [0,0,0,0,0], makeups: 0 },
-            { id: 53, name: "Aydan Tejani", pName: "Zhara Tejani", pPhone: "447557118196", days: ["Thu"], time: "5:00-6:00 PM", status: 'Pending', att: [0,0,0,0,0], makeups: 0 }
-            // All other 49 kids go here
+            { id: 1, name: "Musa Junego", pName: "Reena Babar", pPhone: "971547773836", days: "Mon", time: "4:00-5:00 PM", status: 'Pending' },
+            { id: 2, name: "Samuel Greiner", pName: "Patrick / Miriam", pPhone: "971507588134", days: "Mon, Fri", time: "4:00-5:00 PM", status: 'Pending' },
+            { id: 3, name: "Ishaan Kumar", pName: "Ashish Kumar", pPhone: "971522976720", days: "Tue, Thu", time: "4:00-5:00 PM", status: 'Pending' },
+            { id: 4, name: "Artem Arzhanov", pName: "Natalia Arzanova", pPhone: "79858021467", days: "Wed, Fri", time: "3:00-4:00 PM", status: 'Pending' },
+            { id: 5, name: "Yuri Kurdyukov", pName: "Anastasia", pPhone: "971506651911", days: "Tue", time: "5:00-6:00 PM", status: 'Pending' },
+            { id: 6, name: "Gherman Mustiviy", pName: "Nickolay Mustiviy", pPhone: "971507701485", days: "Fri", time: "3:00-4:00 PM", status: 'Pending' },
+            { id: 7, name: "Ryan Kim", pName: "Rina Kwon", pPhone: "971584496888", days: "Mon", time: "5:00-6:00 PM", status: 'Pending' },
+            { id: 8, name: "Elai Fatykhov", pName: "Elvira Fatykhov", pPhone: "971527332988", days: "Mon", time: "5:00-6:00 PM", status: 'Pending' },
+            { id: 9, name: "Arjun Arun", pName: "Arun Viswanathan", pPhone: "971522667290", days: "Tue", time: "4:00-5:00 PM", status: 'Pending' },
+            { id: 10, name: "Mark Krutko", pName: "Tanya Prykhozhia", pPhone: "971551344751", days: "Tue, Thu", time: "5:00-6:00 PM", status: 'Pending' },
+            { id: 11, name: "Daniel Fady", pName: "Fady Awny", pPhone: "971551915601", days: "Fri", time: "3:00-4:00 PM", status: 'Pending' },
+            { id: 12, name: "Haider Hasan", pName: "Asiya Ali", pPhone: "971525987691", days: "Wed", time: "5:00-6:00 PM", status: 'Pending' },
+            { id: 13, name: "Mark Dorogya", pName: "Julia Dorogaya", pPhone: "971558631023", days: "Wed", time: "5:00-6:00 PM", status: 'Pending' },
+            { id: 14, name: "Jayden Chan", pName: "Ellen Li", pPhone: "85291283715", days: "Thu", time: "4:00-5:00 PM", status: 'Pending' },
+            { id: 15, name: "Petr", pName: "Natalia Shaikina", pPhone: "971551785179", days: "Mon", time: "5:00-6:00 PM", status: 'Pending' },
+            { id: 16, name: "Daniil Gasparin", pName: "Anastasia", pPhone: "971505121542", days: "Thu", time: "4:00-5:00 PM", status: 'Pending' },
+            { id: 17, name: "Louis Verrotte", pName: "Solene Verrotte", pPhone: "6591449569", days: "Fri", time: "4:00-5:00 PM", status: 'Pending' },
+            { id: 18, name: "Cameron Miller", pName: "Maria Miller", pPhone: "971558505245", days: "Thu", time: "4:00-5:00 PM", status: 'Pending' },
+            { id: 19, name: "Borong Song", pName: "Xue Zhang", pPhone: "971558309836", days: "Thu", time: "4:00-5:00 PM", status: 'Pending' },
+            { id: 20, name: "Shivam Vallabh", pName: "Jyoti Vallabh", pPhone: "971505731997", days: "Wed", time: "4:00-5:00 PM", status: 'Pending' },
+            { id: 21, name: "Veronika Ivanuis", pName: "Tatiana Ivanuis", pPhone: "971556839342", days: "Wed", time: "5:00-6:00 PM", status: 'Pending' },
+            { id: 22, name: "Atuka Mandzhiev", pName: "Alsa Mandzhieva", pPhone: "971582484252", days: "Mon, Wed", time: "4:00-5:00 PM", status: 'Pending' },
+            { id: 23, name: "Hani Omari", pName: "Jummar Al JAlawi", pPhone: "971551769290", days: "Tue", time: "5:00-6:00 PM", status: 'Pending' },
+            { id: 24, name: "Zaid Omari", pName: "Jummar Al JAlawi", pPhone: "971551769290", days: "Tue", time: "5:00-6:00 PM", status: 'Pending' },
+            { id: 25, name: "Judy El Masri", pName: "Shadi El Masri", pPhone: "971508887325", days: "Fri", time: "3:00-4:00 PM", status: 'Pending' },
+            { id: 26, name: "Charlie Pinchbeck", pName: "Henry Pinchbeck", pPhone: "971543441062", days: "Tue", time: "4:00-5:00 PM", status: 'Pending' },
+            { id: 27, name: "Julia Abdelmalek", pName: "Mary Raouf", pPhone: "971554558291", days: "Mon, Thu", time: "5:00-6:00 PM", status: 'Pending' },
+            { id: 28, name: "Ziad Biyouk", pName: "Dina Qumuq", pPhone: "971502528780", days: "Fri", time: "4:00-5:00 PM", status: 'Pending' },
+            { id: 29, name: "Zahra Adnan", pName: "Adnan/Javaria", pPhone: "971529604599", days: "Fri", time: "4:00-5:00 PM", status: 'Pending' },
+            { id: 30, name: "Abdul Hadi Adnan", pName: "Adnan/Javaria", pPhone: "971529604599", days: "Fri", time: "3:00-4:00 PM", status: 'Pending' },
+            { id: 31, name: "Vihan Asarpota", pName: "Hitesh Asarpota", pPhone: "971504529515", days: "Tue, Thu", time: "5:00-6:00 PM", status: 'Pending' },
+            { id: 32, name: "Marc Galice", pName: "Diana Galice", pPhone: "971527161988", days: "Wed", time: "4:00-5:00 PM", status: 'Pending' },
+            { id: 33, name: "Cagan Soylemez", pName: "Murat Soylemez", pPhone: "971521992091", days: "Thu", time: "5:00-6:00 PM", status: 'Pending' },
+            { id: 34, name: "Alqaisar Wanous", pName: "Bayla Kanji", pPhone: "971506624001", days: "Wed, Fri", time: "4:00-5:00 PM", status: 'Pending' },
+            { id: 35, name: "Ishana", pName: "Ram Virto", pPhone: "971557008012", days: "Mon, Thu", time: "5:00-6:00 PM", status: 'Pending' },
+            { id: 36, name: "Vihaan Gupta", pName: "Ankita Jain", pPhone: "971509720285", days: "Mon, Fri", time: "4:00-5:00 PM", status: 'Pending' },
+            { id: 37, name: "Aryan Bansal", pName: "Mitali Bansal", pPhone: "971551047207", days: "Mon, Fri", time: "4:00-5:00 PM", status: 'Pending' },
+            { id: 38, name: "Anna Mazkun", pName: "Veronika Mazkun", pPhone: "971505613510", days: "Tue, Fri", time: "4:00-5:00 PM", status: 'Pending' },
+            { id: 39, name: "Anwita Shastri", pName: "Navin Shastri", pPhone: "971503475404", days: "Thu", time: "5:00-6:00 PM", status: 'Pending' },
+            { id: 40, name: "Theo Copper", pName: "Chris Cooper", pPhone: "971503959040", days: "Wed", time: "5:00-6:00 PM", status: 'Pending' },
+            { id: 41, name: "Leo Girichev", pName: "Andrei Girichev", pPhone: "971553531050", days: "Tue, Wed", time: "5:00-6:00 PM", status: 'Pending' },
+            { id: 42, name: "Gian Hotchandani", pName: "Vishakha", pPhone: "971502624034", days: "Mon", time: "5:00-6:00 PM", status: 'Pending' },
+            { id: 43, name: "Khloie Siniakina", pName: "Viktor Siniakin", pPhone: "971585809829", days: "Mon", time: "4:00-5:00 PM", status: 'Pending' },
+            { id: 44, name: "Metodi", pName: "Lilian Mute", pPhone: "971585265378", days: "Tue, Wed", time: "5:00-6:00 PM", status: 'Pending' },
+            { id: 45, name: "Jaden", pName: "Lilian Mute", pPhone: "971585265378", days: "Tue, Wed", time: "5:00-6:00 PM", status: 'Pending' },
+            { id: 46, name: "Tehzeeb Ali", pName: "Gows Basha", pPhone: "971552025369", days: "Wed, Fri", time: "4:00-5:00 PM", status: 'Pending' },
+            { id: 47, name: "Flora Bae", pName: "Sojin Park", pPhone: "971585980512", days: "Wed", time: "5:00-6:00 PM", status: 'Pending' },
+            { id: 48, name: "Humayd Gani", pName: "Mischka Tayob", pPhone: "971505042823", days: "Wed", time: "4:00-5:00 PM", status: 'Pending' },
+            { id: 49, name: "Uthman Gani", pName: "Mischka Tayob", pPhone: "971505042823", days: "Wed", time: "4:00-5:00 PM", status: 'Pending' },
+            { id: 50, name: "Aurele", pName: "Cedric Barraud", pPhone: "41764255292", days: "Wed, Fri", time: "4:00-5:00 PM", status: 'Pending' },
+            { id: 51, name: "Michele Ferriani", pName: "Alina Makakaeva", pPhone: "971506068869", days: "Fri", time: "4:00-5:00 PM", status: 'Pending' },
+            { id: 52, name: "Parker Selt", pName: "Jessica Selt", pPhone: "971507735635", days: "Mon", time: "4:00-5:00 PM", status: 'Pending' },
+            { id: 53, name: "Aydan Tejani", pName: "Zhara Tejani", pPhone: "447557118196", days: "Thu", time: "5:00-6:00 PM", status: 'Pending' }
         ];
 
-        function switchTab(t) {
-            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
-            document.getElementById(`tab-${t}`).classList.remove('hidden');
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(`btn-${t}`).classList.add('active');
-            if(t === 'report') generateReport();
-            if(t === 'makeup') renderMakeups();
-        }
+        function renderList() {
+            const container = document.getElementById('student-list');
+            const search = document.getElementById('search').value.toLowerCase();
+            container.innerHTML = '';
 
-        function cycleAtt(sId, dIdx) {
-            const s = students.find(x => x.id === sId);
-            if (s.att[dIdx] === 0) s.att[dIdx] = 1; // Present
-            else if (s.att[dIdx] === 1) { s.att[dIdx] = 2; s.makeups++; } // Absent
-            else { s.att[dIdx] = 0; s.makeups = Math.max(0, s.makeups - 1); } // Reset
-            render();
-        }
+            let counts = { invited: 0, confirmed: 0, paid: 0 };
 
-        function updateStatus(id, stat) {
-            students.find(x => x.id === id).status = stat;
-            render();
+            students.forEach(s => {
+                if (s.status === 'Invited') counts.invited++;
+                if (s.status === 'Confirmed') counts.confirmed++;
+                if (s.status === 'Paid') counts.paid++;
+
+                if (s.name.toLowerCase().includes(search) || s.pName.toLowerCase().includes(search)) {
+                    let statusClass = 'status-pending';
+                    if (s.status === 'Invited') statusClass = 'status-invited';
+                    if (s.status === 'Confirmed') statusClass = 'status-confirmed';
+                    if (s.status === 'Paid') statusClass = 'status-paid';
+
+                    container.innerHTML += `
+                    <div class="list-row grid grid-cols-1 md:grid-cols-12 gap-4 p-4 items-center ${statusClass}">
+                        <div class="col-span-3">
+                            <h4 class="font-bold text-white uppercase italic">${s.name}</h4>
+                            <p class="text-[10px] text-gray-500 font-bold tracking-tight">${s.pName} | ${s.pPhone}</p>
+                        </div>
+                        <div class="col-span-2 text-xs text-gray-400 font-medium">
+                            ${s.days}<br><span class="text-yellow-600">${s.time}</span>
+                        </div>
+                        <div class="col-span-2 flex gap-2">
+                             <button onclick="sendInvite(${s.id})" class="bg-blue-600 text-white p-2 rounded-lg text-[10px] font-bold hover:bg-blue-500">
+                                <i class="fab fa-whatsapp mr-1"></i> INVITE
+                             </button>
+                             <button onclick="askAleksey(${s.id})" class="bg-gray-800 text-white p-2 rounded-lg text-[10px] font-bold hover:bg-gray-700">
+                                CHANGE?
+                             </button>
+                        </div>
+                        <div class="col-span-5 flex justify-end gap-1">
+                            <button onclick="updateStatus(${s.id}, 'Invited')" class="px-2 py-1 rounded text-[8px] font-black border border-yellow-500/50 text-yellow-500 uppercase">Invited</button>
+                            <button onclick="updateStatus(${s.id}, 'Confirmed')" class="px-2 py-1 rounded text-[8px] font-black bg-green-900/40 text-green-300 uppercase italic">Yes, Lock it in</button>
+                            <button onclick="updateStatus(${s.id}, 'No')" class="px-2 py-1 rounded text-[8px] font-black text-red-500/50 uppercase">Not Joining</button>
+                            <button onclick="updateStatus(${s.id}, 'Paid')" class="px-3 py-1 rounded text-[8px] font-black bg-green-600 text-black uppercase">PAID & ISDB DONE</button>
+                        </div>
+                    </div>`;
+                }
+            });
+
+            document.getElementById('stat-invited').innerText = counts.invited;
+            document.getElementById('stat-confirmed').innerText = counts.confirmed;
+            document.getElementById('stat-paid').innerText = counts.paid;
         }
 
         function sendInvite(id) {
             const s = students.find(x => x.id === id);
-            const msg = `Hi ${s.pName}, we're inviting ${s.name} for ISD Table Tennis Term 3! Schedule: ${s.days.join('/')} at ${s.time}. Please confirm!`;
+            const msg = `Hi ${s.pName}, this is ISD Table Tennis. We're inviting ${s.name} for Term 3! Schedule: ${s.days} at ${s.time}. Please confirm to lock it in!`;
             window.open(`https://wa.me/${s.pPhone}?text=${encodeURIComponent(msg)}`, '_blank');
             updateStatus(id, 'Invited');
         }
 
         function askAleksey(id) {
             const s = students.find(x => x.id === id);
-            const msg = `GROUP UPDATE: Requesting change for ${s.name} Term 3. Preferred day/time? @Coach Aleksey`;
+            const msg = `GROUP UPDATE: ${s.name} requesting a change for Term 3. Preferred day/time? @Coach Aleksey`;
+            // Sending to WhatsApp (This will open your last chat/group)
             window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
-        function render() {
-            const list = document.getElementById('roster-list');
-            const q = document.getElementById('search').value.toLowerCase();
-            list.innerHTML = '';
-            
-            let stats = { invited:0, confirmed:0, paid:0, rev:0, m:0 };
-
-            students.forEach(s => {
-                if(s.status === 'Invited') stats.invited++;
-                if(s.status === 'Confirmed') stats.confirmed++;
-                if(s.status === 'Paid') { stats.paid++; stats.rev += PRICES[s.days.length] || 0; }
-                stats.m += s.makeups;
-
-                if(!s.name.toLowerCase().includes(q)) return;
-
-                let rowClass = s.status === 'Invited' ? 'status-invited' : s.status === 'Confirmed' ? 'status-confirmed' : s.status === 'Paid' ? 'status-paid' : '';
-
-                list.innerHTML += `
-                    <div class="grid grid-cols-1 md:grid-cols-12 gap-4 p-4 items-center ${rowClass}">
-                        <div class="col-span-3">
-                            <h4 class="font-black uppercase text-sm italic tracking-tighter">${s.name}</h4>
-                            <p class="text-[9px] text-gray-500 font-bold tracking-widest">${s.pName} | ${s.pPhone}</p>
-                        </div>
-                        <div class="col-span-2 text-center text-[10px] font-black text-yellow-600">
-                            ${s.days.join('/')} @ ${s.time}
-                        </div>
-                        <div class="col-span-2 flex justify-center gap-2">
-                            ${s.att.map((v, i) => `<div onclick="cycleAtt(${s.id}, ${i})" class="dot ${v===1?'present':v===2?'absent':''}"></div>`).join('')}
-                        </div>
-                        <div class="col-span-5 flex justify-end gap-1">
-                            <button onclick="sendInvite(${s.id})" class="px-2 py-1 bg-blue-600 rounded text-[8px] font-black uppercase">Invite</button>
-                            <button onclick="askAleksey(${s.id})" class="px-2 py-1 bg-white/10 rounded text-[8px] font-black uppercase">Change?</button>
-                            <button onclick="updateStatus(${s.id}, 'Confirmed')" class="px-2 py-1 border border-green-400 text-green-400 rounded text-[8px] font-black uppercase">Yes, Lock it</button>
-                            <button onclick="updateStatus(${s.id}, 'Paid')" class="px-2 py-1 bg-green-600 text-black rounded text-[8px] font-black uppercase">Paid/Done</button>
-                        </div>
-                    </div>`;
-            });
-
-            document.getElementById('stat-invited').innerText = stats.invited;
-            document.getElementById('stat-confirmed').innerText = stats.confirmed;
-            document.getElementById('stat-paid').innerText = stats.paid;
-            document.getElementById('stat-revenue').innerText = stats.rev.toLocaleString() + ' AED';
-            document.getElementById('m-count-badge').innerText = stats.m;
-        }
-
-        function renderMakeups() {
-            const container = document.getElementById('makeup-list');
-            container.innerHTML = '';
-            const owed = students.filter(s => s.makeups > 0);
-            
-            if(owed.length === 0) {
-                container.innerHTML = `<div class="glass p-20 text-center text-gray-500 font-black">ALL CLEAR: NO MAKEUPS OWED</div>`;
-                return;
-            }
-
-            owed.forEach(s => {
-                container.innerHTML += `
-                    <div class="glass p-6 rounded-3xl flex justify-between items-center border-l-8 border-red-600">
-                        <div>
-                            <h3 class="font-black text-lg uppercase italic">${s.name}</h3>
-                            <p class="text-xs text-red-400 font-bold uppercase tracking-widest">Owes ${s.makeups} Lessons to Coach Aleksey</p>
-                        </div>
-                        <div class="flex gap-3">
-                            <button onclick="window.open('https://wa.me/${s.pPhone}?text=Hi, scheduling makeup for ${s.name}')" class="bg-green-600 text-white w-10 h-10 rounded-full flex items-center justify-center"><i class="fab fa-whatsapp"></i></button>
-                            <button onclick="clearM(${s.id})" class="bg-white text-black font-black px-6 py-2 rounded-xl text-xs uppercase">Clear 1 Lesson</button>
-                        </div>
-                    </div>`;
-            });
-        }
-
-        function clearM(id) {
+        function updateStatus(id, status) {
             const s = students.find(x => x.id === id);
-            s.makeups = Math.max(0, s.makeups - 1);
-            renderMakeups();
-            render();
-        }
-
-        function generateReport() {
-            const f = document.getElementById('rep-finance');
-            const s = document.getElementById('rep-slots');
-            
-            let paidCount = students.filter(x => x.status === 'Paid').length;
-            let confCount = students.filter(x => x.status === 'Confirmed').length;
-            let rev = students.filter(x => x.status === 'Paid').reduce((a, b) => a + (PRICES[b.days.length]||0), 0);
-
-            f.innerHTML = `
-                <div class="flex justify-between border-b border-white/5 pb-4"><span>Confirmed Attendance</span><span class="font-black">${confCount}</span></div>
-                <div class="flex justify-between border-b border-white/5 pb-4 text-green-400"><span>Paid & ISDB Done</span><span class="font-black">${paidCount}</span></div>
-                <div class="flex justify-between text-3xl font-black pt-4 text-yellow-500 italic"><span>Revenue</span><span>${rev.toLocaleString()} AED</span></div>
-            `;
-
-            const dNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
-            const counts = [0,0,0,0,0];
-            students.forEach(kid => {
-                if(kid.days.includes("Mon")) counts[0]++;
-                if(kid.days.includes("Tue")) counts[1]++;
-                if(kid.days.includes("Wed")) counts[2]++;
-                if(kid.days.includes("Thu")) counts[3]++;
-                if(kid.days.includes("Fri")) counts[4]++;
-            });
-
-            s.innerHTML = dNames.map((day, i) => `
-                <div class="space-y-2">
-                    <div class="flex justify-between text-[10px] font-black uppercase tracking-widest"><span>${day}</span><span>${counts[i]} / 20 Slots</span></div>
-                    <div class="w-full bg-white/5 h-2 rounded-full overflow-hidden">
-                        <div class="bg-yellow-500 h-full" style="width: ${(counts[i]/20)*100}%"></div>
-                    </div>
-                </div>
-            `).join('');
+            if (status === 'No') {
+                if(confirm("Remove " + s.name + " from active list?")) {
+                    students = students.filter(x => x.id !== id);
+                }
+            } else {
+                s.status = status;
+            }
+            renderList();
         }
 
         function exportToExcel() {
-            let csv = "Student Name,Parent,Phone,Days,Time,Status,Owed Makeups\n";
-            students.forEach(s => { csv += `"${s.name}","${s.pName}","${s.pPhone}","${s.days.join('/')}","${s.time}","${s.status}","${s.makeups}"\n`; });
+            let csv = "Student Name,Parent,Phone,Days,Time,Status\n";
+            students.forEach(s => {
+                csv += `"${s.name}","${s.pName}","${s.pPhone}","${s.days}","${s.time}","${s.status}"\n`;
+            });
             const blob = new Blob([csv], { type: 'text/csv' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `ISD_Term3_Official_Roster.csv`;
+            a.download = 'ISD_Term3_Roster.csv';
             a.click();
         }
 
-        render();
+        renderList();
     </script>
 </body>
 </html>
