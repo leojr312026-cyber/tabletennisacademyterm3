@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISD Table Tennis Academy - Term 3</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #121212; color: white; font-family: 'Inter', sans-serif; }
+        .accent-yellow { color: #FFD700; }
+        .bg-accent-yellow { background-color: #FFD700; }
+        .card { background-color: #1e1e1e; border: 1px solid #333; }
+        .btn-day.active { background-color: #FFD700; color: black; border-color: #FFD700; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div id="app" class="max-w-6xl mx-auto">
+        <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+            <div>
+                <h1 class="text-3xl font-bold bg-accent-yellow text-black px-4 py-1 inline-block">ISD ACADEMY</h1>
+                <p class="text-gray-400 mt-2">Term 3 Registration: March 30th – July 3rd</p>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="toggleView('reception')" id="btn-reception" class="px-6 py-2 rounded-full border border-gray-600 hover:bg-gray-800 transition">
+                    <i class="fas fa-user-shield mr-2"></i>Reception View
+                </button>
+                <button onclick="toggleView('admin')" id="btn-admin" class="px-6 py-2 rounded-full bg-accent-yellow text-black font-bold">
+                    <i class="fas fa-chart-line mr-2"></i>Admin Dashboard
+                </button>
+            </div>
+        </div>
+
+        <div id="stats-section" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div class="card p-4 rounded-xl">
+                <p class="text-gray-400 text-sm">Total Revenue</p>
+                <h2 class="text-2xl font-bold accent-yellow" id="stat-total">0 AED</h2>
+            </div>
+            <div class="card p-4 rounded-xl">
+                <p class="text-gray-400 text-sm">Cash / Card / Link</p>
+                <h2 class="text-lg font-semibold" id="stat-methods">0 / 0 / 0</h2>
+            </div>
+            <div class="card p-4 rounded-xl">
+                <p class="text-gray-400 text-sm">Active Kids</p>
+                <h2 class="text-2xl font-bold" id="stat-kids">0</h2>
+            </div>
+            <div class="card p-4 rounded-xl">
+                <p class="text-gray-400 text-sm">ISDB Synced</p>
+                <h2 class="text-2xl font-bold text-green-500" id="stat-isdb">0</h2>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-1 card p-6 rounded-2xl">
+                <h3 class="text-xl font-bold mb-6 border-b border-gray-700 pb-2">New Registration</h3>
+                <form id="regForm" onsubmit="handleRegister(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-1">Student Name</label>
+                        <input type="text" id="name" required class="w-full bg-black border border-gray-700 rounded-lg p-3 outline-none focus:border-yellow-500">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-1">Age Group</label>
+                        <select id="ageGroup" onchange="calculatePrice()" class="w-full bg-black border border-gray-700 rounded-lg p-3 outline-none">
+                            <option value="U8">Under 8 (U8)</option>
+                            <option value="U12">Under 12 (U12)</option>
+                            <option value="U16">Under 16 (U16)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-1">Select Days</label>
+                        <div class="flex flex-wrap gap-2" id="dayPicker">
+                            <button type="button" onclick="toggleDay(this, 'Mon')" class="btn-day border border-gray-600 px-3 py-1 rounded-md text-sm">Mon</button>
+                            <button type="button" onclick="toggleDay(this, 'Tue')" class="btn-day border border-gray-600 px-3 py-1 rounded-md text-sm">Tue</button>
+                            <button type="button" onclick="toggleDay(this, 'Wed')" class="btn-day border border-gray-600 px-3 py-1 rounded-md text-sm">Wed</button>
+                            <button type="button" onclick="toggleDay(this, 'Thu')" class="btn-day border border-gray-600 px-3 py-1 rounded-md text-sm">Thu</button>
+                            <button type="button" onclick="toggleDay(this, 'Fri')" class="btn-day border border-gray-600 px-3 py-1 rounded-md text-sm">Fri</button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-1">Preferred Time</label>
+                        <select id="timeSlot" class="w-full bg-black border border-gray-700 rounded-lg p-3 outline-none">
+                            </select>
+                    </div>
+
+                    <div class="p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-xl">
+                        <p class="text-sm text-gray-400">Total Calculation</p>
+                        <h4 class="text-2xl font-bold accent-yellow" id="displayPrice">0 AED</h4>
+                    </div>
+
+                    <button type="submit" class="w-full bg-accent-yellow text-black font-bold py-4 rounded-xl hover:opacity-90 transition">
+                        Register Student
+                    </button>
+                </form>
+            </div>
+
+            <div id="roster-section" class="lg:col-span-2 space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-bold">Active Roster</h3>
+                    <button onclick="exportToExcel()" class="text-sm text-blue-400 hover:underline">Export to Excel</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left card rounded-2xl overflow-hidden">
+                        <thead class="bg-black/50 text-gray-400 text-sm uppercase">
+                            <tr>
+                                <th class="p-4">Student</th>
+                                <th class="p-4">Schedule</th>
+                                <th class="p-4">Payment</th>
+                                <th class="p-4">Attendance</th>
+                                <th class="p-4">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rosterList">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let students = [];
+        let selectedDays = [];
+        let currentView = 'admin';
+
+        const PRICING = {
+            'U8': { 1: 1390, 2: 2645, 3: 3962 },
+            'U12': { 1: 1695, 2: 3220, 3: 4830 },
+            'U16': { 1: 1695, 2: 3220, 3: 4830 }
+        };
+
+        function toggleDay(btn, day) {
+            if (selectedDays.includes(day)) {
+                selectedDays = selectedDays.filter(d => d !== day);
+                btn.classList.remove('active');
+            } else {
+                selectedDays.push(day);
+                btn.classList.add('active');
+            }
+            updateTimeSlots();
+            calculatePrice();
+        }
+
+        function updateTimeSlots() {
+            const select = document.getElementById('timeSlot');
+            select.innerHTML = '';
+            const times = selectedDays.includes('Fri') 
+                ? ['3:00 PM - 4:00 PM', '4:00 PM - 5:00 PM'] 
+                : ['4:00 PM - 5:00 PM', '5:00 PM - 6:00 PM'];
+            
+            times.forEach(t => {
+                select.innerHTML += `<option value="${t}">${t}</option>`;
+            });
+        }
+
+        function calculatePrice() {
+            const age = document.getElementById('ageGroup').value;
+            const count = selectedDays.length;
+            const price = (count > 0 && count <= 3) ? PRICING[age][count] : (count > 3 ? PRICING[age][3] : 0);
+            document.getElementById('displayPrice').innerText = `${price.toLocaleString()} AED`;
+            return price;
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            const newStudent = {
+                id: Date.now(),
+                name: document.getElementById('name').value,
+                ageGroup: document.getElementById('ageGroup').value,
+                days: [...selectedDays],
+                time: document.getElementById('timeSlot').value,
+                price: calculatePrice(),
+                paid: false,
+                method: 'Pending',
+                isdb: false,
+                absences: 0,
+                medicalCert: false
+            };
+            students.push(newStudent);
+            renderRoster();
+            e.target.reset();
+            selectedDays = [];
+            document.querySelectorAll('.btn-day').forEach(b => b.classList.remove('active'));
+            calculatePrice();
+        }
+
+        function renderRoster() {
+            const list = document.getElementById('rosterList');
+            list.innerHTML = '';
+            let total = 0;
+            let cash = 0, card = 0, link = 0;
+            let isdbCount = 0;
+
+            students.forEach(s => {
+                if(s.paid) {
+                    total += s.price;
+                    if(s.method === 'Cash') cash += s.price;
+                    if(s.method === 'Card') card += s.price;
+                    if(s.method === 'Link') link += s.price;
+                }
+                if(s.isdb) isdbCount++;
+
+                list.innerHTML += `
+                    <tr class="border-t border-gray-800 hover:bg-white/5 transition">
+                        <td class="p-4 font-bold text-yellow-500">${s.name}<br><span class="text-xs text-gray-500">${s.ageGroup}</span></td>
+                        <td class="p-4 text-sm text-gray-300">${s.days.join(', ')}<br>${s.time}</td>
+                        <td class="p-4">
+                            <select onchange="updatePayment(${s.id}, this.value)" class="bg-black text-xs border border-gray-700 rounded p-1">
+                                <option value="Pending" ${s.method==='Pending'?'selected':''}>Unpaid</option>
+                                <option value="Cash" ${s.method==='Cash'?'selected':''}>Cash</option>
+                                <option value="Card" ${s.method==='Card'?'selected':''}>Card</option>
+                                <option value="Link" ${s.method==='Link'?'selected':''}>Link</option>
+                            </select>
+                        </td>
+                        <td class="p-4">
+                            <button onclick="markAbsent(${s.id})" class="text-xs bg-red-900/30 text-red-400 px-2 py-1 rounded">Mark Absent</button>
+                            ${s.medicalCert ? '<span class="ml-2 text-blue-400 text-xs">✅ Makeup</span>' : ''}
+                        </td>
+                        <td class="p-4">
+                            <input type="checkbox" ${s.isdb?'checked':''} onchange="toggleISDB(${s.id})"> <span class="text-xs text-gray-500">ISDB</span>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('stat-total').innerText = `${total.toLocaleString()} AED`;
+            document.getElementById('stat-methods').innerText = `${cash.toLocaleString()} / ${card.toLocaleString()} / ${link.toLocaleString()}`;
+            document.getElementById('stat-kids').innerText = students.length;
+            document.getElementById('stat-isdb').innerText = isdbCount;
+        }
+
+        function updatePayment(id, method) {
+            const s = students.find(x => x.id === id);
+            s.method = method;
+            s.paid = method !== 'Pending';
+            renderRoster();
+        }
+
+        function toggleISDB(id) {
+            const s = students.find(x => x.id === id);
+            s.isdb = !s.isdb;
+            renderRoster();
+        }
+
+        function markAbsent(id) {
+            const s = students.find(x => x.id === id);
+            if(confirm("Does student have a Medical Certificate?")) {
+                s.medicalCert = true;
+            }
+            renderRoster();
+        }
+
+        function toggleView(view) {
+            currentView = view;
+            const stats = document.getElementById('stats-section');
+            const roster = document.getElementById('roster-section');
+            if(view === 'reception') {
+                stats.classList.add('hidden');
+                roster.classList.add('hidden');
+            } else {
+                stats.classList.remove('hidden');
+                roster.classList.remove('hidden');
+            }
+        }
+
+        function exportToExcel() {
+            let csv = "Name,Age,Days,Time,Price,Payment,ISDB\n";
+            students.forEach(s => {
+                csv += `${s.name},${s.ageGroup},${s.days.join('|')},${s.time},${s.price},${s.method},${s.isdb}\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('href', url);
+            a.setAttribute('download', 'Academy_Term3_Roster.csv');
+            a.click();
+        }
+
+        updateTimeSlots();
+    </script>
+</body>
+</html>
