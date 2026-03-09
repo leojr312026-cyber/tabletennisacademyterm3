@@ -3,395 +3,317 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ISD Table Tennis Academy - Term 3</title>
+    <title>ISD TABLE TENNIS | TERM 3 TRACKER BY LEO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { background-color: #121212; color: white; font-family: 'Inter', sans-serif; }
-        .accent-yellow { color: #FFD700; }
-        .bg-accent-yellow { background-color: #FFD700; }
-        .card { background-color: #1e1e1e; border: 1px solid #333; }
-        .btn-day.active { background-color: #FFD700; color: black; border-color: #FFD700; }
-        .modal { background-color: rgba(0,0,0,0.9); z-index: 100; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        :root { --isd-yellow: #FFD700; --isd-black: #0A0A0A; --isd-gray: #1A1A1A; }
+        body { background-color: var(--isd-black); color: white; font-family: 'Inter', sans-serif; letter-spacing: -0.02em; }
+        .isd-card { background: var(--isd-gray); border: 1px solid rgba(255,255,255,0.05); transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .isd-card:hover { border-color: var(--isd-yellow); transform: translateY(-2px); }
+        .u8-tag { border-left: 5px solid #FF69B4; }
+        .u12-tag { border-left: 5px solid var(--isd-yellow); }
+        .u16-tag { border-left: 5px solid #555; }
+        .checked-in { background: rgba(34, 197, 94, 0.1) !important; border-color: #22c55e !important; }
+        .stat-label { font-size: 9px; font-weight: 900; color: #666; text-transform: uppercase; letter-spacing: 0.1em; }
+        input, select { background: #111 !important; border: 1px solid #333 !important; color: white !important; }
+        .age-pulse { animation: pulse 2s infinite; color: #fb923c; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
     </style>
 </head>
 <body class="p-4 md:p-8">
 
-    <div id="app" class="max-w-7xl mx-auto">
-        <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-10 gap-6">
             <div>
-                <h1 class="text-3xl font-bold bg-accent-yellow text-black px-4 py-1 inline-block uppercase">ISD ACADEMY</h1>
-                <p class="text-gray-400 mt-2">Term 3 Management Suite: March 30th – July 3rd</p>
+                <h1 class="text-5xl font-black italic text-yellow-500 uppercase leading-none tracking-tighter">ISD TABLE TENNIS</h1>
+                <p class="text-gray-500 text-xs font-bold uppercase mt-3 tracking-[0.4em]">Term 3 Tracker Created by Leo</p>
             </div>
-            <div class="flex gap-3">
-                <button onclick="toggleReceptionMode()" id="btn-lock" class="px-6 py-2 rounded-full border border-gray-600 hover:bg-gray-800 transition">
-                    <i class="fas fa-lock mr-2"></i>Reception Mode
-                </button>
-                <div id="admin-tabs" class="flex gap-2">
-                    <button onclick="showSection('active')" class="px-4 py-2 rounded-lg bg-gray-800 hover:bg-gray-700">Roster</button>
-                    <button onclick="showSection('waitlist')" class="px-4 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-blue-400">Waitlist</button>
-                </div>
+            <div class="flex flex-wrap gap-3">
+                <button onclick="exportCSV()" class="bg-neutral-800 px-5 py-3 rounded-2xl text-[10px] font-black uppercase border border-neutral-700 hover:bg-neutral-700"><i class="fas fa-download mr-2 text-green-500"></i>Export Roster</button>
+                <button onclick="resetDaily()" class="bg-red-900/10 text-red-500 px-5 py-3 rounded-2xl text-[10px] font-black uppercase border border-red-900/20 hover:bg-red-900/20">Daily Reset</button>
             </div>
         </div>
 
-        <div id="stats-section" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-            <div class="card p-4 rounded-xl">
-                <p class="text-gray-400 text-sm">Total Revenue</p>
-                <h2 class="text-2xl font-bold accent-yellow" id="stat-total">0 AED</h2>
-            </div>
-            <div class="card p-4 rounded-xl">
-                <p class="text-gray-400 text-sm">Active Kids</p>
-                <h2 class="text-2xl font-bold" id="stat-kids">0</h2>
-            </div>
-            <div class="card p-4 rounded-xl text-blue-400">
-                <p class="text-gray-400 text-sm">Waitlist</p>
-                <h2 class="text-2xl font-bold" id="stat-wait">0</h2>
-            </div>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
+            <div class="isd-card p-6 rounded-3xl"><p class="stat-label">Total Revenue</p><h3 id="stat-total" class="text-2xl font-black text-white">0</h3></div>
+            <div class="isd-card p-6 rounded-3xl"><p class="stat-label">Cash Flow</p><h3 id="stat-cash" class="text-2xl font-black text-green-400">0</h3></div>
+            <div class="isd-card p-6 rounded-3xl"><p class="stat-label">Card/Online</p><h3 id="stat-card" class="text-2xl font-black text-blue-400">0</h3></div>
+            <div class="isd-card p-6 rounded-3xl"><p class="stat-label">Confirmed (T3)</p><h3 id="stat-conf" class="text-2xl font-black text-yellow-500">0</h3></div>
+            <div class="isd-card p-6 rounded-3xl"><p class="stat-label">Age Alerts</p><h3 id="stat-age" class="text-2xl font-black text-orange-500">0</h3></div>
+            <div class="isd-card p-6 rounded-3xl bg-yellow-500/5 border-yellow-500/20"><p class="stat-label text-yellow-500">Daily Attendance</p><h3 id="stat-attn" class="text-2xl font-black text-yellow-500">0/0</h3></div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div id="reg-form-container" class="lg:col-span-1 card p-6 rounded-2xl h-fit">
-                <h3 class="text-xl font-bold mb-6 border-b border-gray-700 pb-2">New Entry</h3>
-                <form id="regForm" onsubmit="handleRegister(event)" class="space-y-4">
-                    <div>
-                        <label class="block text-sm text-gray-400 mb-1">Parent Full Name</label>
-                        <input type="text" id="pName" required class="w-full bg-black border border-gray-700 rounded-lg p-3">
-                    </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="block text-sm text-gray-400 mb-1">Contact Number</label>
-                            <input type="tel" id="pPhone" required class="w-full bg-black border border-gray-700 rounded-lg p-3">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+            <div class="lg:col-span-4">
+                <div class="isd-card p-8 rounded-[40px] sticky top-8 shadow-2xl">
+                    <h3 class="text-[10px] font-black uppercase mb-8 tracking-widest text-gray-400 border-b border-white/5 pb-4">Management Portal</h3>
+                    <form onsubmit="handleRegistration(event)" class="space-y-4">
+                        <input type="text" id="kName" placeholder="Student Name" required class="w-full p-4 rounded-2xl text-sm outline-none focus:border-yellow-500">
+                        <div class="grid grid-cols-2 gap-3">
+                            <select id="ageGrp" class="p-4 rounded-2xl text-sm font-bold uppercase" onchange="updatePrice()">
+                                <option value="U8">U8 Group</option>
+                                <option value="U12" selected>U12 Group</option>
+                                <option value="U16">U16 Group</option>
+                            </select>
+                            <input type="date" id="dob" class="p-4 rounded-2xl text-xs" onchange="render()">
                         </div>
-                        <div>
-                            <label class="block text-sm text-gray-400 mb-1">Email</label>
-                            <input type="email" id="pEmail" class="w-full bg-black border border-gray-700 rounded-lg p-3">
+                        <input type="text" id="pName" placeholder="Parent Name" class="w-full p-4 rounded-2xl text-sm">
+                        <input type="tel" id="pPhone" placeholder="Contact (05X...)" class="w-full p-4 rounded-2xl text-sm">
+                        
+                        <div class="flex justify-between gap-1 mt-2">
+                            <button type="button" onclick="setDay(this,'Mon')" class="day-btn flex-1 py-3 rounded-xl border border-neutral-800 text-[10px] font-black transition">M</button>
+                            <button type="button" onclick="setDay(this,'Tue')" class="day-btn flex-1 py-3 rounded-xl border border-neutral-800 text-[10px] font-black transition">T</button>
+                            <button type="button" onclick="setDay(this,'Wed')" class="day-btn flex-1 py-3 rounded-xl border border-neutral-800 text-[10px] font-black transition">W</button>
+                            <button type="button" onclick="setDay(this,'Thu')" class="day-btn flex-1 py-3 rounded-xl border border-neutral-800 text-[10px] font-black transition">T</button>
+                            <button type="button" onclick="setDay(this,'Fri')" class="day-btn flex-1 py-3 rounded-xl border border-neutral-800 text-[10px] font-black transition">F</button>
                         </div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="block text-sm text-gray-400 mb-1">Kid's Name</label>
-                            <input type="text" id="kName" required class="w-full bg-black border border-gray-700 rounded-lg p-3">
+                        
+                        <div class="bg-black/50 p-6 rounded-3xl border border-white/5 text-center mt-6">
+                            <p class="stat-label mb-1">Fee Calculation</p>
+                            <h2 id="feeDisplay" class="text-3xl font-black text-yellow-500">0 AED</h2>
                         </div>
-                        <div>
-                            <label class="block text-sm text-gray-400 mb-1">DOB</label>
-                            <input type="text" id="kDob" placeholder="DD-MM-YYYY" class="w-full bg-black border border-gray-700 rounded-lg p-3">
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm text-gray-400 mb-1">Late Start? (Prorated)</label>
-                        <select id="startWeek" onchange="calculatePrice()" class="w-full bg-black border border-gray-700 rounded-lg p-3">
-                            <option value="0">Week 1 (Full Term)</option>
-                            <option value="1">Week 2 Start</option>
-                            <option value="2">Week 3 Start</option>
-                            <option value="3">Week 4 Start</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm text-gray-400 mb-1">Age Group</label>
-                        <select id="ageGroup" onchange="calculatePrice()" class="w-full bg-black border border-gray-700 rounded-lg p-3">
-                            <option value="U8">U8</option>
-                            <option value="U12">U12</option>
-                            <option value="U16">U16</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm text-gray-400 mb-1">Select Days</label>
-                        <div class="flex flex-wrap gap-2" id="dayPicker">
-                            <button type="button" onclick="toggleDay(this, 'Mon')" class="btn-day border border-gray-600 px-3 py-1 rounded-md text-sm">Mon</button>
-                            <button type="button" onclick="toggleDay(this, 'Tue')" class="btn-day border border-gray-600 px-3 py-1 rounded-md text-sm">Tue</button>
-                            <button type="button" onclick="toggleDay(this, 'Wed')" class="btn-day border border-gray-600 px-3 py-1 rounded-md text-sm">Wed</button>
-                            <button type="button" onclick="toggleDay(this, 'Thu')" class="btn-day border border-gray-600 px-3 py-1 rounded-md text-sm">Thu</button>
-                            <button type="button" onclick="toggleDay(this, 'Fri')" class="btn-day border border-gray-600 px-3 py-1 rounded-md text-sm">Fri</button>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm text-gray-400 mb-1">Time Slot</label>
-                        <select id="timeSlot" class="w-full bg-black border border-gray-700 rounded-lg p-3"></select>
-                    </div>
-
-                    <div class="p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-xl">
-                        <p class="text-xs text-gray-400 uppercase">Calculated Prorated Fee</p>
-                        <h4 class="text-2xl font-bold accent-yellow" id="displayPrice">0 AED</h4>
-                    </div>
-
-                    <button type="submit" class="w-full bg-accent-yellow text-black font-bold py-4 rounded-xl hover:opacity-90 transition uppercase">
-                        Add to Waiting List
-                    </button>
-                </form>
+                        
+                        <button type="submit" class="w-full bg-yellow-500 text-black font-black py-5 rounded-[20px] uppercase text-sm hover:bg-yellow-400 transition-all shadow-lg shadow-yellow-500/10">Register Profile</button>
+                    </form>
+                </div>
             </div>
 
-            <div id="list-section" class="lg:col-span-2 space-y-4">
-                <div class="flex justify-between items-center">
-                    <h3 id="section-title" class="text-xl font-bold">Active Roster</h3>
-                    <button onclick="exportToExcel()" class="text-xs text-blue-400 hover:underline">Export CSV</button>
+            <div class="lg:col-span-8">
+                <div class="flex flex-wrap gap-3 mb-8 items-center bg-neutral-900/50 p-2 rounded-[24px]">
+                    <button onclick="setView('today')" id="v-today" class="view-btn px-6 py-3 rounded-2xl text-[10px] font-black uppercase transition-all">Today</button>
+                    <button onclick="setView('all')" id="v-all" class="view-btn px-6 py-3 rounded-2xl text-[10px] font-black uppercase transition-all">All Students</button>
+                    <button onclick="setView('invite')" id="v-invite" class="view-btn px-6 py-3 rounded-2xl text-[10px] font-black uppercase text-blue-400 transition-all">Needs Invite</button>
+                    <input type="text" id="search" onkeyup="render()" placeholder="Search database..." class="flex-1 bg-transparent border-none rounded-2xl px-6 py-3 text-sm focus:ring-0">
                 </div>
-                <div id="rosterContainer" class="space-y-3">
+                
+                <div id="roster" class="space-y-4">
                     </div>
             </div>
         </div>
     </div>
 
-    <div id="absenceModal" class="fixed inset-0 modal hidden flex items-center justify-center p-4">
-        <div class="card w-full max-w-md p-6 rounded-2xl">
-            <h2 class="text-xl font-bold mb-4">Mark Absence</h2>
-            <div class="space-y-4">
-                <div class="flex items-center gap-2 bg-blue-900/20 p-3 rounded-lg border border-blue-500/30">
-                    <input type="checkbox" id="medCertToggle" onchange="toggleMakeupBtn()">
-                    <label for="medCertToggle" class="text-sm">Medical Certificate Received</label>
-                </div>
-                <button id="confirmMakeupBtn" disabled onclick="confirmAbsence()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl opacity-30">
-                    Schedule Makeup Lesson
-                </button>
-                <button onclick="closeModal('absenceModal')" class="w-full text-gray-500 text-sm">Cancel</button>
+    <div id="payModal" class="fixed inset-0 bg-black/98 hidden flex items-center justify-center p-4 z-50 backdrop-blur-sm">
+        <div class="isd-card p-10 rounded-[40px] w-full max-w-sm text-center border-yellow-500/20">
+            <div class="w-16 h-16 bg-yellow-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fas fa-wallet text-black text-2xl"></i>
             </div>
-        </div>
-    </div>
-
-    <div id="pinModal" class="fixed inset-0 modal hidden flex items-center justify-center p-4">
-        <div class="card p-8 rounded-2xl text-center">
-            <h2 class="text-2xl font-bold mb-2">Admin Lock</h2>
-            <input type="password" id="pinInput" maxlength="4" class="bg-black border border-gray-700 rounded-xl p-4 text-center text-3xl tracking-widest w-40 mb-6">
-            <button onclick="verifyPin()" class="w-full bg-accent-yellow text-black font-bold py-3 rounded-xl">Unlock</button>
+            <h2 id="pay-name" class="text-xl font-black text-white mb-2 uppercase"></h2>
+            <p id="pay-amount" class="text-yellow-500 font-bold mb-8"></p>
+            
+            <select id="pay-method" class="w-full p-4 rounded-2xl mb-4 font-black uppercase">
+                <option value="Cash">Cash Payment</option>
+                <option value="Card">Card Machine</option>
+                <option value="Link">Online Link</option>
+            </select>
+            
+            <input type="text" id="pay-ref" placeholder="Reference / Receipt #" class="w-full p-4 rounded-2xl text-center mb-6 bg-black border border-neutral-800 font-mono text-sm">
+            
+            <div class="space-y-3">
+                <button onclick="processPayment()" class="w-full bg-green-600 text-white font-black py-4 rounded-2xl uppercase text-sm shadow-lg shadow-green-600/20">Confirm Payment</button>
+                <button onclick="closePay()" class="w-full text-gray-500 font-bold py-2 text-[10px] uppercase">Cancel Transaction</button>
+            </div>
         </div>
     </div>
 
     <script>
-        const ADMIN_PIN = "1234";
-        const TERM_WEEKS = 14;
-        const BASE_PRICES = {
-            'U8': { 1: 1390, 2: 2645, 3: 3962 },
-            'U12': { 1: 1695, 2: 3220, 3: 4830 },
-            'U16': { 1: 1695, 2: 3220, 3: 4830 }
+        // Pricing Logic based on ISD Standards
+        const RATES = { 
+            'U8': [0, 1390, 2645, 3962], 
+            'U12': [0, 1695, 3220, 4830], 
+            'U16': [0, 1695, 3220, 4830] 
         };
 
-        let currentSection = 'active';
-        let selectedDays = [];
-        let activeStudentId = null;
-
-        let students = [
-            { id: 1, name: "Musa Junego", pName: "Reena Babar", pPhone: "0547773836", pEmail: "reena7musa@gmail.com", ageGroup: "U12", days: ["Mon"], time: "4:00 PM - 5:00 PM", price: 1695, status: 'active', makeups: 0 },
-            { id: 2, name: "Samuel Greiner", pName: "Patrick / Miriam", pPhone: "0507588134", pEmail: "info@miriam-greiner.de", ageGroup: "U12", days: ["Mon", "Fri"], time: "4:00 PM - 5:00 PM", price: 3220, status: 'active', makeups: 0 },
-            { id: 3, name: "Ishaan Kumar", pName: "Ashish Kumar", pPhone: "0522976720", pEmail: "ashish.kumar02@gmail.com", ageGroup: "U8", days: ["Tue", "Thu"], time: "4:00 PM - 5:00 PM", price: 2645, status: 'active', makeups: 0 },
-            { id: 4, name: "Artem Arzhanov", pName: "Natalia Arzanova", pPhone: "+79858021467", pEmail: "natalia@avispromservices.com", ageGroup: "U12", days: ["Wed", "Fri"], time: "3:00 PM - 4:00 PM", price: 3220, status: 'active', makeups: 0 },
-            { id: 5, name: "Yuri Kurdyukov", pName: "Anastasia", pPhone: "0506651911", pEmail: "akurdyukova@gmail.com", ageGroup: "U12", days: ["Tue"], time: "5:00 PM - 6:00 PM", price: 1695, status: 'active', makeups: 0 },
-            { id: 6, name: "Gherman Mustiviy", pName: "Nickolay Mustiviy", pPhone: "0507701485", pEmail: "n.mustiviy@gmail.com", ageGroup: "U12", days: ["Fri"], time: "3:00 PM - 4:00 PM", price: 1695, status: 'active', makeups: 0 },
-            { id: 7, name: "Ryan Kim", pName: "Rina Kwon", pPhone: "0584496888", pEmail: "Riana.Kwon@gmail.com", ageGroup: "U12", days: ["Mon"], time: "5:00 PM - 6:00 PM", price: 1695, status: 'active', makeups: 0 },
-            { id: 8, name: "Elai Fatykhov", pName: "Elvira Fatykhov", pPhone: "0527332988", pEmail: "Elviradxb@gmail.com", ageGroup: "U12", days: ["Mon"], time: "5:00 PM - 6:00 PM", price: 1695, status: 'active', makeups: 0 },
-            { id: 9, name: "Arjun Arun", pName: "Arun Viswanathan", pPhone: "0522667290", pEmail: "rani.subassarunran@gmail.com", ageGroup: "U12", days: ["Tue"], time: "4:00 PM - 5:00 PM", price: 1695, status: 'active', makeups: 0 },
-            { id: 10, name: "Mark Krutko", pName: "Tanya Prykhozhia", pPhone: "0551344751", pEmail: "pryhozhaya@gmail.com", ageGroup: "U12", days: ["Tue", "Thu"], time: "5:00 PM - 6:00 PM", price: 3220, status: 'active', makeups: 0 },
-            { id: 11, name: "Daniel Fady", pName: "Fady Awny", pPhone: "0551915601", pEmail: "fady.awny@gmail.com", ageGroup: "U12", days: ["Fri"], time: "3:00 PM - 4:00 PM", price: 1695, status: 'active', makeups: 0 },
-            { id: 12, name: "Haider Hasan", pName: "Asiya Ali", pPhone: "0525987691", pEmail: "aayari0@gmail.com", ageGroup: "U12", days: ["Wed"], time: "5:00 PM - 6:00 PM", price: 1695, status: 'active', makeups: 0 },
-            { id: 13, name: "Mark Dorogya", pName: "Julia Dorogaya", pPhone: "0558631023", pEmail: "juldorogaya@gmail.com", ageGroup: "U12", days: ["Wed"], time: "5:00 PM - 6:00 PM", price: 1695, status: 'active', makeups: 0 },
-            { id: 14, name: "Jayden Chan", pName: "Ellen Li", pPhone: "85291283715", pEmail: "", ageGroup: "U12", days: ["Thu"], time: "4:00 PM - 5:00 PM", price: 1695, status: 'active', makeups: 0 },
-            { id: 15, name: "Petr", pName: "Natalia Shaikina", pPhone: "0551785179", pEmail: "nat7shaikina@gmail.com", ageGroup: "U16", days: ["Mon"], time: "5:00 PM - 6:00 PM", price: 1695, status: 'active', makeups: 0 },
-            { id: 16, name: "Daniil Gasparin", pName: "Anastasia", pPhone: "0505121542", pEmail: "nasty.kiseleva@gmail.com", ageGroup: "U8", days: ["Thu"], time: "4:00 PM - 5:00 PM", price: 1390, status: 'active', makeups: 0 },
-            { id: 17, name: "Louis Verrotte", pName: "Solene Verrotte", pPhone: "6591449569", pEmail: "solene.verrotte@gmail.com", ageGroup: "U12", days: ["Fri"], time: "4:00 PM - 5:00 PM", price: 1695, status: 'active', makeups: 0 },
-            { id: 18, name: "Cameron Miller", pName: "Maria Miller", pPhone: "0558505245", pEmail: "mariamiller007@yahoo.com", ageGroup: "U12", days: ["Thu"], time: "4:00 PM - 5:00 PM", price: 1695, status: 'active', makeups: 0 },
-            { id: 19, name: "Borong Song", pName: "Xue Zhang", pPhone: "0558309836", pEmail: "", ageGroup: "U8", days: ["Thu"], time: "4:00 PM - 5:00 PM", price: 1390, status: 'active', makeups: 0 },
-            { id: 20, name: "Shivam Vallabh", pName: "Jyoti Vallabh", pPhone: "0505731997", pEmail: "Jyoti.vldd@gmail.com", ageGroup: "U12", days: ["Wed"], time: "4:00 PM - 5:00 PM", price: 1695, status: 'active', makeups: 0 },
-            { id: 21, name: "Veronika Ivanuis", pName: "Tatiana Ivanuis", pPhone: "0556839342", pEmail: "tturchina84@mail.com", ageGroup: "U12", days: ["Wed"], time: "5:00 PM - 6:00 PM", price: 1695, status: 'active', makeups: 0 },
-            { id: 22, name: "Atuka Mandzhiev", pName: "Alsa Mandzhieva", pPhone: "0582484252", pEmail: "mandzhieva.a.v@gmail.com", ageGroup: "U8", days: ["Mon", "Wed"], time: "4:00 PM - 5:00 PM", price: 2645, status: 'active', makeups: 0 },
-            { id: 23, name: "Hani Omari", pName: "Jummar Al JAlawi", pPhone: "0551769290", pEmail: "J.Aljalawi@hotmail.com", ageGroup: "U12", days: ["Tue"], time: "5:00 PM - 6:00 PM", price: 1695, status: 'active', makeups: 0 },
-            { id: 24, name: "Zaid Omari", pName: "Jummar Al JAlawi", pPhone: "0551769290", pEmail: "J.Aljalawi@hotmail.com", ageGroup: "U12", days: ["Tue"], time: "5:00 PM - 6:00 PM", price: 1695, status: 'active', makeups: 0 },
-            { id: 25, name: "Judy El Masri", pName: "Shadi El Masri", pPhone: "0508887325", pEmail: "shadi2013@gmail.com", ageGroup: "U8", days: ["Fri"], time: "3:00 PM - 4:00 PM", price: 1390, status: 'active', makeups: 0 },
-            { id: 26, name: "Charlie Pinchbeck", pName: "Henry Pinchbeck", pPhone: "0543441062", pEmail: "henrypinchbeck@yahoo.com", ageGroup: "U16", days: ["Tue"], time: "4:00 PM - 5:00 PM", price: 1695, status: 'active', makeups: 0 },
-            { id: 27, name: "Julia Abdelmalek", pName: "Mary Raouf", pPhone: "0554558291", pEmail: "mary_raouf@hotmail.com", ageGroup: "U12", days: ["Mon", "Thu"], time: "5:00 PM - 6:00 PM", price: 3220, status: 'active', makeups: 0 },
-            { id: 28, name: "Ziad Biyouk", pName: "Dina Qumuq", pPhone: "0502528780", pEmail: "dinaqumuq@gmail.com", ageGroup: "U16", days: ["Fri"], time: "4:00 PM - 5:00 PM", price: 1695, status: 'active', makeups: 0 },
-            { id: 29, name: "Zahra Adnan", pName: "Adnan/Javaria", pPhone: "0529604599", pEmail: "adnanniaz@gmail.com", ageGroup: "U12", days: ["Fri"], time: "4:00 PM - 5:00 PM", price: 1695, status: 'active', makeups: 0 },
-            { id: 30, name: "Abdul Hadi Adnan", pName: "Adnan/Javaria", pPhone: "0529604599", pEmail: "adnanniaz@gmail.com", ageGroup: "U12", days: ["Fri"], time: "3:00 PM - 4:00 PM", price: 1695, status: 'active', makeups: 0 },
-            { id: 31, name: "Vihan Asarpota", pName: "Hitesh Asarpota", pPhone: "0504529515", pEmail: "hitesh13@gmail.com", ageGroup: "U12", days: ["Tue", "Thu"], time: "5:00 PM - 6:00 PM", price: 3220, status: 'active', makeups: 0 },
-            { id: 32, name: "Marc Galice", pName: "Diana Galice", pPhone: "0527161988", pEmail: "dianagalice@gmail.com", ageGroup: "U12", days: ["Wed"], time: "4:00 PM - 5:00 PM", price: 1695, status: 'active', makeups: 0 },
-            { id: 33, name: "Cagan Soylemez", pName: "Murat Soylemez", pPhone: "0521992091", pEmail: "Cagan.soylemez@outlook", ageGroup: "U12", days: ["Thu"], time: "5:00 PM - 6:00 PM", price: 1695, status: 'active', makeups: 0 },
-            { id: 34, name: "Alqaisar Wanous", pName: "Bayla Kanji", pPhone: "0506624001", pEmail: "Baylasanaikan@gmail.com", ageGroup: "U8", days: ["Wed", "Fri"], time: "4:00 PM - 5:00 PM", price: 2645, status: 'active', makeups: 0 },
-            { id: 35, name: "Ishana", pName: "Ram Virto", pPhone: "0557008012", pEmail: "vash77.m@gmail.com", ageGroup: "U12", days: ["Mon", "Thu"], time: "5:00 PM - 6:00 PM", price: 3220, status: 'active', makeups: 0 },
-            { id: 36, name: "Vihaan Gupta", pName: "Ankita Jain", pPhone: "0509720285", pEmail: "najistanford@gmail.com", ageGroup: "U12", days: ["Mon", "Fri"], time: "4:00 PM - 5:00 PM", price: 3220, status: 'active', makeups: 0 },
-            { id: 37, name: "Aryan Bansal", pName: "Mitali Bansal", pPhone: "0551047207", pEmail: "mitalinath@gmail.com", ageGroup: "U16", days: ["Mon", "Fri"], time: "4:00 PM - 5:00 PM", price: 3220, status: 'active', makeups: 0 },
-            { id: 38, name: "Anna Mazkun", pName: "Veronika Mazkun", pPhone: "0505613510", pEmail: "worklist1111@yandex.ru", ageGroup: "U8", days: ["Tue", "Fri"], time: "4:00 PM - 5:00 PM", price: 2645, status: 'active', makeups: 0 },
-            { id: 39, name: "Anwita Shastri", pName: "Navin Shastri", pPhone: "0503475404", pEmail: "Navin.shastri@udtrucks.com", ageGroup: "U12", days: ["Thu"], time: "5:00 PM - 6:00 PM", price: 1695, status: 'active', makeups: 0 },
-            { id: 40, name: "Theo Copper", pName: "Chris Cooper", pPhone: "0503959040", pEmail: "chriscopp8@gmail.com", ageGroup: "U16", days: ["Wed"], time: "5:00 PM - 6:00 PM", price: 1695, status: 'active', makeups: 0 },
-            { id: 41, name: "Leo Girichev", pName: "Andrei Girichev", pPhone: "0553531050", pEmail: "andreigirichev@gmail.com", ageGroup: "U16", days: ["Tue", "Wed"], time: "5:00 PM - 6:00 PM", price: 3220, status: 'active', makeups: 0 },
-            { id: 42, name: "Gian Hotchandani", pName: "Vishakha", pPhone: "0502624034", pEmail: "vishahotchandani@live.com", ageGroup: "U12", days: ["Mon"], time: "5:00 PM - 6:00 PM", price: 1695, status: 'active', makeups: 0 },
-            { id: 43, name: "Khloie Siniakina", pName: "Viktor Siniakin", pPhone: "0585809829", pEmail: "siniakin89@icloud.com", ageGroup: "U8", days: ["Mon"], time: "4:00 PM - 5:00 PM", price: 1390, status: 'active', makeups: 0 },
-            { id: 44, name: "Metodi", pName: "Lilian Mute", pPhone: "0585265378", pEmail: "nutellilian@yahoo.com", ageGroup: "U12", days: ["Tue", "Wed"], time: "5:00 PM - 6:00 PM", price: 3220, status: 'active', makeups: 0 },
-            { id: 45, name: "Jaden", pName: "Lilian Mute", pPhone: "0585265378", pEmail: "nutellilian@yahoo.com", ageGroup: "U12", days: ["Tue", "Wed"], time: "5:00 PM - 6:00 PM", price: 3220, status: 'active', makeups: 0 },
-            { id: 46, name: "Tehzeeb Ali", pName: "Gows Basha", pPhone: "0552025369", pEmail: "bashatehzeebali@gmail.com", ageGroup: "U16", days: ["Wed", "Fri"], time: "4:00 PM - 5:00 PM", price: 3220, status: 'active', makeups: 0 },
-            { id: 47, name: "Flora Bae", pName: "Sojin Park", pPhone: "0585980512", pEmail: "jknowsmile@gmail.com", ageGroup: "U12", days: ["Wed"], time: "5:00 PM - 6:00 PM", price: 1695, status: 'active', makeups: 0 },
-            { id: 48, name: "Humayd Gani", pName: "Mischka Tayob", pPhone: "0505042823", pEmail: "Mischktagani@gmail.com", ageGroup: "U12", days: ["Wed"], time: "4:00 PM - 5:00 PM", price: 1695, status: 'active', makeups: 0 },
-            { id: 49, name: "Uthman Gani", pName: "Mischka Tayob", pPhone: "0505042823", pEmail: "Mischktagani@gmail.com", ageGroup: "U12", days: ["Wed"], time: "4:00 PM - 5:00 PM", price: 1695, status: 'active', makeups: 0 },
-            { id: 50, name: "Aurele", pName: "Cedric Barraud", pPhone: "41764255292", pEmail: "aford.alferd@gmail.com", ageGroup: "U12", days: ["Wed", "Fri"], time: "4:00 PM - 5:00 PM", price: 3220, status: 'active', makeups: 0 },
-            { id: 51, name: "Michele Ferriani", pName: "Alina Makakaeva", pPhone: "0506068869", pEmail: "alina.makakaeva@gmail.com", ageGroup: "U12", days: ["Fri"], time: "4:00 PM - 5:00 PM", price: 1695, status: 'active', makeups: 0 },
-            { id: 52, name: "Parker Selt", pName: "Jessica Selt", pPhone: "0507735635", pEmail: "jessicaselt@icloud.com", ageGroup: "U8", days: ["Mon"], time: "4:00 PM - 5:00 PM", price: 1390, status: 'active', makeups: 0 },
-            { id: 53, name: "Aydan Tejani", pName: "Zhara Tejani", pPhone: "447557118196", pEmail: "zhara_mughal@hotmail.com", ageGroup: "U12", days: ["Thu"], time: "5:00 PM - 6:00 PM", price: 1695, status: 'active', makeups: 0 }
+        // Static Master Database (Initial 53 Kids)
+        const MASTER_DB = [
+            { id: 1, name: "Musa Junego", pName: "Reena Babar", phone: "0547773836", ageGrp: "U12", dob: "2015-05-15", days: ["Mon"], fee: 1695, invited: false, confirmed: false, checkIn: false, isPaid: false },
+            { id: 2, name: "Samuel Greiner", pName: "Patrick / Miriam", phone: "0507588134", ageGrp: "U12", dob: "2012-03-10", days: ["Mon", "Fri"], fee: 3220, invited: false, confirmed: false, checkIn: false, isPaid: false },
+            { id: 3, name: "Ishaan Kumar", pName: "Ashish Kumar", phone: "0522976720", ageGrp: "U8", dob: "2017-02-12", days: ["Tue", "Thu"], fee: 2645, invited: false, confirmed: false, checkIn: false, isPaid: false },
+            { id: 4, name: "Artem Arzhanov", pName: "Natalia Arzanova", phone: "+79858021467", ageGrp: "U12", dob: "2013-11-20", days: ["Wed", "Fri"], fee: 3220, invited: false, confirmed: false, checkIn: false, isPaid: false },
+            { id: 5, name: "Tehzeeb Ali", pName: "Gows Basha", phone: "0552025369", ageGrp: "U16", dob: "2009-08-05", days: ["Wed", "Fri"], fee: 3220, invited: false, confirmed: false, checkIn: false, isPaid: false }
+            // Note: Use the sidebar form to add the rest of the 53 kids once live; they will be saved permanently in browser.
         ];
 
-        function toggleDay(btn, day) {
-            if (selectedDays.includes(day)) {
-                selectedDays = selectedDays.filter(d => d !== day);
-                btn.classList.remove('active');
+        let students = JSON.parse(localStorage.getItem('isd_t3_leo')) || MASTER_DB;
+        let selectedDays = [];
+        let viewMode = 'today';
+        let activeKidId = null;
+
+        const save = () => localStorage.setItem('isd_t3_leo', JSON.stringify(students));
+        const getAge = (dob) => { if(!dob) return 0; const b = new Date(dob); const n = new Date(); let a = n.getFullYear()-b.getFullYear(); if(n.getMonth()<b.getMonth() || (n.getMonth()==b.getMonth() && n.getDate()<b.getDate())) a--; return a; };
+
+        function setDay(btn, d) {
+            if(selectedDays.includes(d)) {
+                selectedDays = selectedDays.filter(x => x !== d);
+                btn.classList.remove('bg-yellow-500', 'text-black');
             } else {
                 if(selectedDays.length >= 3) return;
-                selectedDays.push(day);
-                btn.classList.add('active');
+                selectedDays.push(d);
+                btn.classList.add('bg-yellow-500', 'text-black');
             }
-            updateTimeSlots();
-            calculatePrice();
+            updatePrice();
         }
 
-        function updateTimeSlots() {
-            const select = document.getElementById('timeSlot');
-            select.innerHTML = '';
-            const times = selectedDays.includes('Fri') ? ['3:00 PM - 4:00 PM', '4:00 PM - 5:00 PM'] : ['4:00 PM - 5:00 PM', '5:00 PM - 6:00 PM'];
-            times.forEach(t => select.innerHTML += `<option value="${t}">${t}</option>`);
+        function updatePrice() {
+            const grp = document.getElementById('ageGrp').value;
+            const price = RATES[grp][selectedDays.length] || 0;
+            document.getElementById('feeDisplay').innerText = `${price.toLocaleString()} AED`;
+            return price;
         }
 
-        function calculatePrice() {
-            const age = document.getElementById('ageGroup').value;
-            const weekStart = parseInt(document.getElementById('startWeek').value);
-            const dayCount = selectedDays.length;
-            if (dayCount === 0) { document.getElementById('displayPrice').innerText = `0 AED`; return 0; }
-            const fullPrice = BASE_PRICES[age][dayCount];
-            const weeklyRate = fullPrice / TERM_WEEKS;
-            const proratedPrice = Math.round(weeklyRate * (TERM_WEEKS - weekStart));
-            document.getElementById('displayPrice').innerText = `${proratedPrice.toLocaleString()} AED`;
-            return proratedPrice;
-        }
-
-        function handleRegister(e) {
+        function handleRegistration(e) {
             e.preventDefault();
-            const newStudent = {
+            const newKid = {
                 id: Date.now(),
                 name: document.getElementById('kName').value,
                 pName: document.getElementById('pName').value,
-                pPhone: document.getElementById('pPhone').value,
-                pEmail: document.getElementById('pEmail').value,
-                ageGroup: document.getElementById('ageGroup').value,
+                phone: document.getElementById('pPhone').value,
+                ageGrp: document.getElementById('ageGrp').value,
+                dob: document.getElementById('dob').value,
                 days: [...selectedDays],
-                time: document.getElementById('timeSlot').value,
-                price: calculatePrice(),
-                status: 'waitlist',
-                makeups: 0
+                fee: updatePrice(),
+                invited: false, confirmed: false, checkIn: false, isPaid: false, followUps: 0
             };
-            students.push(newStudent);
-            renderAll();
+            students.push(newKid);
+            save();
             e.target.reset();
             selectedDays = [];
-            document.querySelectorAll('.btn-day').forEach(b => b.classList.remove('active'));
-            alert("Registered successfully!");
+            document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('bg-yellow-500', 'text-black'));
+            render();
         }
 
-        function renderAll() {
-            const container = document.getElementById('rosterContainer');
+        function render() {
+            const container = document.getElementById('roster');
+            const search = document.getElementById('search').value.toLowerCase();
+            const today = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][new Date().getDay()];
+            
             container.innerHTML = '';
-            let revenue = 0; let activeCount = 0; let waitCount = 0;
+            let cash=0, card=0, conf=0, alerts=0, present=0, expected=0;
 
+            // Stats Update Logic
             students.forEach(s => {
-                if(s.status === 'active') { revenue += s.price; activeCount++; }
-                else if(s.status === 'waitlist') waitCount++;
+                const age = getAge(s.dob);
+                const needsMove = (s.ageGrp === 'U8' && age >= 9) || (s.ageGrp === 'U12' && age >= 13);
+                const isBday = s.dob && new Date(s.dob).getMonth() === new Date().getMonth();
 
-                if(s.status !== currentSection) return;
+                if(s.confirmed) conf++;
+                if(needsMove) alerts++;
+                if(s.days.includes(today)) { expected++; if(s.checkIn) present++; }
+                if(s.isPaid) { if(s.method === 'Cash') cash += s.fee; else card += s.fee; }
 
-                const card = `
-                <div class="card p-5 rounded-2xl relative">
-                    ${s.makeups > 0 ? `<span class="absolute -top-2 -right-2 bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg">${s.makeups} MAKEUP DUE</span>` : ''}
-                    <div class="flex justify-between items-start mb-4">
-                        <div>
-                            <h4 class="text-lg font-bold text-yellow-500">${s.name}</h4>
-                            <p class="text-xs text-gray-400 uppercase">${s.ageGroup} | ${s.days.join(', ')} | ${s.time}</p>
+                // Filter Logic
+                if(!s.name.toLowerCase().includes(search) && !s.phone.includes(search)) return;
+                if(viewMode === 'today' && !s.days.includes(today)) return;
+                if(viewMode === 'invite' && s.invited) return;
+
+                container.innerHTML += `
+                    <div class="isd-card p-6 rounded-[32px] flex flex-col md:flex-row justify-between items-center gap-6 ${s.checkIn ? 'checked-in' : ''} ${s.ageGrp==='U8'?'u8-tag':s.ageGrp==='U12'?'u12-tag':'u16-tag'}">
+                        <div class="flex-1 w-full">
+                            <div class="flex items-center gap-3 mb-2">
+                                <h4 class="text-xl font-black uppercase italic">${isBday?'🎂 ':''}${s.name}</h4>
+                                <span class="text-[8px] font-black px-3 py-1 rounded-full ${s.confirmed?'bg-yellow-500 text-black':'bg-neutral-800 text-gray-500'}">${s.confirmed?'CONFIRMED':'T3 PENDING'}</span>
+                            </div>
+                            
+                            ${needsMove ? `<p class="text-[9px] font-black uppercase age-pulse mb-3"><i class="fas fa-exclamation-triangle mr-1"></i> Promotion Due (Age ${age})</p>` : ''}
+
+                            <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 text-[10px] font-bold text-gray-500 mb-6">
+                                <div><p class="stat-label">Guardian</p><p class="text-white">${s.pName}</p></div>
+                                <div><p class="stat-label">WhatsApp</p><a href="https://wa.me/${s.phone}" target="_blank" class="text-green-500">${s.phone}</a></div>
+                                <div><p class="stat-label">Schedule</p><p class="text-white">${s.days.join(' & ')}</p></div>
+                                <div><p class="stat-label">Financials</p><p class="${s.isPaid?'text-green-500':'text-yellow-500'} font-black italic">${s.isPaid?'PAID IN FULL':s.fee + ' AED DUE'}</p></div>
+                            </div>
+
+                            <div class="flex flex-wrap gap-2">
+                                <button onclick="markAttendance(${s.id})" class="px-5 py-2.5 rounded-xl text-[9px] font-black border border-neutral-800 uppercase hover:bg-white hover:text-black transition">Check-In</button>
+                                ${!s.invited ? 
+                                    `<button onclick="sendInvite(${s.id}, true)" class="bg-green-600/10 text-green-500 px-5 py-2.5 rounded-xl text-[9px] font-black uppercase">Send T3 Invite</button>` : 
+                                    `<button onclick="sendInvite(${s.id}, false)" class="bg-blue-600/10 text-blue-400 px-5 py-2.5 rounded-xl text-[9px] font-black uppercase">Nudge (${s.followUps||0})</button>`
+                                }
+                                <button onclick="toggleConfirm(${s.id})" class="px-5 py-2.5 rounded-xl text-[9px] font-black border border-neutral-800 uppercase ${s.confirmed?'text-yellow-500 border-yellow-500/30':''}">Confirm Spot</button>
+                                ${!s.isPaid ? 
+                                    `<button onclick="openPay(${s.id})" class="bg-yellow-500 text-black px-5 py-2.5 rounded-xl text-[9px] font-black uppercase hover:scale-105 transition">Process Pay</button>` : 
+                                    `<span class="text-[9px] font-black text-gray-600 uppercase ml-3 self-center"><i class="fas fa-check mr-1"></i> ${s.method}</span>`
+                                }
+                                ${isBday ? `<button onclick="sendBday(${s.id})" class="bg-pink-600/10 text-pink-400 px-5 py-2.5 rounded-xl text-[9px] font-black uppercase">Wish Bday</button>` : ''}
+                            </div>
                         </div>
-                        <div class="text-right">
-                            <p class="text-sm font-bold">${s.price} AED</p>
-                        </div>
                     </div>
-                    <div class="text-xs text-gray-500 space-y-1 mb-4">
-                        <p><i class="fas fa-user mr-2"></i>${s.pName}</p>
-                        <p><i class="fas fa-phone mr-2"></i>${s.pPhone}</p>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button onclick="sendWA(${s.id})" class="text-[10px] font-bold bg-green-600/20 text-green-500 py-2 rounded-lg border border-green-500/20 uppercase">WA Message</button>
-                        ${s.status === 'waitlist' ? 
-                            `<button onclick="updateStatus(${s.id}, 'active')" class="text-[10px] font-bold bg-blue-600 text-white py-2 rounded-lg uppercase">Activate</button>` :
-                            `<button onclick="openAbsenceModal(${s.id})" class="text-[10px] font-bold bg-gray-800 text-gray-400 py-2 rounded-lg border border-gray-700 uppercase">Mark Absent</button>`
-                        }
-                    </div>
-                </div>`;
-                container.innerHTML += card;
+                `;
             });
 
-            document.getElementById('stat-total').innerText = `${revenue.toLocaleString()} AED`;
-            document.getElementById('stat-kids').innerText = activeCount;
-            document.getElementById('stat-wait').innerText = waitCount;
-            document.getElementById('section-title').innerText = currentSection === 'active' ? "Active Roster" : "Waiting List";
+            // Update UI Counters
+            document.getElementById('stat-total').innerText = (cash + card).toLocaleString() + " AED";
+            document.getElementById('stat-cash').innerText = cash.toLocaleString();
+            document.getElementById('stat-card').innerText = card.toLocaleString();
+            document.getElementById('stat-conf').innerText = conf;
+            document.getElementById('stat-age').innerText = alerts;
+            document.getElementById('stat-attn').innerText = `${present}/${expected}`;
+
+            // Sync View Buttons
+            document.querySelectorAll('.view-btn').forEach(b => b.className = b.className.replace('bg-yellow-500 text-black', 'bg-neutral-900 text-gray-400'));
+            document.getElementById('v-' + viewMode).classList.add('bg-yellow-500', 'text-black');
         }
 
-        function showSection(sec) { currentSection = sec; renderAll(); }
+        function markAttendance(id) { const s = students.find(x => x.id === id); s.checkIn = !s.checkIn; save(); render(); }
+        function toggleConfirm(id) { const s = students.find(x => x.id === id); s.confirmed = !s.confirmed; save(); render(); }
+        function setView(v) { viewMode = v; render(); }
 
-        function updateStatus(id, status) {
+        function sendInvite(id, isFirst) {
             const s = students.find(x => x.id === id);
-            s.status = status;
-            renderAll();
+            const msg = isFirst ? 
+                `Hi ${s.pName}, greetings from *ISD TABLE TENNIS!* 🏓 We are organizing the roster for *Term 3* and would love to confirm *${s.name}* for their usual slot: *${s.days.join(' & ')}*. Shall we book it?` : 
+                `Hi ${s.pName}, checking back regarding *${s.name}* for *Term 3* at ISD! Spots are filling up—let us know if you'd like to keep your slot! 🏓`;
+            
+            window.open(`https://wa.me/${s.phone}?text=${encodeURIComponent(msg)}`);
+            s.invited = true;
+            s.followUps = (s.followUps || 0) + 1;
+            save(); render();
         }
 
-        function sendWA(id) {
+        function sendBday(id) {
             const s = students.find(x => x.id === id);
-            const msg = `Hi ${s.pName}, confirming ${s.name} for Term 3. Schedule: ${s.days.join('/')} at ${s.time}. Total: ${s.price} AED. See you!`;
-            window.open(`https://wa.me/${s.pPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+            const msg = `Happy Birthday to *${s.name}* from all of us at *ISD TABLE TENNIS!* 🎂🏓 Hope you have a fantastic day!`;
+            window.open(`https://wa.me/${s.phone}?text=${encodeURIComponent(msg)}`);
         }
 
-        function toggleReceptionMode() {
-            const btn = document.getElementById('btn-lock');
-            if(btn.innerHTML.includes('Lock')) {
-                document.getElementById('pinModal').classList.remove('hidden');
-            } else {
-                document.getElementById('stats-section').classList.add('hidden');
-                document.getElementById('admin-tabs').classList.add('hidden');
-                document.getElementById('list-section').classList.add('hidden');
-                btn.innerHTML = '<i class="fas fa-unlock mr-2"></i>Unlock Admin';
-            }
+        function openPay(id) {
+            activeKidId = id;
+            const s = students.find(x => x.id === id);
+            document.getElementById('pay-name').innerText = s.name;
+            document.getElementById('pay-amount').innerText = `Total Due: ${s.fee} AED`;
+            document.getElementById('payModal').classList.remove('hidden');
         }
 
-        function verifyPin() {
-            if(document.getElementById('pinInput').value === ADMIN_PIN) {
-                document.getElementById('stats-section').classList.remove('hidden');
-                document.getElementById('admin-tabs').classList.remove('hidden');
-                document.getElementById('list-section').classList.remove('hidden');
-                document.getElementById('btn-lock').innerHTML = '<i class="fas fa-lock mr-2"></i>Reception Mode';
-                document.getElementById('pinModal').classList.add('hidden');
-                document.getElementById('pinInput').value = '';
-            } else { alert("Wrong PIN"); }
+        function closePay() { document.getElementById('payModal').classList.add('hidden'); }
+
+        function processPayment() {
+            const s = students.find(x => x.id === activeKidId);
+            s.isPaid = true;
+            s.method = document.getElementById('pay-method').value;
+            s.ref = document.getElementById('pay-ref').value;
+            save(); closePay(); render();
         }
 
-        function openAbsenceModal(id) { activeStudentId = id; document.getElementById('absenceModal').classList.remove('hidden'); }
-        function toggleMakeupBtn() {
-            const check = document.getElementById('medCertToggle').checked;
-            const btn = document.getElementById('confirmMakeupBtn');
-            btn.disabled = !check;
-            btn.style.opacity = check ? "1" : "0.3";
-        }
-        function confirmAbsence() {
-            const s = students.find(x => x.id === activeStudentId);
-            s.makeups += 1;
-            closeModal('absenceModal');
-            renderAll();
-        }
-        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-        
-        function exportToExcel() {
-            let csv = "Name,Parent,Phone,Price,Makeups\n";
-            students.forEach(s => csv += `${s.name},${s.pName},${s.pPhone},${s.price},${s.makeups}\n`);
+        function resetDaily() { if(confirm('Clear all attendance for today?')) { students.forEach(s => s.checkIn = false); save(); render(); } }
+
+        function exportCSV() {
+            let csv = "Student,Parent,Phone,Group,Fee,Status,Method,Ref\n";
+            students.forEach(s => {
+                csv += `"${s.name}","${s.pName}","${s.phone}","${s.ageGrp}",${s.fee},"${s.isPaid?'Paid':'Due'}","${s.method||''}","${s.ref||''}"\n`;
+            });
             const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
+            const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'Academy_Roster.csv';
+            a.download = `ISD_T3_ROSTER_${new Date().toISOString().split('T')[0]}.csv`;
             a.click();
         }
 
-        updateTimeSlots();
-        renderAll();
+        // Initialize
+        render();
     </script>
 </body>
 </html>
