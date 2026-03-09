@@ -3,167 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ISD TABLE TENNIS | T3 MASTER TERMINAL</title>
+    <title>ISD TABLE TENNIS | TERM 3 MASTER 53</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        body { background-color: #050505; color: white; font-family: 'Inter', sans-serif; letter-spacing: -0.02em; }
-        .isd-card { background: #111; border: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }
+        body { background: #050505; color: white; font-family: 'Inter', sans-serif; letter-spacing: -0.02em; }
+        .isd-card { background: #111; border: 1px solid rgba(255,255,255,0.05); transition: 0.2s; }
+        .isd-card:hover { border-color: #FFD700; }
         .u8-tag { border-left: 5px solid #FF69B4; }
         .u12-tag { border-left: 5px solid #FFD700; }
         .u16-tag { border-left: 5px solid #555; }
-        .checked-in { background: rgba(34, 197, 94, 0.1) !important; border-color: #22c55e !important; }
         .stat-label { font-size: 8px; font-weight: 900; color: #444; text-transform: uppercase; letter-spacing: 0.15em; }
+        .time-chip { background: rgba(255, 215, 0, 0.1); color: #FFD700; border: 1px solid rgba(255, 215, 0, 0.2); font-size: 7px; padding: 2px 5px; border-radius: 4px; text-transform: uppercase; }
         input, select { background: #1a1a1a !important; border: 1px solid #333 !important; color: white !important; }
-        .age-pulse { animation: pulse 2s infinite; color: #fb923c; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-        .time-chip { background: rgba(255, 215, 0, 0.1); color: #FFD700; border: 1px solid rgba(255, 215, 0, 0.2); }
+        .blast-btn { background: linear-gradient(135deg, #25D366 0%, #128C7E 100%); }
     </style>
 </head>
 <body class="p-4 md:p-8">
 
     <div class="max-w-7xl mx-auto">
-        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-10 gap-6">
+        <div class="flex flex-col lg:flex-row justify-between items-end mb-10 gap-6">
             <div>
-                <h1 class="text-6xl font-black italic text-yellow-500 uppercase leading-none tracking-tighter">ISD OPERATIONS</h1>
-                <p class="text-gray-500 text-[10px] font-bold uppercase mt-3 tracking-[0.5em]">Term 3 Master Tracker • Created by Leo</p>
+                <h1 class="text-5xl font-black italic text-yellow-500 uppercase leading-none tracking-tighter">ISD TABLE TENNIS</h1>
+                <p class="text-gray-500 text-[10px] font-bold uppercase mt-3 tracking-[0.5em]">Term 3 Master Terminal • Created by Leo</p>
             </div>
             <div class="flex flex-wrap gap-2">
-                <button onclick="exportCSV()" class="bg-neutral-900 border border-neutral-800 px-5 py-3 rounded-2xl text-[10px] font-black uppercase hover:bg-neutral-800"><i class="fas fa-file-csv mr-2 text-green-500"></i>Export Roster</button>
-                <button onclick="resetDaily()" class="bg-red-900/10 text-red-500 border border-red-900/30 px-5 py-3 rounded-2xl text-[10px] font-black uppercase">Daily Reset</button>
+                <button onclick="exportCSV()" class="bg-neutral-900 border border-neutral-800 px-6 py-3 rounded-2xl text-[10px] font-black uppercase"><i class="fas fa-download mr-2 text-green-500"></i>Export CSV</button>
             </div>
         </div>
 
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
-            <div class="isd-card p-6 rounded-3xl"><p class="stat-label">Total Revenue</p><h3 id="stat-total" class="text-2xl font-black">0</h3></div>
-            <div class="isd-card p-6 rounded-3xl"><p class="stat-label">Confirmed T3</p><h3 id="stat-conf" class="text-2xl font-black text-yellow-500">0</h3></div>
-            <div class="isd-card p-6 rounded-3xl"><p class="stat-label">🎂 B-Days</p><h3 id="stat-bdays" class="text-2xl font-black text-pink-500">0</h3></div>
-            <div class="isd-card p-6 rounded-3xl"><p class="stat-label">⚠️ Age Move</p><h3 id="stat-age" class="text-2xl font-black text-orange-500">0</h3></div>
-            <div class="isd-card p-6 rounded-3xl"><p class="stat-label">Expected</p><h3 id="stat-exp" class="text-2xl font-black text-blue-400">0</h3></div>
-            <div class="isd-card p-6 rounded-3xl bg-yellow-500/5"><p class="stat-label text-yellow-500">Attendance</p><h3 id="stat-attn" class="text-2xl font-black text-yellow-500">0/0</h3></div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+            <div class="isd-card p-6 rounded-3xl"><p class="stat-label">Total Roster</p><h3 class="text-2xl font-black">53</h3></div>
+            <div class="isd-card p-6 rounded-3xl"><p class="stat-label">T3 Confirmed</p><h3 id="stat-conf" class="text-2xl font-black text-yellow-500">0</h3></div>
+            <div class="isd-card p-6 rounded-3xl"><p class="stat-label">Paid Records</p><h3 id="stat-rev" class="text-2xl font-black text-green-500">0</h3></div>
+            <div class="isd-card p-6 rounded-3xl blast-btn text-white"><p class="stat-label text-white/70">WhatsApp Blast</p><h3 class="text-xl font-black uppercase">Ready</h3></div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
             <div class="lg:col-span-4">
-                <div class="isd-card p-8 rounded-[40px] sticky top-8 border-yellow-500/10 shadow-2xl">
-                    <h3 id="formTitle" class="text-[10px] font-black uppercase mb-8 tracking-widest text-gray-400">Student Registry</h3>
+                <div class="isd-card p-8 rounded-[40px] sticky top-8 border-yellow-500/10">
+                    <h3 id="formTitle" class="text-[10px] font-black uppercase mb-6 tracking-widest text-gray-500">Edit Student</h3>
                     <form id="regForm" onsubmit="handleRegistration(event)" class="space-y-4">
                         <input type="hidden" id="editId">
-                        <input type="text" id="kName" placeholder="Full Name" required class="w-full p-4 rounded-2xl text-sm outline-none focus:border-yellow-500">
-                        
+                        <input type="text" id="kName" placeholder="Full Name" required class="w-full p-4 rounded-2xl text-sm outline-none">
                         <div class="grid grid-cols-2 gap-3">
-                            <select id="ageGrp" class="p-4 rounded-2xl text-sm font-bold uppercase" onchange="updatePrice()">
+                            <select id="ageGrp" class="p-4 rounded-2xl text-sm font-bold uppercase">
                                 <option value="U8">U8</option>
                                 <option value="U12" selected>U12</option>
                                 <option value="U16">U16</option>
                             </select>
-                            <input type="date" id="dob" class="p-4 rounded-2xl text-xs" onchange="render()">
+                            <input type="date" id="dob" class="p-4 rounded-2xl text-xs">
                         </div>
-
                         <input type="email" id="kEmail" placeholder="Parent Email" class="w-full p-4 rounded-2xl text-sm">
-                        
                         <div class="grid grid-cols-2 gap-3">
                             <input type="text" id="pName" placeholder="Parent Name" class="p-4 rounded-2xl text-sm">
                             <input type="tel" id="pPhone" placeholder="WhatsApp (05X...)" class="p-4 rounded-2xl text-sm">
                         </div>
-
-                        <select id="coach" class="w-full p-4 rounded-2xl text-sm font-bold uppercase">
-                            <option value="Alexey">Head Coach: Alexey</option>
-                            <option value="Yulia">Coach: Yulia</option>
-                            <option value="Sarah">Coach: Sarah</option>
-                        </select>
-
-                        <div class="p-5 bg-black/40 rounded-3xl border border-white/5">
-                            <p class="stat-label mb-4">Weekly Schedule</p>
-                            <div class="flex justify-between gap-1 mb-4">
-                                <button type="button" onclick="setDay(this,'Mon')" class="day-btn flex-1 py-3 rounded-xl border border-neutral-800 text-[10px] font-black">M</button>
-                                <button type="button" onclick="setDay(this,'Tue')" class="day-btn flex-1 py-3 rounded-xl border border-neutral-800 text-[10px] font-black">T</button>
-                                <button type="button" onclick="setDay(this,'Wed')" class="day-btn flex-1 py-3 rounded-xl border border-neutral-800 text-[10px] font-black">W</button>
-                                <button type="button" onclick="setDay(this,'Thu')" class="day-btn flex-1 py-3 rounded-xl border border-neutral-800 text-[10px] font-black">T</button>
-                                <button type="button" onclick="setDay(this,'Fri')" class="day-btn flex-1 py-3 rounded-xl border border-neutral-800 text-[10px] font-black">F</button>
+                        <div class="p-4 bg-black/40 rounded-2xl border border-white/5">
+                            <p class="stat-label mb-2">Weekly Schedule</p>
+                            <div class="flex gap-1 mb-4">
+                                <button type="button" onclick="setDay(this,'Mon')" class="day-btn flex-1 py-2 rounded-lg border border-neutral-800 text-[10px] font-black">M</button>
+                                <button type="button" onclick="setDay(this,'Tue')" class="day-btn flex-1 py-2 rounded-lg border border-neutral-800 text-[10px] font-black">T</button>
+                                <button type="button" onclick="setDay(this,'Wed')" class="day-btn flex-1 py-2 rounded-lg border border-neutral-800 text-[10px] font-black">W</button>
+                                <button type="button" onclick="setDay(this,'Thu')" class="day-btn flex-1 py-2 rounded-lg border border-neutral-800 text-[10px] font-black">T</button>
+                                <button type="button" onclick="setDay(this,'Fri')" class="day-btn flex-1 py-2 rounded-lg border border-neutral-800 text-[10px] font-black">F</button>
                             </div>
                             <p class="stat-label mb-2">Time Slot(s)</p>
-                            <select id="timeSlot" class="w-full p-4 rounded-xl text-xs font-bold uppercase" multiple size="4">
-                                <option value="3:00 PM - 4:00 PM">3:00 PM - 4:00 PM</option>
+                            <select id="timeSlot" class="w-full p-4 rounded-xl text-xs font-bold uppercase" multiple size="5">
+                                <option value="3:00 PM - 4:00 PM">3:00 PM - 4:00 PM (Fri Only)</option>
                                 <option value="4:00 PM - 5:00 PM">4:00 PM - 5:00 PM</option>
                                 <option value="5:00 PM - 6:00 PM">5:00 PM - 6:00 PM</option>
                                 <option value="6:00 PM - 7:00 PM">6:00 PM - 7:00 PM</option>
                             </select>
-                            <p class="text-[8px] text-gray-600 mt-2 uppercase italic">Hold Ctrl/Cmd to select multiple times</p>
                         </div>
-
-                        <div class="bg-black p-5 rounded-3xl border border-white/5 text-center"><h2 id="feeDisplay" class="text-2xl font-black text-yellow-500">0 AED</h2></div>
-                        <button type="submit" id="submitBtn" class="w-full bg-yellow-500 text-black font-black py-5 rounded-[20px] uppercase text-sm hover:bg-yellow-400 transition-all">Update Database</button>
-                        <button type="button" id="cancelEdit" onclick="resetForm()" class="hidden w-full text-gray-500 py-2 text-[10px] uppercase font-bold">Discard Changes</button>
+                        <button type="submit" id="submitBtn" class="w-full bg-yellow-500 text-black font-black py-4 rounded-2xl uppercase text-xs">Apply Changes</button>
                     </form>
                 </div>
             </div>
 
             <div class="lg:col-span-8">
-                <div class="flex flex-wrap gap-3 mb-8 items-center bg-neutral-900/40 p-2 rounded-3xl">
-                    <button onclick="setView('today')" id="v-today" class="view-btn px-6 py-3 rounded-2xl text-[10px] font-black uppercase transition-all">Daily Attendance</button>
-                    <button onclick="setView('all')" id="v-all" class="view-btn px-6 py-3 rounded-2xl text-[10px] font-black uppercase transition-all">Full 53 Roster</button>
-                    <button onclick="setView('pending')" id="v-pending" class="view-btn px-6 py-3 rounded-2xl text-[10px] font-black uppercase text-blue-400">T3 Invite Required</button>
-                    <input type="text" id="search" onkeyup="render()" placeholder="Search names, email, or coach..." class="flex-1 bg-transparent border-none rounded-2xl px-6 py-3 text-sm focus:ring-0">
-                </div>
-                <div id="roster" class="space-y-4"></div>
+                <input type="text" id="search" onkeyup="render()" placeholder="Search all 53 kids..." class="w-full mb-6 bg-neutral-900 border-none rounded-2xl px-6 py-4 text-sm outline-none">
+                <div id="roster" class="space-y-3"></div>
             </div>
         </div>
     </div>
 
-    <div id="payModal" class="fixed inset-0 bg-black/95 hidden flex items-center justify-center p-4 z-50 backdrop-blur-sm">
-        <div class="isd-card p-10 rounded-[40px] w-full max-w-sm text-center">
-            <h2 id="pay-name" class="text-xl font-black text-yellow-500 mb-6 uppercase tracking-tight"></h2>
-            <select id="pay-method" class="w-full p-4 rounded-2xl mb-4 font-black uppercase"><option value="Cash">Cash</option><option value="Card">Card</option><option value="Link">Link</option></select>
-            <input type="text" id="pay-ref" placeholder="Ref / Receipt #" class="w-full p-4 rounded-2xl text-center mb-6 bg-black border border-neutral-800 font-mono text-xs">
-            <button onclick="confirmPayment()" class="w-full bg-green-600 text-white font-black py-4 rounded-2xl uppercase text-xs shadow-lg shadow-green-600/20">Mark as Paid</button>
-            <button onclick="closePay()" class="text-gray-500 mt-4 text-[10px] uppercase font-bold">Cancel</button>
-        </div>
-    </div>
-
     <script>
-        const RATES = { 'U8': [0, 1390, 2645, 3962], 'U12': [0, 1695, 3220, 4830], 'U16': [0, 1695, 3220, 4830] };
-
-        // INITIAL DATABASE CORE
+        // CORE 53 DATASET
         const MASTER_LIST = [
-            { id: 1, name: "Musa Junego", pName: "Reena Babar", email: "reena7musa@gmail.com", phone: "0547773836", ageGrp: "U12", dob: "2015-05-15", days: ["Mon"], timeSlots: ["4:00 PM - 5:00 PM"], coach: "Alexey", fee: 1695, invited: false, confirmed: false, checkIn: false, isPaid: false },
-            { id: 2, name: "Samuel Greiner", pName: "Patrick / Miriam", email: "info@miriam-greiner.de", phone: "0507588134", ageGrp: "U12", dob: "2012-03-10", days: ["Mon", "Fri"], timeSlots: ["5:00 PM - 6:00 PM"], coach: "Alexey", fee: 3220, invited: false, confirmed: false, checkIn: false, isPaid: false },
-            { id: 3, name: "Ishaan Kumar", pName: "Ashish Kumar", email: "ashish.kumar02@gmail.com", phone: "0522976720", ageGrp: "U8", dob: "2017-02-12", days: ["Tue", "Thu"], timeSlots: ["4:00 PM - 5:00 PM"], coach: "Yulia", fee: 2645, invited: false, confirmed: false, checkIn: false, isPaid: false },
-            { id: 4, name: "Artem Arzhanov", pName: "Natalia Arzanova", email: "natalia@arz.com", phone: "+79858021467", ageGrp: "U12", dob: "2013-11-20", days: ["Wed", "Fri"], timeSlots: ["3:00 PM - 4:00 PM", "4:00 PM - 5:00 PM"], coach: "Alexey", fee: 3220, invited: false, confirmed: false, checkIn: false, isPaid: false },
-            { id: 5, name: "Tehzeeb Ali", pName: "Gows Basha", email: "gows@ali.com", phone: "0552025369", ageGrp: "U16", dob: "2009-08-05", days: ["Wed", "Fri"], timeSlots: ["5:00 PM - 6:00 PM"], coach: "Sarah", fee: 3220, invited: false, confirmed: false, checkIn: false, isPaid: false }
+            { id: 1, name: "Musa Junego", pName: "Reena Babar", email: "reena7musa@gmail.com", phone: "0547773836", ageGrp: "U12", dob: "2015-05-15", days: ["Mon"], timeSlots: ["4:00 PM - 5:00 PM"], isPaid: false },
+            { id: 2, name: "Samuel Greiner", pName: "Patrick / Miriam", email: "info@miriam-greiner.de", phone: "0507588134", ageGrp: "U12", dob: "2012-03-10", days: ["Mon", "Fri"], timeSlots: ["5:00 PM - 6:00 PM"], isPaid: false },
+            { id: 3, name: "Ishaan Kumar", pName: "Ashish Kumar", email: "ashish.kumar02@gmail.com", phone: "0522976720", ageGrp: "U8", dob: "2017-02-12", days: ["Tue", "Thu"], timeSlots: ["4:00 PM - 5:00 PM"], isPaid: false },
+            { id: 4, name: "Artem Arzhanov", pName: "Natalia Arzanova", email: "natalia@arz.com", phone: "+79858021467", ageGrp: "U12", dob: "2013-11-20", days: ["Wed", "Fri"], timeSlots: ["3:00 PM - 4:00 PM", "4:00 PM - 5:00 PM"], isPaid: false },
+            { id: 5, name: "Tehzeeb Ali", pName: "Gows Basha", email: "gows@ali.com", phone: "0552025369", ageGrp: "U16", dob: "2009-08-05", days: ["Wed", "Fri"], timeSlots: ["5:00 PM - 6:00 PM"], isPaid: false }
         ];
 
-        let students = JSON.parse(localStorage.getItem('isd_master_ultimate')) || MASTER_LIST;
-        let selectedDays = []; let currentView = 'today'; let activePayId = null;
+        // Fill remaining slots
+        for(let i=6; i<=53; i++){
+            MASTER_LIST.push({ id: i, name: `Student #${i} (T3 Pending)`, pName: "-", email: "-", phone: "0500000000", ageGrp: "U12", dob: "", days: [], timeSlots: [], isPaid: false });
+        }
 
-        const save = () => localStorage.setItem('isd_master_ultimate', JSON.stringify(students));
-        const getAge = (dob) => { if(!dob) return 0; const b = new Date(dob); const n = new Date(); let a = n.getFullYear()-b.getFullYear(); if(n.getMonth()<b.getMonth() || (n.getMonth()==b.getMonth() && n.getDate()<b.getDate())) a--; return a; };
+        let students = JSON.parse(localStorage.getItem('isd_master_53_final')) || MASTER_LIST;
+        let selectedDays = [];
+
+        const save = () => localStorage.setItem('isd_master_53_final', JSON.stringify(students));
 
         function setDay(btn, d) {
             if(selectedDays.includes(d)) {
                 selectedDays = selectedDays.filter(x => x !== d);
                 btn.classList.remove('bg-yellow-500', 'text-black');
             } else {
-                if(selectedDays.length >= 3) return;
                 selectedDays.push(d);
                 btn.classList.add('bg-yellow-500', 'text-black');
             }
-            updatePrice();
-        }
-
-        function updatePrice() {
-            const grp = document.getElementById('ageGrp').value;
-            const price = RATES[grp][selectedDays.length] || 0;
-            document.getElementById('feeDisplay').innerText = `${price.toLocaleString()} AED`;
-            return price;
         }
 
         function handleRegistration(e) {
             e.preventDefault();
             const editId = document.getElementById('editId').value;
             const timeSelect = document.getElementById('timeSlot');
-            const selectedTimes = Array.from(timeSelect.selectedOptions).map(option => option.value);
+            const selectedTimes = Array.from(timeSelect.selectedOptions).map(opt => opt.value);
 
             const sData = {
                 name: document.getElementById('kName').value,
@@ -172,20 +132,15 @@
                 phone: document.getElementById('pPhone').value,
                 ageGrp: document.getElementById('ageGrp').value,
                 dob: document.getElementById('dob').value,
-                coach: document.getElementById('coach').value,
                 days: [...selectedDays],
-                timeSlots: selectedTimes,
-                fee: updatePrice()
+                timeSlots: selectedTimes
             };
 
-            if(editId) {
-                const index = students.findIndex(x => x.id == editId);
+            const index = students.findIndex(x => x.id == editId);
+            if(index !== -1) {
                 students[index] = { ...students[index], ...sData };
-            } else {
-                students.push({ ...sData, id: Date.now(), invited: false, confirmed: false, checkIn: false, isPaid: false, followUps: 0 });
+                save(); resetForm(); render();
             }
-
-            save(); resetForm(); render();
         }
 
         function editStudent(id) {
@@ -197,124 +152,78 @@
             document.getElementById('pPhone').value = s.phone;
             document.getElementById('ageGrp').value = s.ageGrp;
             document.getElementById('dob').value = s.dob;
-            document.getElementById('coach').value = s.coach;
             
             selectedDays = [...s.days];
-            const btns = document.querySelectorAll('.day-btn');
             const map = ["Mon", "Tue", "Wed", "Thu", "Fri"];
-            btns.forEach((b, i) => {
+            document.querySelectorAll('.day-btn').forEach((b, i) => {
                 if(selectedDays.includes(map[i])) b.classList.add('bg-yellow-500', 'text-black');
                 else b.classList.remove('bg-yellow-500', 'text-black');
             });
-
-            const timeSelect = document.getElementById('timeSlot');
-            Array.from(timeSelect.options).forEach(opt => {
-                opt.selected = s.timeSlots.includes(opt.value);
-            });
-
-            document.getElementById('formTitle').innerText = "Update: " + s.name;
-            document.getElementById('submitBtn').innerText = "Apply Changes";
-            document.getElementById('cancelEdit').classList.remove('hidden');
+            const tSel = document.getElementById('timeSlot');
+            Array.from(tSel.options).forEach(o => o.selected = s.timeSlots.includes(o.value));
             window.scrollTo({ top: 0, behavior: 'smooth' });
-            updatePrice();
+        }
+
+        function togglePaid(id) {
+            const s = students.find(x => x.id == id);
+            s.isPaid = !s.isPaid;
+            save(); render();
+        }
+
+        function sendBlast(id) {
+            const s = students.find(x => x.id == id);
+            const msg = `Hi ${s.pName}, greetings from *ISD TABLE TENNIS!* 🏓 We're getting ready for *Term 3* (starting March 30th). We have *${s.name}* scheduled for: *${s.days.join('/')}* at *${s.timeSlots.join(' & ')}*. Shall we confirm this spot? - Leo`;
+            window.open(`https://wa.me/${s.phone}?text=${encodeURIComponent(msg)}`);
         }
 
         function resetForm() {
             document.getElementById('regForm').reset();
-            document.getElementById('editId').value = "";
-            document.getElementById('formTitle').innerText = "Student Registry";
-            document.getElementById('submitBtn').innerText = "Update Database";
-            document.getElementById('cancelEdit').classList.add('hidden');
             selectedDays = [];
             document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('bg-yellow-500', 'text-black'));
-            updatePrice();
         }
 
         function render() {
             const container = document.getElementById('roster');
             const search = document.getElementById('search').value.toLowerCase();
-            const today = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][new Date().getDay()];
             container.innerHTML = '';
             
-            let cash=0, card=0, conf=0, bdays=0, alerts=0, present=0, expected=0;
-
+            let paid = 0, conf = 0;
             students.forEach(s => {
-                const age = getAge(s.dob);
-                const isAgeAlert = (s.ageGrp === 'U8' && age >= 9) || (s.ageGrp === 'U12' && age >= 13);
-                const isBday = s.dob && new Date(s.dob).getMonth() === new Date().getMonth();
-
-                if(s.confirmed) conf++; if(isBday) bdays++; if(isAgeAlert) alerts++;
-                if(s.days.includes(today)) { expected++; if(s.checkIn) present++; }
-                if(s.isPaid) { if(s.method === 'Cash') cash += s.fee; else card += s.fee; }
-
-                if(!s.name.toLowerCase().includes(search) && !s.coach.toLowerCase().includes(search)) return;
-                if(currentView === 'today' && !s.days.includes(today)) return;
-                if(currentView === 'pending' && s.invited) return;
+                if(s.isPaid) paid++;
+                if(s.days.length > 0) conf++;
+                if(!s.name.toLowerCase().includes(search) && !s.email.toLowerCase().includes(search)) return;
 
                 container.innerHTML += `
-                    <div class="isd-card p-6 rounded-[32px] flex flex-col md:flex-row justify-between items-center gap-6 ${s.checkIn ? 'checked-in border-green-500/50' : ''} ${s.ageGrp==='U8'?'u8-tag':s.ageGrp==='U12'?'u12-tag':'u16-tag'}">
+                    <div class="isd-card p-5 rounded-3xl flex flex-col md:flex-row justify-between items-center gap-4 ${s.ageGrp==='U8'?'u8-tag':s.ageGrp==='U12'?'u12-tag':'u16-tag'}">
                         <div class="flex-1 w-full">
-                            <div class="flex items-center gap-3 mb-2">
-                                <h4 class="text-xl font-black uppercase italic tracking-tight">${isBday?'🎂 ':''}${s.name}</h4>
-                                <span class="text-[7px] font-black px-2 py-0.5 rounded-full bg-neutral-800 text-gray-500 uppercase">${s.coach}</span>
-                                <span class="text-[7px] font-black px-2 py-0.5 rounded-full ${s.confirmed?'bg-yellow-500 text-black':'border border-neutral-700 text-gray-600'}">${s.confirmed?'CONFIRMED':'INVITED'}</span>
+                            <h4 class="text-lg font-black uppercase italic mb-2">${s.name}</h4>
+                            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 text-[9px] font-bold text-gray-500">
+                                <div><p class="stat-label">Guardian</p><p class="text-white">${s.pName}</p></div>
+                                <div><p class="stat-label">Schedule</p><p class="text-white">${s.days.join(', ')}</p></div>
+                                <div><p class="stat-label">Slots</p><div class="flex flex-wrap gap-1 mt-1">${s.timeSlots.map(t => `<span class="time-chip">${t}</span>`).join('')}</div></div>
+                                <div><p class="stat-label">Parent Email</p><p class="text-gray-400 truncate">${s.email}</p></div>
                             </div>
-                            
-                            ${isAgeAlert ? `<p class="text-[9px] font-black uppercase age-pulse mb-3 tracking-widest"><i class="fas fa-arrow-up mr-1"></i> Promotion Required (Age ${age})</p>` : ''}
-
-                            <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 text-[10px] font-bold text-gray-500 mb-6">
-                                <div><p class="stat-label">Guardian</p><p class="text-white">${s.pName}</p><p class="text-[8px] text-gray-700">${s.email || '-'}</p></div>
-                                <div><p class="stat-label">Contact</p><a href="https://wa.me/${s.phone}" target="_blank" class="text-green-500">${s.phone}</a></div>
-                                <div><p class="stat-label">Session</p><p class="text-white">${s.days.join('/')}</p>
-                                    <div class="flex flex-wrap gap-1 mt-1">${s.timeSlots.map(t => `<span class="time-chip text-[7px] px-1 rounded uppercase">${t}</span>`).join('')}</div>
-                                </div>
-                                <div><p class="stat-label">T3 Status</p><p class="${s.isPaid?'text-green-500':'text-yellow-500'} font-black italic tracking-tighter">${s.isPaid?'PAID IN FULL':s.fee+' AED DUE'}</p></div>
-                            </div>
-
-                            <div class="flex flex-wrap gap-2">
-                                <button onclick="markAttendance(${s.id})" class="px-5 py-2.5 rounded-xl text-[9px] font-black border border-neutral-800 uppercase hover:bg-white hover:text-black transition">Check-In</button>
-                                <button onclick="editStudent(${s.id})" class="bg-neutral-800 text-white px-5 py-2.5 rounded-xl text-[9px] font-black uppercase"><i class="fas fa-pen text-[8px] mr-1"></i> Edit</button>
-                                <button onclick="sendInvite(${s.id})" class="bg-green-600/10 text-green-500 px-5 py-2.5 rounded-xl text-[9px] font-black uppercase">T3 WhatsApp</button>
-                                <button onclick="toggleConfirm(${s.id})" class="px-5 py-2.5 rounded-xl text-[9px] font-black border border-neutral-800 uppercase ${s.confirmed?'text-yellow-500 border-yellow-500/30':''}">Confirm</button>
-                                ${!s.isPaid ? `<button onclick="openPay(${s.id})" class="bg-yellow-500 text-black px-5 py-2.5 rounded-xl text-[9px] font-black uppercase">Collect</button>` : `<span class="text-[9px] font-black text-gray-600 uppercase ml-2 self-center"><i class="fas fa-check text-green-500 mr-1"></i> ${s.method}</span>`}
-                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="sendBlast(${s.id})" class="bg-green-600/20 text-green-500 p-3 rounded-xl hover:bg-green-600 hover:text-white transition"><i class="fab fa-whatsapp"></i></button>
+                            <button onclick="editStudent(${s.id})" class="bg-neutral-800 text-white p-3 rounded-xl hover:bg-neutral-700"><i class="fas fa-pen"></i></button>
+                            <button onclick="togglePaid(${s.id})" class="p-3 rounded-xl border border-neutral-800 ${s.isPaid?'bg-green-600 text-white border-green-600':'text-gray-600'}">
+                                <i class="fas fa-check"></i>
+                            </button>
                         </div>
                     </div>
                 `;
             });
-
-            document.getElementById('stat-total').innerText = (cash + card).toLocaleString() + " AED";
+            document.getElementById('stat-rev').innerText = paid;
             document.getElementById('stat-conf').innerText = conf;
-            document.getElementById('stat-bdays').innerText = bdays;
-            document.getElementById('stat-age').innerText = alerts;
-            document.getElementById('stat-exp').innerText = expected;
-            document.getElementById('stat-attn').innerText = `${present}/${expected}`;
-            
-            document.querySelectorAll('.view-btn').forEach(b => b.className = b.className.replace('bg-yellow-500 text-black', 'bg-neutral-900 text-gray-400 border-transparent'));
-            document.getElementById('v-' + currentView).classList.add('bg-yellow-500', 'text-black', 'border-yellow-500');
-        }
-
-        function markAttendance(id) { const s = students.find(x => x.id == id); s.checkIn = !s.checkIn; save(); render(); }
-        function toggleConfirm(id) { const s = students.find(x => x.id == id); s.confirmed = !s.confirmed; save(); render(); }
-        function setView(v) { currentView = v; render(); }
-        function openPay(id) { activePayId = id; document.getElementById('pay-name').innerText = students.find(x => x.id == id).name; document.getElementById('payModal').classList.remove('hidden'); }
-        function closePay() { document.getElementById('payModal').classList.add('hidden'); }
-        function confirmPayment() { const s = students.find(x => x.id == activePayId); s.isPaid = true; s.method = document.getElementById('pay-method').value; s.ref = document.getElementById('pay-ref').value; save(); closePay(); render(); }
-        function resetDaily() { if(confirm('Clear all attendance?')) { students.forEach(s => s.checkIn = false); save(); render(); } }
-        
-        function sendInvite(id) {
-            const s = students.find(x => x.id == id);
-            const msg = `Hi ${s.pName}, greetings from *ISD TABLE TENNIS!* 🏓 We are organizing *Term 3* starting March 30th. We have *${s.name}* booked for *${s.days.join('/')}* at *${s.timeSlots.join(' & ')}*. Shall we confirm the spot? - Leo`;
-            window.open(`https://wa.me/${s.phone}?text=${encodeURIComponent(msg)}`);
-            s.invited = true; save(); render();
         }
 
         function exportCSV() {
-            let csv = "Name,Parent,Email,Phone,Group,Coach,Times,Days,Paid\n";
-            students.forEach(s => csv += `"${s.name}","${s.pName}","${s.email}","${s.phone}","${s.ageGrp}","${s.coach}","${s.timeSlots.join(' & ')}","${s.days.join('/')}",${s.isPaid?s.fee:0}\n`);
+            let csv = "Name,Parent,Email,Phone,Group,Days,Slots,Paid\n";
+            students.forEach(s => csv += `"${s.name}","${s.pName}","${s.email}","${s.phone}","${s.ageGrp}","${s.days.join('/')}","${s.timeSlots.join('&')}",${s.isPaid}\n`);
             const blob = new Blob([csv], { type: 'text/csv' });
             const url = URL.createObjectURL(blob);
-            const a = document.createElement('a'); a.href = url; a.download = 'ISD_MASTER_ROSTER.csv'; a.click();
+            const a = document.createElement('a'); a.href = url; a.download = 'ISD_TERM3_DATABASE.csv'; a.click();
         }
 
         render();
