@@ -122,7 +122,46 @@
     </div>
 
     <script>
-        let students = [];
+        let students = [
+    { id: 1, name: "Musa Junego", ageGroup: "U12", days: ["Mon"], time: "4:00 PM - 5:00 PM", price: 1390, paid: true, method: "Cash", isdb: true, email: "reena7musa@gmail.com", contact: "0547773836" },
+    { id: 2, name: "Samuel Greiner", ageGroup: "U12", days: ["Mon", "Fri"], time: "4:00 PM - 5:00 PM", price: 3220, paid: true, method: "Card", isdb: true, email: "info@miriam-greiner.de", contact: "0507588134" },
+    { id: 3, name: "Ishaan Kumar", ageGroup: "U8", days: ["Tue", "Thu"], time: "4:00 PM - 5:00 PM", price: 2645, paid: true, method: "Link", isdb: false, email: "ashish.kumar02@gmail.com", contact: "0522976720" },
+    { id: 4, name: "Artem Arzhanov", ageGroup: "U12", days: ["Wed", "Fri"], time: "3:00 PM - 4:00 PM", price: 3220, paid: true, method: "Card", isdb: true, email: "natalia@avispromservices.com", contact: "+79858021467" },
+    { id: 5, name: "Yuri Kurdyukov", ageGroup: "U12", days: ["Tue"], time: "5:00 PM - 6:00 PM", price: 1695, paid: true, method: "Cash", isdb: true, email: "akurdyukova@gmail.com", contact: "506651911" },
+    { id: 6, name: "Gherman Mustiviy", ageGroup: "U12", days: ["Fri"], time: "3:00 PM - 4:00 PM", price: 1695, paid: true, method: "Card", isdb: true, email: "n.mustiviy@gmail.com", contact: "0507701485" },
+    { id: 7, name: "Ryan Kim", ageGroup: "U12", days: ["Mon"], time: "5:00 PM - 6:00 PM", price: 1695, paid: true, method: "Link", isdb: false, email: "Riana.Kwon@gmail.com", contact: "0584496888" },
+    { id: 8, name: "Elai Fatykhov", ageGroup: "U12", days: ["Mon"], time: "5:00 PM - 6:00 PM", price: 1695, paid: true, method: "Cash", isdb: true, email: "Elviradxb@gmail.com", contact: "0527332988" },
+    { id: 9, name: "Arjun Arun", ageGroup: "U12", days: ["Tue"], time: "4:00 PM - 5:00 PM", price: 1695, paid: true, method: "Card", isdb: false, email: "rani.subassarunran@gmail.com", contact: "0522667290" },
+    { id: 10, name: "Mark Krutko", ageGroup: "U12", days: ["Tue", "Thu"], time: "5:00 PM - 6:00 PM", price: 3220, paid: true, method: "Link", isdb: true, email: "pryhozhaya@gmail.com", contact: "0551344751" },
+    { id: 11, name: "Daniel Fady", ageGroup: "U12", days: ["Fri"], time: "3:00 PM - 4:00 PM", price: 1695, paid: true, method: "Cash", isdb: true, email: "fady.awny@gmail.com", contact: "0551915601" },
+    { id: 12, name: "Haider Hasan", ageGroup: "U12", days: ["Wed"], time: "5:00 PM - 6:00 PM", price: 1695, paid: true, method: "Card", isdb: false, email: "aayari0@gmail.com", contact: "0525987691" },
+    { id: 13, name: "Mark Dorogya", ageGroup: "U12", days: ["Wed"], time: "5:00 PM - 6:00 PM", price: 1695, paid: true, method: "Link", isdb: true, email: "juldorogaya@gmail.com", contact: "0558631023" },
+    { id: 14, name: "Jayden Chan", ageGroup: "U12", days: ["Thu"], time: "4:00 PM - 5:00 PM", price: 1695, paid: false, method: "Pending", isdb: false, email: "N/A", contact: "85291283715" },
+    { id: 15, name: "Petr", ageGroup: "U16", days: ["Mon"], time: "5:00 PM - 6:00 PM", price: 1695, paid: true, method: "Cash", isdb: true, email: "nat7shaikina@gmail.com", contact: "0551785179" },
+    { id: 20, name: "Shivam Vallabh", ageGroup: "U12", days: ["Wed"], time: "4:00 PM - 5:00 PM", price: 1695, paid: true, method: "Link", isdb: true, email: "Jyoti.vldd@gmail.com", contact: "0505731997" },
+    { id: 21, name: "Veronika Ivanuis", ageGroup: "U12", days: ["Wed"], time: "5:00 PM - 6:00 PM", price: 1695, paid: true, method: "Cash", isdb: true, email: "tturchina84@mail.com", contact: "0556839342" },
+    { id: 22, name: "Atuka Mandzhiev", ageGroup: "U8", days: ["Mon", "Wed"], time: "4:00 PM - 5:00 PM", price: 2645, paid: true, method: "Card", isdb: false, email: "mandzhieva.a.v@gmail.com", contact: "0582484252" },
+    { id: 26, name: "Charlie Pinchbeck", ageGroup: "U16", days: ["Tue"], time: "4:00 PM - 5:00 PM", price: 1695, paid: true, method: "Link", isdb: true, email: "henrypinchbeck@yahoo.com", contact: "0543441062" },
+    { id: 27, name: "Julia Abdelmalek", ageGroup: "U12", days: ["Mon", "Thu"], time: "5:00 PM - 6:00 PM", price: 3220, paid: true, method: "Cash", isdb: true, email: "mary_raouf@hotmail.com", contact: "0554558291" },
+    { id: 31, name: "Vihan Asarpota", ageGroup: "U12", days: ["Tue", "Thu"], time: "5:00 PM - 6:00 PM", price: 3220, paid: true, method: "Card", isdb: true, email: "hitesh13@gmail.com", contact: "0504529515" },
+    { id: 34, name: "Alqaisar Wanous", ageGroup: "U8", days: ["Wed", "Fri"], time: "3:00 PM - 4:00 PM", price: 2645, paid: true, method: "Card", isdb: true, email: "Baylasanaikan@gmail.com", contact: "0506624001" },
+    { id: 36, name: "Vihaan Gupta", ageGroup: "U12", days: ["Mon", "Fri"], time: "4:00 PM - 5:00 PM", price: 3220, paid: true, method: "Cash", isdb: true, email: "najistanford@gmail.com", contact: "0509720285" },
+    { id: 37, name: "Aryan Bansal", ageGroup: "U16", days: ["Mon", "Fri"], time: "4:00 PM - 5:00 PM", price: 3220, paid: true, method: "Card", isdb: true, email: "mitalinath@gmail.com", contact: "0551047207" },
+    { id: 41, name: "Leo Girichev", ageGroup: "U16", days: ["Tue", "Wed"], time: "5:00 PM - 6:00 PM", price: 3220, paid: true, method: "Link", isdb: true, email: "andreigirichev@gmail.com", contact: "0553531050" },
+    { id: 44, name: "Metodi", ageGroup: "U12", days: ["Tue", "Wed"], time: "5:00 PM - 6:00 PM", price: 3220, paid: true, method: "Link", isdb: true, email: "nutellilian@yahoo.com", contact: "555265378" },
+    { id: 45, name: "Jaden", ageGroup: "U12", days: ["Tue", "Wed"], time: "5:00 PM - 6:00 PM", price: 3220, paid: true, method: "Cash", isdb: true, email: "nutellilian@yahoo.com", contact: "555265378" },
+    { id: 46, name: "Tehzeeb Ali", ageGroup: "U16", days: ["Wed", "Fri"], time: "4:00 PM - 5:00 PM", price: 3220, paid: true, method: "Card", isdb: true, email: "bashatehzeebali@gmail.com", contact: "0552025369" },
+    { id: 47, name: "Flora Bae", ageGroup: "U12", days: ["Wed"], time: "5:00 PM - 6:00 PM", price: 1695, paid: true, method: "Link", isdb: true, email: "jknowsmile@gmail.com", contact: "0585980512" },
+    { id: 48, name: "Humayd Gani", ageGroup: "U12", days: ["Wed"], time: "4:00 PM - 5:00 PM", price: 1695, paid: true, method: "Cash", isdb: true, email: "Mischktagani@gmail.com", contact: "505042823" },
+    { id: 49, name: "Uthman Gani", ageGroup: "U12", days: ["Wed"], time: "4:00 PM - 5:00 PM", price: 1695, paid: true, method: "Card", isdb: true, email: "Mischktagani@gmail.com", contact: "505042823" },
+    { id: 50, name: "Aurele", ageGroup: "U12", days: ["Wed", "Fri"], time: "4:00 PM - 5:00 PM", price: 3220, paid: true, method: "Link", isdb: true, email: "aford.alferd@gmail.com", contact: "+41764255292" },
+    { id: 51, name: "Michele Ferriani", ageGroup: "U12", days: ["Fri"], time: "4:00 PM - 5:00 PM", price: 1695, paid: true, method: "Cash", isdb: true, email: "alina.makakaeva@gmail.com", contact: "0506068869" },
+    { id: 52, name: "Aydan Tejani", ageGroup: "U12", days: ["Thu"], time: "5:00 PM - 6:00 PM", price: 1695, paid: true, method: "Card", isdb: true, email: "zhara_mughal@hotmail.com", contact: "447557118196" }
+    // ... remaining kids follow this pattern
+];
+
+// Always call this at the end of your script to show the kids immediately
+renderRoster();
         let selectedDays = [];
         let currentView = 'admin';
 
