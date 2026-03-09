@@ -3,223 +3,395 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ISD TABLE TENNIS TERM TRACKER (3)</title>
+    <title>ISD Table Tennis Academy - Term 3</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root { --isd-yellow: #FFD700; --isd-green-light: #90EE90; --isd-green-bold: #228B22; }
-        body { background: #0f0f0f; color: white; font-family: 'Inter', sans-serif; }
-        .glass { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); }
-        
-        /* Status Colors */
-        .status-pending { border-left: 5px solid #444; }
-        .status-invited { background: rgba(255, 215, 0, 0.15) !important; border-left: 5px solid var(--isd-yellow); }
-        .status-confirmed { background: rgba(144, 238, 144, 0.15) !important; border-left: 5px solid var(--isd-green-light); }
-        .status-paid { background: rgba(34, 139, 34, 0.25) !important; border-left: 5px solid var(--isd-green-bold); border: 2px solid var(--isd-green-bold); }
-
-        .list-row { transition: all 0.2s; border-bottom: 1px solid #222; }
-        .list-row:hover { background: rgba(255,255,255,0.05); }
-        
-        button { transition: transform 0.1s; }
-        button:active { transform: scale(0.95); }
+        body { background-color: #121212; color: white; font-family: 'Inter', sans-serif; }
+        .accent-yellow { color: #FFD700; }
+        .bg-accent-yellow { background-color: #FFD700; }
+        .card { background-color: #1e1e1e; border: 1px solid #333; }
+        .btn-day.active { background-color: #FFD700; color: black; border-color: #FFD700; }
+        .modal { background-color: rgba(0,0,0,0.9); z-index: 100; }
     </style>
 </head>
-<body class="p-4 md:p-10">
+<body class="p-4 md:p-8">
 
-    <div class="max-w-7xl mx-auto">
-        <header class="mb-10 text-center md:text-left">
-            <h1 class="text-4xl font-black italic tracking-tighter italic">ISD TABLE TENNIS <span class="text-[#FFD700]">TERM TRACKER (3)</span></h1>
-            <p class="text-gray-500 font-bold uppercase text-xs tracking-widest mt-1">Created by Leo | Invitation & Enrollment Suite</p>
-        </header>
-
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div class="glass p-4 rounded-2xl">
-                <p class="text-gray-500 text-[10px] font-bold uppercase">Total Roster</p>
-                <h2 class="text-2xl font-bold" id="stat-total-count">53</h2>
+    <div id="app" class="max-w-7xl mx-auto">
+        <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+            <div>
+                <h1 class="text-3xl font-bold bg-accent-yellow text-black px-4 py-1 inline-block uppercase">ISD ACADEMY</h1>
+                <p class="text-gray-400 mt-2">Term 3 Management Suite: March 30th – July 3rd</p>
             </div>
-            <div class="glass p-4 rounded-2xl">
-                <p class="text-gray-500 text-[10px] font-bold uppercase text-yellow-500">Invited</p>
-                <h2 class="text-2xl font-bold" id="stat-invited">0</h2>
-            </div>
-            <div class="glass p-4 rounded-2xl">
-                <p class="text-gray-500 text-[10px] font-bold uppercase text-green-300">Confirmed</p>
-                <h2 class="text-2xl font-bold" id="stat-confirmed">0</h2>
-            </div>
-            <div class="glass p-4 rounded-2xl">
-                <p class="text-gray-500 text-[10px] font-bold uppercase text-green-600">Paid/Done</p>
-                <h2 class="text-2xl font-bold" id="stat-paid">0</h2>
+            <div class="flex gap-3">
+                <button onclick="toggleReceptionMode()" id="btn-lock" class="px-6 py-2 rounded-full border border-gray-600 hover:bg-gray-800 transition">
+                    <i class="fas fa-lock mr-2"></i>Reception Mode
+                </button>
+                <div id="admin-tabs" class="flex gap-2">
+                    <button onclick="showSection('active')" class="px-4 py-2 rounded-lg bg-gray-800 hover:bg-gray-700">Roster</button>
+                    <button onclick="showSection('waitlist')" class="px-4 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-blue-400">Waitlist</button>
+                </div>
             </div>
         </div>
 
-        <div class="glass rounded-[2rem] overflow-hidden">
-            <div class="p-6 border-b border-white/10 flex flex-col md:flex-row justify-between gap-4">
-                <div class="relative flex-1">
-                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
-                    <input type="text" id="search" onkeyup="renderList()" placeholder="Search kids or parents..." class="w-full bg-black/50 border border-white/10 rounded-xl py-3 pl-12 pr-4 outline-none focus:border-yellow-500">
-                </div>
-                <button onclick="exportToExcel()" class="bg-[#217346] px-6 py-3 rounded-xl font-bold text-sm">📊 Export Final Roster</button>
+        <div id="stats-section" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div class="card p-4 rounded-xl">
+                <p class="text-gray-400 text-sm">Total Revenue</p>
+                <h2 class="text-2xl font-bold accent-yellow" id="stat-total">0 AED</h2>
+            </div>
+            <div class="card p-4 rounded-xl">
+                <p class="text-gray-400 text-sm">Active Kids</p>
+                <h2 class="text-2xl font-bold" id="stat-kids">0</h2>
+            </div>
+            <div class="card p-4 rounded-xl text-blue-400">
+                <p class="text-gray-400 text-sm">Waitlist</p>
+                <h2 class="text-2xl font-bold" id="stat-wait">0</h2>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div id="reg-form-container" class="lg:col-span-1 card p-6 rounded-2xl h-fit">
+                <h3 class="text-xl font-bold mb-6 border-b border-gray-700 pb-2">New Entry</h3>
+                <form id="regForm" onsubmit="handleRegister(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-1">Parent Full Name</label>
+                        <input type="text" id="pName" required class="w-full bg-black border border-gray-700 rounded-lg p-3">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-sm text-gray-400 mb-1">Contact Number</label>
+                            <input type="tel" id="pPhone" required class="w-full bg-black border border-gray-700 rounded-lg p-3">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-400 mb-1">Email</label>
+                            <input type="email" id="pEmail" class="w-full bg-black border border-gray-700 rounded-lg p-3">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-sm text-gray-400 mb-1">Kid's Name</label>
+                            <input type="text" id="kName" required class="w-full bg-black border border-gray-700 rounded-lg p-3">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-400 mb-1">DOB</label>
+                            <input type="text" id="kDob" placeholder="DD-MM-YYYY" class="w-full bg-black border border-gray-700 rounded-lg p-3">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-1">Late Start? (Prorated)</label>
+                        <select id="startWeek" onchange="calculatePrice()" class="w-full bg-black border border-gray-700 rounded-lg p-3">
+                            <option value="0">Week 1 (Full Term)</option>
+                            <option value="1">Week 2 Start</option>
+                            <option value="2">Week 3 Start</option>
+                            <option value="3">Week 4 Start</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-1">Age Group</label>
+                        <select id="ageGroup" onchange="calculatePrice()" class="w-full bg-black border border-gray-700 rounded-lg p-3">
+                            <option value="U8">U8</option>
+                            <option value="U12">U12</option>
+                            <option value="U16">U16</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-1">Select Days</label>
+                        <div class="flex flex-wrap gap-2" id="dayPicker">
+                            <button type="button" onclick="toggleDay(this, 'Mon')" class="btn-day border border-gray-600 px-3 py-1 rounded-md text-sm">Mon</button>
+                            <button type="button" onclick="toggleDay(this, 'Tue')" class="btn-day border border-gray-600 px-3 py-1 rounded-md text-sm">Tue</button>
+                            <button type="button" onclick="toggleDay(this, 'Wed')" class="btn-day border border-gray-600 px-3 py-1 rounded-md text-sm">Wed</button>
+                            <button type="button" onclick="toggleDay(this, 'Thu')" class="btn-day border border-gray-600 px-3 py-1 rounded-md text-sm">Thu</button>
+                            <button type="button" onclick="toggleDay(this, 'Fri')" class="btn-day border border-gray-600 px-3 py-1 rounded-md text-sm">Fri</button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-1">Time Slot</label>
+                        <select id="timeSlot" class="w-full bg-black border border-gray-700 rounded-lg p-3"></select>
+                    </div>
+
+                    <div class="p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-xl">
+                        <p class="text-xs text-gray-400 uppercase">Calculated Prorated Fee</p>
+                        <h4 class="text-2xl font-bold accent-yellow" id="displayPrice">0 AED</h4>
+                    </div>
+
+                    <button type="submit" class="w-full bg-accent-yellow text-black font-bold py-4 rounded-xl hover:opacity-90 transition uppercase">
+                        Add to Waiting List
+                    </button>
+                </form>
             </div>
 
-            <div class="hidden md:grid grid-cols-12 gap-4 p-4 bg-white/5 text-[10px] font-black uppercase tracking-widest text-gray-400">
-                <div class="col-span-3">Student & Parent</div>
-                <div class="col-span-2">Schedule</div>
-                <div class="col-span-2">Quick Actions</div>
-                <div class="col-span-5 text-right">Status Updates</div>
-            </div>
-
-            <div id="student-list" class="divide-y divide-white/5">
+            <div id="list-section" class="lg:col-span-2 space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 id="section-title" class="text-xl font-bold">Active Roster</h3>
+                    <button onclick="exportToExcel()" class="text-xs text-blue-400 hover:underline">Export CSV</button>
                 </div>
+                <div id="rosterContainer" class="space-y-3">
+                    </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="absenceModal" class="fixed inset-0 modal hidden flex items-center justify-center p-4">
+        <div class="card w-full max-w-md p-6 rounded-2xl">
+            <h2 class="text-xl font-bold mb-4">Mark Absence</h2>
+            <div class="space-y-4">
+                <div class="flex items-center gap-2 bg-blue-900/20 p-3 rounded-lg border border-blue-500/30">
+                    <input type="checkbox" id="medCertToggle" onchange="toggleMakeupBtn()">
+                    <label for="medCertToggle" class="text-sm">Medical Certificate Received</label>
+                </div>
+                <button id="confirmMakeupBtn" disabled onclick="confirmAbsence()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl opacity-30">
+                    Schedule Makeup Lesson
+                </button>
+                <button onclick="closeModal('absenceModal')" class="w-full text-gray-500 text-sm">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="pinModal" class="fixed inset-0 modal hidden flex items-center justify-center p-4">
+        <div class="card p-8 rounded-2xl text-center">
+            <h2 class="text-2xl font-bold mb-2">Admin Lock</h2>
+            <input type="password" id="pinInput" maxlength="4" class="bg-black border border-gray-700 rounded-xl p-4 text-center text-3xl tracking-widest w-40 mb-6">
+            <button onclick="verifyPin()" class="w-full bg-accent-yellow text-black font-bold py-3 rounded-xl">Unlock</button>
         </div>
     </div>
 
     <script>
-        // FULL 53 STUDENT ROSTER (Reset: No payment, No activation)
+        const ADMIN_PIN = "1234";
+        const TERM_WEEKS = 14;
+        const BASE_PRICES = {
+            'U8': { 1: 1390, 2: 2645, 3: 3962 },
+            'U12': { 1: 1695, 2: 3220, 3: 4830 },
+            'U16': { 1: 1695, 2: 3220, 3: 4830 }
+        };
+
+        let currentSection = 'active';
+        let selectedDays = [];
+        let activeStudentId = null;
+
         let students = [
-            { id: 1, name: "Musa Junego", pName: "Reena Babar", pPhone: "971547773836", days: "Mon", time: "4:00-5:00 PM", status: 'Pending' },
-            { id: 2, name: "Samuel Greiner", pName: "Patrick / Miriam", pPhone: "971507588134", days: "Mon, Fri", time: "4:00-5:00 PM", status: 'Pending' },
-            { id: 3, name: "Ishaan Kumar", pName: "Ashish Kumar", pPhone: "971522976720", days: "Tue, Thu", time: "4:00-5:00 PM", status: 'Pending' },
-            { id: 4, name: "Artem Arzhanov", pName: "Natalia Arzanova", pPhone: "79858021467", days: "Wed, Fri", time: "3:00-4:00 PM", status: 'Pending' },
-            { id: 5, name: "Yuri Kurdyukov", pName: "Anastasia", pPhone: "971506651911", days: "Tue", time: "5:00-6:00 PM", status: 'Pending' },
-            { id: 6, name: "Gherman Mustiviy", pName: "Nickolay Mustiviy", pPhone: "971507701485", days: "Fri", time: "3:00-4:00 PM", status: 'Pending' },
-            { id: 7, name: "Ryan Kim", pName: "Rina Kwon", pPhone: "971584496888", days: "Mon", time: "5:00-6:00 PM", status: 'Pending' },
-            { id: 8, name: "Elai Fatykhov", pName: "Elvira Fatykhov", pPhone: "971527332988", days: "Mon", time: "5:00-6:00 PM", status: 'Pending' },
-            { id: 9, name: "Arjun Arun", pName: "Arun Viswanathan", pPhone: "971522667290", days: "Tue", time: "4:00-5:00 PM", status: 'Pending' },
-            { id: 10, name: "Mark Krutko", pName: "Tanya Prykhozhia", pPhone: "971551344751", days: "Tue, Thu", time: "5:00-6:00 PM", status: 'Pending' },
-            { id: 11, name: "Daniel Fady", pName: "Fady Awny", pPhone: "971551915601", days: "Fri", time: "3:00-4:00 PM", status: 'Pending' },
-            { id: 12, name: "Haider Hasan", pName: "Asiya Ali", pPhone: "971525987691", days: "Wed", time: "5:00-6:00 PM", status: 'Pending' },
-            { id: 13, name: "Mark Dorogya", pName: "Julia Dorogaya", pPhone: "971558631023", days: "Wed", time: "5:00-6:00 PM", status: 'Pending' },
-            { id: 14, name: "Jayden Chan", pName: "Ellen Li", pPhone: "85291283715", days: "Thu", time: "4:00-5:00 PM", status: 'Pending' },
-            { id: 15, name: "Petr", pName: "Natalia Shaikina", pPhone: "971551785179", days: "Mon", time: "5:00-6:00 PM", status: 'Pending' },
-            { id: 16, name: "Daniil Gasparin", pName: "Anastasia", pPhone: "971505121542", days: "Thu", time: "4:00-5:00 PM", status: 'Pending' },
-            { id: 17, name: "Louis Verrotte", pName: "Solene Verrotte", pPhone: "6591449569", days: "Fri", time: "4:00-5:00 PM", status: 'Pending' },
-            { id: 18, name: "Cameron Miller", pName: "Maria Miller", pPhone: "971558505245", days: "Thu", time: "4:00-5:00 PM", status: 'Pending' },
-            { id: 19, name: "Borong Song", pName: "Xue Zhang", pPhone: "971558309836", days: "Thu", time: "4:00-5:00 PM", status: 'Pending' },
-            { id: 20, name: "Shivam Vallabh", pName: "Jyoti Vallabh", pPhone: "971505731997", days: "Wed", time: "4:00-5:00 PM", status: 'Pending' },
-            { id: 21, name: "Veronika Ivanuis", pName: "Tatiana Ivanuis", pPhone: "971556839342", days: "Wed", time: "5:00-6:00 PM", status: 'Pending' },
-            { id: 22, name: "Atuka Mandzhiev", pName: "Alsa Mandzhieva", pPhone: "971582484252", days: "Mon, Wed", time: "4:00-5:00 PM", status: 'Pending' },
-            { id: 23, name: "Hani Omari", pName: "Jummar Al JAlawi", pPhone: "971551769290", days: "Tue", time: "5:00-6:00 PM", status: 'Pending' },
-            { id: 24, name: "Zaid Omari", pName: "Jummar Al JAlawi", pPhone: "971551769290", days: "Tue", time: "5:00-6:00 PM", status: 'Pending' },
-            { id: 25, name: "Judy El Masri", pName: "Shadi El Masri", pPhone: "971508887325", days: "Fri", time: "3:00-4:00 PM", status: 'Pending' },
-            { id: 26, name: "Charlie Pinchbeck", pName: "Henry Pinchbeck", pPhone: "971543441062", days: "Tue", time: "4:00-5:00 PM", status: 'Pending' },
-            { id: 27, name: "Julia Abdelmalek", pName: "Mary Raouf", pPhone: "971554558291", days: "Mon, Thu", time: "5:00-6:00 PM", status: 'Pending' },
-            { id: 28, name: "Ziad Biyouk", pName: "Dina Qumuq", pPhone: "971502528780", days: "Fri", time: "4:00-5:00 PM", status: 'Pending' },
-            { id: 29, name: "Zahra Adnan", pName: "Adnan/Javaria", pPhone: "971529604599", days: "Fri", time: "4:00-5:00 PM", status: 'Pending' },
-            { id: 30, name: "Abdul Hadi Adnan", pName: "Adnan/Javaria", pPhone: "971529604599", days: "Fri", time: "3:00-4:00 PM", status: 'Pending' },
-            { id: 31, name: "Vihan Asarpota", pName: "Hitesh Asarpota", pPhone: "971504529515", days: "Tue, Thu", time: "5:00-6:00 PM", status: 'Pending' },
-            { id: 32, name: "Marc Galice", pName: "Diana Galice", pPhone: "971527161988", days: "Wed", time: "4:00-5:00 PM", status: 'Pending' },
-            { id: 33, name: "Cagan Soylemez", pName: "Murat Soylemez", pPhone: "971521992091", days: "Thu", time: "5:00-6:00 PM", status: 'Pending' },
-            { id: 34, name: "Alqaisar Wanous", pName: "Bayla Kanji", pPhone: "971506624001", days: "Wed, Fri", time: "4:00-5:00 PM", status: 'Pending' },
-            { id: 35, name: "Ishana", pName: "Ram Virto", pPhone: "971557008012", days: "Mon, Thu", time: "5:00-6:00 PM", status: 'Pending' },
-            { id: 36, name: "Vihaan Gupta", pName: "Ankita Jain", pPhone: "971509720285", days: "Mon, Fri", time: "4:00-5:00 PM", status: 'Pending' },
-            { id: 37, name: "Aryan Bansal", pName: "Mitali Bansal", pPhone: "971551047207", days: "Mon, Fri", time: "4:00-5:00 PM", status: 'Pending' },
-            { id: 38, name: "Anna Mazkun", pName: "Veronika Mazkun", pPhone: "971505613510", days: "Tue, Fri", time: "4:00-5:00 PM", status: 'Pending' },
-            { id: 39, name: "Anwita Shastri", pName: "Navin Shastri", pPhone: "971503475404", days: "Thu", time: "5:00-6:00 PM", status: 'Pending' },
-            { id: 40, name: "Theo Copper", pName: "Chris Cooper", pPhone: "971503959040", days: "Wed", time: "5:00-6:00 PM", status: 'Pending' },
-            { id: 41, name: "Leo Girichev", pName: "Andrei Girichev", pPhone: "971553531050", days: "Tue, Wed", time: "5:00-6:00 PM", status: 'Pending' },
-            { id: 42, name: "Gian Hotchandani", pName: "Vishakha", pPhone: "971502624034", days: "Mon", time: "5:00-6:00 PM", status: 'Pending' },
-            { id: 43, name: "Khloie Siniakina", pName: "Viktor Siniakin", pPhone: "971585809829", days: "Mon", time: "4:00-5:00 PM", status: 'Pending' },
-            { id: 44, name: "Metodi", pName: "Lilian Mute", pPhone: "971585265378", days: "Tue, Wed", time: "5:00-6:00 PM", status: 'Pending' },
-            { id: 45, name: "Jaden", pName: "Lilian Mute", pPhone: "971585265378", days: "Tue, Wed", time: "5:00-6:00 PM", status: 'Pending' },
-            { id: 46, name: "Tehzeeb Ali", pName: "Gows Basha", pPhone: "971552025369", days: "Wed, Fri", time: "4:00-5:00 PM", status: 'Pending' },
-            { id: 47, name: "Flora Bae", pName: "Sojin Park", pPhone: "971585980512", days: "Wed", time: "5:00-6:00 PM", status: 'Pending' },
-            { id: 48, name: "Humayd Gani", pName: "Mischka Tayob", pPhone: "971505042823", days: "Wed", time: "4:00-5:00 PM", status: 'Pending' },
-            { id: 49, name: "Uthman Gani", pName: "Mischka Tayob", pPhone: "971505042823", days: "Wed", time: "4:00-5:00 PM", status: 'Pending' },
-            { id: 50, name: "Aurele", pName: "Cedric Barraud", pPhone: "41764255292", days: "Wed, Fri", time: "4:00-5:00 PM", status: 'Pending' },
-            { id: 51, name: "Michele Ferriani", pName: "Alina Makakaeva", pPhone: "971506068869", days: "Fri", time: "4:00-5:00 PM", status: 'Pending' },
-            { id: 52, name: "Parker Selt", pName: "Jessica Selt", pPhone: "971507735635", days: "Mon", time: "4:00-5:00 PM", status: 'Pending' },
-            { id: 53, name: "Aydan Tejani", pName: "Zhara Tejani", pPhone: "447557118196", days: "Thu", time: "5:00-6:00 PM", status: 'Pending' }
+            { id: 1, name: "Musa Junego", pName: "Reena Babar", pPhone: "0547773836", pEmail: "reena7musa@gmail.com", ageGroup: "U12", days: ["Mon"], time: "4:00 PM - 5:00 PM", price: 1695, status: 'active', makeups: 0 },
+            { id: 2, name: "Samuel Greiner", pName: "Patrick / Miriam", pPhone: "0507588134", pEmail: "info@miriam-greiner.de", ageGroup: "U12", days: ["Mon", "Fri"], time: "4:00 PM - 5:00 PM", price: 3220, status: 'active', makeups: 0 },
+            { id: 3, name: "Ishaan Kumar", pName: "Ashish Kumar", pPhone: "0522976720", pEmail: "ashish.kumar02@gmail.com", ageGroup: "U8", days: ["Tue", "Thu"], time: "4:00 PM - 5:00 PM", price: 2645, status: 'active', makeups: 0 },
+            { id: 4, name: "Artem Arzhanov", pName: "Natalia Arzanova", pPhone: "+79858021467", pEmail: "natalia@avispromservices.com", ageGroup: "U12", days: ["Wed", "Fri"], time: "3:00 PM - 4:00 PM", price: 3220, status: 'active', makeups: 0 },
+            { id: 5, name: "Yuri Kurdyukov", pName: "Anastasia", pPhone: "0506651911", pEmail: "akurdyukova@gmail.com", ageGroup: "U12", days: ["Tue"], time: "5:00 PM - 6:00 PM", price: 1695, status: 'active', makeups: 0 },
+            { id: 6, name: "Gherman Mustiviy", pName: "Nickolay Mustiviy", pPhone: "0507701485", pEmail: "n.mustiviy@gmail.com", ageGroup: "U12", days: ["Fri"], time: "3:00 PM - 4:00 PM", price: 1695, status: 'active', makeups: 0 },
+            { id: 7, name: "Ryan Kim", pName: "Rina Kwon", pPhone: "0584496888", pEmail: "Riana.Kwon@gmail.com", ageGroup: "U12", days: ["Mon"], time: "5:00 PM - 6:00 PM", price: 1695, status: 'active', makeups: 0 },
+            { id: 8, name: "Elai Fatykhov", pName: "Elvira Fatykhov", pPhone: "0527332988", pEmail: "Elviradxb@gmail.com", ageGroup: "U12", days: ["Mon"], time: "5:00 PM - 6:00 PM", price: 1695, status: 'active', makeups: 0 },
+            { id: 9, name: "Arjun Arun", pName: "Arun Viswanathan", pPhone: "0522667290", pEmail: "rani.subassarunran@gmail.com", ageGroup: "U12", days: ["Tue"], time: "4:00 PM - 5:00 PM", price: 1695, status: 'active', makeups: 0 },
+            { id: 10, name: "Mark Krutko", pName: "Tanya Prykhozhia", pPhone: "0551344751", pEmail: "pryhozhaya@gmail.com", ageGroup: "U12", days: ["Tue", "Thu"], time: "5:00 PM - 6:00 PM", price: 3220, status: 'active', makeups: 0 },
+            { id: 11, name: "Daniel Fady", pName: "Fady Awny", pPhone: "0551915601", pEmail: "fady.awny@gmail.com", ageGroup: "U12", days: ["Fri"], time: "3:00 PM - 4:00 PM", price: 1695, status: 'active', makeups: 0 },
+            { id: 12, name: "Haider Hasan", pName: "Asiya Ali", pPhone: "0525987691", pEmail: "aayari0@gmail.com", ageGroup: "U12", days: ["Wed"], time: "5:00 PM - 6:00 PM", price: 1695, status: 'active', makeups: 0 },
+            { id: 13, name: "Mark Dorogya", pName: "Julia Dorogaya", pPhone: "0558631023", pEmail: "juldorogaya@gmail.com", ageGroup: "U12", days: ["Wed"], time: "5:00 PM - 6:00 PM", price: 1695, status: 'active', makeups: 0 },
+            { id: 14, name: "Jayden Chan", pName: "Ellen Li", pPhone: "85291283715", pEmail: "", ageGroup: "U12", days: ["Thu"], time: "4:00 PM - 5:00 PM", price: 1695, status: 'active', makeups: 0 },
+            { id: 15, name: "Petr", pName: "Natalia Shaikina", pPhone: "0551785179", pEmail: "nat7shaikina@gmail.com", ageGroup: "U16", days: ["Mon"], time: "5:00 PM - 6:00 PM", price: 1695, status: 'active', makeups: 0 },
+            { id: 16, name: "Daniil Gasparin", pName: "Anastasia", pPhone: "0505121542", pEmail: "nasty.kiseleva@gmail.com", ageGroup: "U8", days: ["Thu"], time: "4:00 PM - 5:00 PM", price: 1390, status: 'active', makeups: 0 },
+            { id: 17, name: "Louis Verrotte", pName: "Solene Verrotte", pPhone: "6591449569", pEmail: "solene.verrotte@gmail.com", ageGroup: "U12", days: ["Fri"], time: "4:00 PM - 5:00 PM", price: 1695, status: 'active', makeups: 0 },
+            { id: 18, name: "Cameron Miller", pName: "Maria Miller", pPhone: "0558505245", pEmail: "mariamiller007@yahoo.com", ageGroup: "U12", days: ["Thu"], time: "4:00 PM - 5:00 PM", price: 1695, status: 'active', makeups: 0 },
+            { id: 19, name: "Borong Song", pName: "Xue Zhang", pPhone: "0558309836", pEmail: "", ageGroup: "U8", days: ["Thu"], time: "4:00 PM - 5:00 PM", price: 1390, status: 'active', makeups: 0 },
+            { id: 20, name: "Shivam Vallabh", pName: "Jyoti Vallabh", pPhone: "0505731997", pEmail: "Jyoti.vldd@gmail.com", ageGroup: "U12", days: ["Wed"], time: "4:00 PM - 5:00 PM", price: 1695, status: 'active', makeups: 0 },
+            { id: 21, name: "Veronika Ivanuis", pName: "Tatiana Ivanuis", pPhone: "0556839342", pEmail: "tturchina84@mail.com", ageGroup: "U12", days: ["Wed"], time: "5:00 PM - 6:00 PM", price: 1695, status: 'active', makeups: 0 },
+            { id: 22, name: "Atuka Mandzhiev", pName: "Alsa Mandzhieva", pPhone: "0582484252", pEmail: "mandzhieva.a.v@gmail.com", ageGroup: "U8", days: ["Mon", "Wed"], time: "4:00 PM - 5:00 PM", price: 2645, status: 'active', makeups: 0 },
+            { id: 23, name: "Hani Omari", pName: "Jummar Al JAlawi", pPhone: "0551769290", pEmail: "J.Aljalawi@hotmail.com", ageGroup: "U12", days: ["Tue"], time: "5:00 PM - 6:00 PM", price: 1695, status: 'active', makeups: 0 },
+            { id: 24, name: "Zaid Omari", pName: "Jummar Al JAlawi", pPhone: "0551769290", pEmail: "J.Aljalawi@hotmail.com", ageGroup: "U12", days: ["Tue"], time: "5:00 PM - 6:00 PM", price: 1695, status: 'active', makeups: 0 },
+            { id: 25, name: "Judy El Masri", pName: "Shadi El Masri", pPhone: "0508887325", pEmail: "shadi2013@gmail.com", ageGroup: "U8", days: ["Fri"], time: "3:00 PM - 4:00 PM", price: 1390, status: 'active', makeups: 0 },
+            { id: 26, name: "Charlie Pinchbeck", pName: "Henry Pinchbeck", pPhone: "0543441062", pEmail: "henrypinchbeck@yahoo.com", ageGroup: "U16", days: ["Tue"], time: "4:00 PM - 5:00 PM", price: 1695, status: 'active', makeups: 0 },
+            { id: 27, name: "Julia Abdelmalek", pName: "Mary Raouf", pPhone: "0554558291", pEmail: "mary_raouf@hotmail.com", ageGroup: "U12", days: ["Mon", "Thu"], time: "5:00 PM - 6:00 PM", price: 3220, status: 'active', makeups: 0 },
+            { id: 28, name: "Ziad Biyouk", pName: "Dina Qumuq", pPhone: "0502528780", pEmail: "dinaqumuq@gmail.com", ageGroup: "U16", days: ["Fri"], time: "4:00 PM - 5:00 PM", price: 1695, status: 'active', makeups: 0 },
+            { id: 29, name: "Zahra Adnan", pName: "Adnan/Javaria", pPhone: "0529604599", pEmail: "adnanniaz@gmail.com", ageGroup: "U12", days: ["Fri"], time: "4:00 PM - 5:00 PM", price: 1695, status: 'active', makeups: 0 },
+            { id: 30, name: "Abdul Hadi Adnan", pName: "Adnan/Javaria", pPhone: "0529604599", pEmail: "adnanniaz@gmail.com", ageGroup: "U12", days: ["Fri"], time: "3:00 PM - 4:00 PM", price: 1695, status: 'active', makeups: 0 },
+            { id: 31, name: "Vihan Asarpota", pName: "Hitesh Asarpota", pPhone: "0504529515", pEmail: "hitesh13@gmail.com", ageGroup: "U12", days: ["Tue", "Thu"], time: "5:00 PM - 6:00 PM", price: 3220, status: 'active', makeups: 0 },
+            { id: 32, name: "Marc Galice", pName: "Diana Galice", pPhone: "0527161988", pEmail: "dianagalice@gmail.com", ageGroup: "U12", days: ["Wed"], time: "4:00 PM - 5:00 PM", price: 1695, status: 'active', makeups: 0 },
+            { id: 33, name: "Cagan Soylemez", pName: "Murat Soylemez", pPhone: "0521992091", pEmail: "Cagan.soylemez@outlook", ageGroup: "U12", days: ["Thu"], time: "5:00 PM - 6:00 PM", price: 1695, status: 'active', makeups: 0 },
+            { id: 34, name: "Alqaisar Wanous", pName: "Bayla Kanji", pPhone: "0506624001", pEmail: "Baylasanaikan@gmail.com", ageGroup: "U8", days: ["Wed", "Fri"], time: "4:00 PM - 5:00 PM", price: 2645, status: 'active', makeups: 0 },
+            { id: 35, name: "Ishana", pName: "Ram Virto", pPhone: "0557008012", pEmail: "vash77.m@gmail.com", ageGroup: "U12", days: ["Mon", "Thu"], time: "5:00 PM - 6:00 PM", price: 3220, status: 'active', makeups: 0 },
+            { id: 36, name: "Vihaan Gupta", pName: "Ankita Jain", pPhone: "0509720285", pEmail: "najistanford@gmail.com", ageGroup: "U12", days: ["Mon", "Fri"], time: "4:00 PM - 5:00 PM", price: 3220, status: 'active', makeups: 0 },
+            { id: 37, name: "Aryan Bansal", pName: "Mitali Bansal", pPhone: "0551047207", pEmail: "mitalinath@gmail.com", ageGroup: "U16", days: ["Mon", "Fri"], time: "4:00 PM - 5:00 PM", price: 3220, status: 'active', makeups: 0 },
+            { id: 38, name: "Anna Mazkun", pName: "Veronika Mazkun", pPhone: "0505613510", pEmail: "worklist1111@yandex.ru", ageGroup: "U8", days: ["Tue", "Fri"], time: "4:00 PM - 5:00 PM", price: 2645, status: 'active', makeups: 0 },
+            { id: 39, name: "Anwita Shastri", pName: "Navin Shastri", pPhone: "0503475404", pEmail: "Navin.shastri@udtrucks.com", ageGroup: "U12", days: ["Thu"], time: "5:00 PM - 6:00 PM", price: 1695, status: 'active', makeups: 0 },
+            { id: 40, name: "Theo Copper", pName: "Chris Cooper", pPhone: "0503959040", pEmail: "chriscopp8@gmail.com", ageGroup: "U16", days: ["Wed"], time: "5:00 PM - 6:00 PM", price: 1695, status: 'active', makeups: 0 },
+            { id: 41, name: "Leo Girichev", pName: "Andrei Girichev", pPhone: "0553531050", pEmail: "andreigirichev@gmail.com", ageGroup: "U16", days: ["Tue", "Wed"], time: "5:00 PM - 6:00 PM", price: 3220, status: 'active', makeups: 0 },
+            { id: 42, name: "Gian Hotchandani", pName: "Vishakha", pPhone: "0502624034", pEmail: "vishahotchandani@live.com", ageGroup: "U12", days: ["Mon"], time: "5:00 PM - 6:00 PM", price: 1695, status: 'active', makeups: 0 },
+            { id: 43, name: "Khloie Siniakina", pName: "Viktor Siniakin", pPhone: "0585809829", pEmail: "siniakin89@icloud.com", ageGroup: "U8", days: ["Mon"], time: "4:00 PM - 5:00 PM", price: 1390, status: 'active', makeups: 0 },
+            { id: 44, name: "Metodi", pName: "Lilian Mute", pPhone: "0585265378", pEmail: "nutellilian@yahoo.com", ageGroup: "U12", days: ["Tue", "Wed"], time: "5:00 PM - 6:00 PM", price: 3220, status: 'active', makeups: 0 },
+            { id: 45, name: "Jaden", pName: "Lilian Mute", pPhone: "0585265378", pEmail: "nutellilian@yahoo.com", ageGroup: "U12", days: ["Tue", "Wed"], time: "5:00 PM - 6:00 PM", price: 3220, status: 'active', makeups: 0 },
+            { id: 46, name: "Tehzeeb Ali", pName: "Gows Basha", pPhone: "0552025369", pEmail: "bashatehzeebali@gmail.com", ageGroup: "U16", days: ["Wed", "Fri"], time: "4:00 PM - 5:00 PM", price: 3220, status: 'active', makeups: 0 },
+            { id: 47, name: "Flora Bae", pName: "Sojin Park", pPhone: "0585980512", pEmail: "jknowsmile@gmail.com", ageGroup: "U12", days: ["Wed"], time: "5:00 PM - 6:00 PM", price: 1695, status: 'active', makeups: 0 },
+            { id: 48, name: "Humayd Gani", pName: "Mischka Tayob", pPhone: "0505042823", pEmail: "Mischktagani@gmail.com", ageGroup: "U12", days: ["Wed"], time: "4:00 PM - 5:00 PM", price: 1695, status: 'active', makeups: 0 },
+            { id: 49, name: "Uthman Gani", pName: "Mischka Tayob", pPhone: "0505042823", pEmail: "Mischktagani@gmail.com", ageGroup: "U12", days: ["Wed"], time: "4:00 PM - 5:00 PM", price: 1695, status: 'active', makeups: 0 },
+            { id: 50, name: "Aurele", pName: "Cedric Barraud", pPhone: "41764255292", pEmail: "aford.alferd@gmail.com", ageGroup: "U12", days: ["Wed", "Fri"], time: "4:00 PM - 5:00 PM", price: 3220, status: 'active', makeups: 0 },
+            { id: 51, name: "Michele Ferriani", pName: "Alina Makakaeva", pPhone: "0506068869", pEmail: "alina.makakaeva@gmail.com", ageGroup: "U12", days: ["Fri"], time: "4:00 PM - 5:00 PM", price: 1695, status: 'active', makeups: 0 },
+            { id: 52, name: "Parker Selt", pName: "Jessica Selt", pPhone: "0507735635", pEmail: "jessicaselt@icloud.com", ageGroup: "U8", days: ["Mon"], time: "4:00 PM - 5:00 PM", price: 1390, status: 'active', makeups: 0 },
+            { id: 53, name: "Aydan Tejani", pName: "Zhara Tejani", pPhone: "447557118196", pEmail: "zhara_mughal@hotmail.com", ageGroup: "U12", days: ["Thu"], time: "5:00 PM - 6:00 PM", price: 1695, status: 'active', makeups: 0 }
         ];
 
-        function renderList() {
-            const container = document.getElementById('student-list');
-            const search = document.getElementById('search').value.toLowerCase();
-            container.innerHTML = '';
+        function toggleDay(btn, day) {
+            if (selectedDays.includes(day)) {
+                selectedDays = selectedDays.filter(d => d !== day);
+                btn.classList.remove('active');
+            } else {
+                if(selectedDays.length >= 3) return;
+                selectedDays.push(day);
+                btn.classList.add('active');
+            }
+            updateTimeSlots();
+            calculatePrice();
+        }
 
-            let counts = { invited: 0, confirmed: 0, paid: 0 };
+        function updateTimeSlots() {
+            const select = document.getElementById('timeSlot');
+            select.innerHTML = '';
+            const times = selectedDays.includes('Fri') ? ['3:00 PM - 4:00 PM', '4:00 PM - 5:00 PM'] : ['4:00 PM - 5:00 PM', '5:00 PM - 6:00 PM'];
+            times.forEach(t => select.innerHTML += `<option value="${t}">${t}</option>`);
+        }
+
+        function calculatePrice() {
+            const age = document.getElementById('ageGroup').value;
+            const weekStart = parseInt(document.getElementById('startWeek').value);
+            const dayCount = selectedDays.length;
+            if (dayCount === 0) { document.getElementById('displayPrice').innerText = `0 AED`; return 0; }
+            const fullPrice = BASE_PRICES[age][dayCount];
+            const weeklyRate = fullPrice / TERM_WEEKS;
+            const proratedPrice = Math.round(weeklyRate * (TERM_WEEKS - weekStart));
+            document.getElementById('displayPrice').innerText = `${proratedPrice.toLocaleString()} AED`;
+            return proratedPrice;
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            const newStudent = {
+                id: Date.now(),
+                name: document.getElementById('kName').value,
+                pName: document.getElementById('pName').value,
+                pPhone: document.getElementById('pPhone').value,
+                pEmail: document.getElementById('pEmail').value,
+                ageGroup: document.getElementById('ageGroup').value,
+                days: [...selectedDays],
+                time: document.getElementById('timeSlot').value,
+                price: calculatePrice(),
+                status: 'waitlist',
+                makeups: 0
+            };
+            students.push(newStudent);
+            renderAll();
+            e.target.reset();
+            selectedDays = [];
+            document.querySelectorAll('.btn-day').forEach(b => b.classList.remove('active'));
+            alert("Registered successfully!");
+        }
+
+        function renderAll() {
+            const container = document.getElementById('rosterContainer');
+            container.innerHTML = '';
+            let revenue = 0; let activeCount = 0; let waitCount = 0;
 
             students.forEach(s => {
-                if (s.status === 'Invited') counts.invited++;
-                if (s.status === 'Confirmed') counts.confirmed++;
-                if (s.status === 'Paid') counts.paid++;
+                if(s.status === 'active') { revenue += s.price; activeCount++; }
+                else if(s.status === 'waitlist') waitCount++;
 
-                if (s.name.toLowerCase().includes(search) || s.pName.toLowerCase().includes(search)) {
-                    let statusClass = 'status-pending';
-                    if (s.status === 'Invited') statusClass = 'status-invited';
-                    if (s.status === 'Confirmed') statusClass = 'status-confirmed';
-                    if (s.status === 'Paid') statusClass = 'status-paid';
+                if(s.status !== currentSection) return;
 
-                    container.innerHTML += `
-                    <div class="list-row grid grid-cols-1 md:grid-cols-12 gap-4 p-4 items-center ${statusClass}">
-                        <div class="col-span-3">
-                            <h4 class="font-bold text-white uppercase italic">${s.name}</h4>
-                            <p class="text-[10px] text-gray-500 font-bold tracking-tight">${s.pName} | ${s.pPhone}</p>
+                const card = `
+                <div class="card p-5 rounded-2xl relative">
+                    ${s.makeups > 0 ? `<span class="absolute -top-2 -right-2 bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg">${s.makeups} MAKEUP DUE</span>` : ''}
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h4 class="text-lg font-bold text-yellow-500">${s.name}</h4>
+                            <p class="text-xs text-gray-400 uppercase">${s.ageGroup} | ${s.days.join(', ')} | ${s.time}</p>
                         </div>
-                        <div class="col-span-2 text-xs text-gray-400 font-medium">
-                            ${s.days}<br><span class="text-yellow-600">${s.time}</span>
+                        <div class="text-right">
+                            <p class="text-sm font-bold">${s.price} AED</p>
                         </div>
-                        <div class="col-span-2 flex gap-2">
-                             <button onclick="sendInvite(${s.id})" class="bg-blue-600 text-white p-2 rounded-lg text-[10px] font-bold hover:bg-blue-500">
-                                <i class="fab fa-whatsapp mr-1"></i> INVITE
-                             </button>
-                             <button onclick="askAleksey(${s.id})" class="bg-gray-800 text-white p-2 rounded-lg text-[10px] font-bold hover:bg-gray-700">
-                                CHANGE?
-                             </button>
-                        </div>
-                        <div class="col-span-5 flex justify-end gap-1">
-                            <button onclick="updateStatus(${s.id}, 'Invited')" class="px-2 py-1 rounded text-[8px] font-black border border-yellow-500/50 text-yellow-500 uppercase">Invited</button>
-                            <button onclick="updateStatus(${s.id}, 'Confirmed')" class="px-2 py-1 rounded text-[8px] font-black bg-green-900/40 text-green-300 uppercase italic">Yes, Lock it in</button>
-                            <button onclick="updateStatus(${s.id}, 'No')" class="px-2 py-1 rounded text-[8px] font-black text-red-500/50 uppercase">Not Joining</button>
-                            <button onclick="updateStatus(${s.id}, 'Paid')" class="px-3 py-1 rounded text-[8px] font-black bg-green-600 text-black uppercase">PAID & ISDB DONE</button>
-                        </div>
-                    </div>`;
-                }
+                    </div>
+                    <div class="text-xs text-gray-500 space-y-1 mb-4">
+                        <p><i class="fas fa-user mr-2"></i>${s.pName}</p>
+                        <p><i class="fas fa-phone mr-2"></i>${s.pPhone}</p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="sendWA(${s.id})" class="text-[10px] font-bold bg-green-600/20 text-green-500 py-2 rounded-lg border border-green-500/20 uppercase">WA Message</button>
+                        ${s.status === 'waitlist' ? 
+                            `<button onclick="updateStatus(${s.id}, 'active')" class="text-[10px] font-bold bg-blue-600 text-white py-2 rounded-lg uppercase">Activate</button>` :
+                            `<button onclick="openAbsenceModal(${s.id})" class="text-[10px] font-bold bg-gray-800 text-gray-400 py-2 rounded-lg border border-gray-700 uppercase">Mark Absent</button>`
+                        }
+                    </div>
+                </div>`;
+                container.innerHTML += card;
             });
 
-            document.getElementById('stat-invited').innerText = counts.invited;
-            document.getElementById('stat-confirmed').innerText = counts.confirmed;
-            document.getElementById('stat-paid').innerText = counts.paid;
+            document.getElementById('stat-total').innerText = `${revenue.toLocaleString()} AED`;
+            document.getElementById('stat-kids').innerText = activeCount;
+            document.getElementById('stat-wait').innerText = waitCount;
+            document.getElementById('section-title').innerText = currentSection === 'active' ? "Active Roster" : "Waiting List";
         }
 
-        function sendInvite(id) {
-            const s = students.find(x => x.id === id);
-            const msg = `Hi ${s.pName}, this is ISD Table Tennis. We're inviting ${s.name} for Term 3! Schedule: ${s.days} at ${s.time}. Please confirm to lock it in!`;
-            window.open(`https://wa.me/${s.pPhone}?text=${encodeURIComponent(msg)}`, '_blank');
-            updateStatus(id, 'Invited');
-        }
-
-        function askAleksey(id) {
-            const s = students.find(x => x.id === id);
-            const msg = `GROUP UPDATE: ${s.name} requesting a change for Term 3. Preferred day/time? @Coach Aleksey`;
-            // Sending to WhatsApp (This will open your last chat/group)
-            window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
-        }
+        function showSection(sec) { currentSection = sec; renderAll(); }
 
         function updateStatus(id, status) {
             const s = students.find(x => x.id === id);
-            if (status === 'No') {
-                if(confirm("Remove " + s.name + " from active list?")) {
-                    students = students.filter(x => x.id !== id);
-                }
-            } else {
-                s.status = status;
-            }
-            renderList();
+            s.status = status;
+            renderAll();
         }
 
+        function sendWA(id) {
+            const s = students.find(x => x.id === id);
+            const msg = `Hi ${s.pName}, confirming ${s.name} for Term 3. Schedule: ${s.days.join('/')} at ${s.time}. Total: ${s.price} AED. See you!`;
+            window.open(`https://wa.me/${s.pPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+
+        function toggleReceptionMode() {
+            const btn = document.getElementById('btn-lock');
+            if(btn.innerHTML.includes('Lock')) {
+                document.getElementById('pinModal').classList.remove('hidden');
+            } else {
+                document.getElementById('stats-section').classList.add('hidden');
+                document.getElementById('admin-tabs').classList.add('hidden');
+                document.getElementById('list-section').classList.add('hidden');
+                btn.innerHTML = '<i class="fas fa-unlock mr-2"></i>Unlock Admin';
+            }
+        }
+
+        function verifyPin() {
+            if(document.getElementById('pinInput').value === ADMIN_PIN) {
+                document.getElementById('stats-section').classList.remove('hidden');
+                document.getElementById('admin-tabs').classList.remove('hidden');
+                document.getElementById('list-section').classList.remove('hidden');
+                document.getElementById('btn-lock').innerHTML = '<i class="fas fa-lock mr-2"></i>Reception Mode';
+                document.getElementById('pinModal').classList.add('hidden');
+                document.getElementById('pinInput').value = '';
+            } else { alert("Wrong PIN"); }
+        }
+
+        function openAbsenceModal(id) { activeStudentId = id; document.getElementById('absenceModal').classList.remove('hidden'); }
+        function toggleMakeupBtn() {
+            const check = document.getElementById('medCertToggle').checked;
+            const btn = document.getElementById('confirmMakeupBtn');
+            btn.disabled = !check;
+            btn.style.opacity = check ? "1" : "0.3";
+        }
+        function confirmAbsence() {
+            const s = students.find(x => x.id === activeStudentId);
+            s.makeups += 1;
+            closeModal('absenceModal');
+            renderAll();
+        }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+        
         function exportToExcel() {
-            let csv = "Student Name,Parent,Phone,Days,Time,Status\n";
-            students.forEach(s => {
-                csv += `"${s.name}","${s.pName}","${s.pPhone}","${s.days}","${s.time}","${s.status}"\n`;
-            });
+            let csv = "Name,Parent,Phone,Price,Makeups\n";
+            students.forEach(s => csv += `${s.name},${s.pName},${s.pPhone},${s.price},${s.makeups}\n`);
             const blob = new Blob([csv], { type: 'text/csv' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'ISD_Term3_Roster.csv';
+            a.download = 'Academy_Roster.csv';
             a.click();
         }
 
-        renderList();
+        updateTimeSlots();
+        renderAll();
     </script>
 </body>
 </html>
