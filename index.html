@@ -1,13 +1,13 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ISD TABLE TENNIS TRACKER TERM 3</title>
+    <title>ISD TABLE TENNIS TRACKER v3.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;900&display=swap');
         
         :root {
             --u8-neon: #ff0055;
@@ -18,32 +18,26 @@
         }
 
         body {
-            background-color: #000;
-            color: #fff;
-            font-family: 'Inter', sans-serif;
+            background-color: #050505;
+            color: #e5e7eb;
+            font-family: 'Outfit', sans-serif;
             overflow-x: hidden;
         }
 
-        .neon-border-u8 { border: 3px solid var(--u8-neon); box-shadow: 0 0 15px var(--u8-neon); }
-        .neon-border-u12 { border: 3px solid var(--u12-neon); box-shadow: 0 0 15px var(--u12-neon); }
-        .neon-border-u16 { border: 3px solid var(--u16-neon); box-shadow: 0 0 15px var(--u16-neon); }
-        
-        .kid-bullet {
-            background: #0a0a0a;
-            border: 1px solid #222;
-            transition: all 0.3s ease;
+        .glass-card {
+            background: rgba(15, 15, 15, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
-        .bullet-invitation-sent { border: 2px solid var(--u12-neon); box-shadow: inset 0 0 10px rgba(234, 179, 8, 0.2); }
-        .bullet-joining { border: 2px solid var(--joining-neon); box-shadow: 0 0 10px var(--joining-neon); }
-        .bullet-isdb { border: 2px solid var(--gold-isdb) !important; }
 
-        .stat-card {
-            background: #111;
-            border: 1px solid #222;
-            padding: 1rem;
-            border-radius: 12px;
-            text-align: center;
-        }
+        /* Neon Borders */
+        .neon-u8 { border: 2px solid var(--u8-neon); box-shadow: 0 0 15px var(--u8-neon); }
+        .neon-u12 { border: 2px solid var(--u12-neon); box-shadow: 0 0 15px var(--u12-neon); }
+        .neon-u16 { border: 2px solid var(--u16-neon); box-shadow: 0 0 15px var(--u16-neon); }
+        .neon-invitation { border-left: 6px solid var(--u12-neon) !important; box-shadow: 0 0 10px rgba(234, 179, 8, 0.3); }
+        .neon-joining { border-left: 6px solid var(--joining-neon) !important; box-shadow: 0 0 10px rgba(57, 255, 20, 0.3); }
+        .neon-paid { border: 2px solid var(--joining-neon) !important; }
+        .neon-isdb { border: 2px solid var(--gold-isdb) !important; box-shadow: 0 0 15px var(--gold-isdb); }
 
         .isd-input {
             background: #000;
@@ -53,7 +47,9 @@
             border-radius: 8px;
             width: 100%;
             outline: none;
+            transition: all 0.3s;
         }
+
         .isd-input:focus { border-color: var(--u12-neon); }
 
         input[type="date"]::-webkit-calendar-picker-indicator {
@@ -61,558 +57,608 @@
             cursor: pointer;
         }
 
+        .stat-box {
+            background: #0a0a0a;
+            border-bottom: 2px solid #222;
+            transition: transform 0.2s;
+        }
+        .stat-box:hover { transform: translateY(-2px); }
+
+        .btn-wa { background: #25D366; color: white; }
+        .btn-wa:hover { background: #128C7E; }
+
         .hidden { display: none !important; }
-        
-        ::-webkit-scrollbar { width: 8px; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #000; }
         ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body class="p-4 lg:p-10">
 
-    <!-- Auth Overlay -->
-    <div id="loginOverlay" class="fixed inset-0 z-[200] bg-black flex items-center justify-center">
-        <div class="max-w-md w-full p-8 text-center">
-            <h1 class="text-4xl font-black text-yellow-500 italic mb-2">ISD TABLE TENNIS TRACKER</h1>
-            <p class="text-[10px] text-gray-500 mb-8 tracking-[0.3em]">TERM 3 ACCESS ONLY</p>
-            <input type="password" id="passcode" placeholder="ACCESS KEY" class="isd-input text-center text-2xl mb-4">
-            <button onclick="handleLogin()" class="w-full bg-yellow-500 text-black font-black py-4 rounded-xl uppercase">Login</button>
+    <!-- Passcode Overlay -->
+    <div id="authBarrier" class="fixed inset-0 z-[1000] bg-black flex items-center justify-center p-6">
+        <div class="max-w-md w-full text-center space-y-6">
+            <h1 class="text-6xl font-black italic text-yellow-500 tracking-tighter">ISD TRACKER</h1>
+            <p class="text-xs text-gray-500 tracking-[0.4em] uppercase">Authorized Personnel Only</p>
+            <input type="password" id="sysPass" placeholder="ACCESS KEY" class="isd-input text-center text-3xl font-black uppercase">
+            <button onclick="checkAccess()" class="w-full py-5 bg-yellow-500 text-black font-black uppercase rounded-2xl text-xl hover:scale-105 transition-transform">Initialize Dashboard</button>
         </div>
     </div>
 
-    <!-- Main Terminal -->
-    <div id="mainUI" class="max-w-[1800px] mx-auto hidden">
-        <header class="mb-8">
-            <h1 class="text-5xl font-black text-yellow-500 italic">ISD TABLE TENNIS TRACKER TERM 3</h1>
-            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">created by Leo for ISD RACKET SPORTS</p>
-            
-            <div class="flex flex-wrap gap-4 mt-6">
-                <button onclick="openModal('regModal')" class="px-6 py-3 bg-white text-black font-black rounded-lg text-xs uppercase">+ Register Kid</button>
-                <button onclick="downloadCSV()" class="px-6 py-3 bg-neutral-800 text-white font-black rounded-lg text-xs uppercase"><i class="fa-solid fa-file-csv mr-2"></i>Backup CSV</button>
-                <button onclick="generateReport('weekly')" class="px-6 py-3 bg-neutral-800 text-white font-black rounded-lg text-xs uppercase">Weekly Report</button>
-                <button onclick="generateReport('term')" class="px-6 py-3 bg-neutral-800 text-white font-black rounded-lg text-xs uppercase">Term 3 Overall</button>
-                <button onclick="setView('notJoining')" class="px-6 py-3 bg-red-900/20 text-red-500 font-black rounded-lg text-xs uppercase">Not Joining Folder</button>
-                <button onclick="setView('roster')" class="px-6 py-3 bg-green-900/20 text-green-500 font-black rounded-lg text-xs uppercase">Main Roster</button>
+    <div id="appInterface" class="hidden max-w-[1900px] mx-auto">
+        
+        <!-- Header & Stats -->
+        <header class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-12">
+            <div>
+                <h1 class="text-6xl font-black italic text-white leading-none">TERM 3 <span class="text-yellow-500">TRACKER</span></h1>
+                <p class="text-gray-500 font-bold uppercase tracking-[0.2em] mt-2">ISD Table Tennis Academy Management System</p>
+            </div>
+            <div class="flex flex-wrap gap-4">
+                <button onclick="openModal('regModal')" class="bg-white text-black px-8 py-4 rounded-xl font-black uppercase hover:bg-yellow-500 transition-colors">+ Add Student</button>
+                <button onclick="exportData()" class="bg-neutral-800 text-white px-8 py-4 rounded-xl font-black uppercase"><i class="fa-solid fa-file-csv mr-2"></i>Backup CSV</button>
             </div>
         </header>
 
-        <!-- Statistic Grid -->
-        <div id="statsGrid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 mb-10">
-            <!-- Dynamic Stats Rendered Here -->
+        <!-- Stats Grid -->
+        <div id="statsGrid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4 mb-12">
+            <!-- Dynamic Stats Load Here -->
         </div>
 
-        <div class="grid grid-cols-1 xl:grid-cols-4 gap-8">
-            <!-- Main List -->
-            <div class="xl:col-span-3">
-                <div id="listHeader" class="flex justify-between items-center mb-4">
-                    <h2 id="viewTitle" class="text-2xl font-black uppercase italic">Registered Kids</h2>
+        <!-- Main Content -->
+        <div class="grid grid-cols-1 xl:grid-cols-12 gap-10">
+            
+            <!-- List Section -->
+            <div class="xl:col-span-8 space-y-6">
+                <div class="flex justify-between items-center mb-6">
+                    <div class="flex gap-4">
+                        <button onclick="switchView('roster')" id="btnViewRoster" class="text-sm font-black uppercase border-b-2 border-yellow-500 pb-1">Main Roster</button>
+                        <button onclick="switchView('notJoining')" id="btnViewArchive" class="text-sm font-black uppercase text-gray-500 border-b-2 border-transparent pb-1">Archive Folder</button>
+                        <button onclick="switchView('attendance')" id="btnViewAttendance" class="text-sm font-black uppercase text-gray-500 border-b-2 border-transparent pb-1">Attendance Checker</button>
+                    </div>
                     <div class="flex gap-2">
-                        <select id="filterAge" onchange="render()" class="bg-black border border-neutral-800 text-xs p-2 rounded">
-                            <option value="ALL">All Ages</option>
+                        <select id="groupFilter" onchange="render()" class="bg-neutral-900 text-xs font-bold p-2 rounded-lg border border-neutral-800">
+                            <option value="ALL">ALL GROUPS</option>
                             <option value="U8">U8</option>
                             <option value="U12">U12</option>
                             <option value="U16">U16</option>
                         </select>
                     </div>
                 </div>
-                <div id="kidsContainer" class="space-y-4"></div>
+
+                <div id="studentContainer" class="space-y-4">
+                    <!-- Cards Load Here -->
+                </div>
             </div>
 
             <!-- Sidebar Widgets -->
-            <div class="space-y-6">
-                <!-- Birthday Widget -->
-                <div class="bg-neutral-900 p-6 rounded-2xl border border-neutral-800">
-                    <h3 class="text-sm font-black text-yellow-500 uppercase mb-4"><i class="fa-solid fa-cake-candles mr-2"></i>Upcoming Birthdays</h3>
-                    <div id="bdayWidget" class="space-y-3"></div>
+            <div class="xl:col-span-4 space-y-6">
+                <div class="glass-card p-6 rounded-3xl">
+                    <h3 class="text-lg font-black italic text-yellow-500 uppercase mb-4"><i class="fa-solid fa-cake-candles mr-2"></i>Monthly Birthdays</h3>
+                    <div id="bdayWidget" class="space-y-4"></div>
                 </div>
 
-                <!-- Attendance Widget -->
-                <div class="bg-neutral-900 p-6 rounded-2xl border border-neutral-800">
-                    <h3 class="text-sm font-black text-blue-500 uppercase mb-4"><i class="fa-solid fa-clipboard-user mr-2"></i>Attendance Checker</h3>
-                    <input type="date" id="attDate" class="isd-input text-xs mb-4" onchange="renderAttendance()">
-                    <div id="attWidget" class="space-y-2"></div>
+                <div class="glass-card p-6 rounded-3xl">
+                    <h3 class="text-lg font-black italic text-blue-500 uppercase mb-4"><i class="fa-solid fa-chart-line mr-2"></i>Financial Outlook</h3>
+                    <div id="financeWidget" class="space-y-2"></div>
+                </div>
+
+                <div class="glass-card p-6 rounded-3xl">
+                    <h3 class="text-lg font-black italic text-white uppercase mb-4"><i class="fa-solid fa-bullhorn mr-2"></i>System Alerts</h3>
+                    <div id="alertsWidget" class="space-y-2 text-xs text-gray-400">
+                        <p>No urgent follow-ups required.</p>
+                    </div>
                 </div>
             </div>
+
         </div>
     </div>
 
     <!-- Registration Modal -->
-    <div id="regModal" class="fixed inset-0 bg-black/95 z-[150] hidden flex items-center justify-center p-4">
-        <div id="modalFrame" class="bg-neutral-900 p-8 rounded-[30px] w-full max-w-4xl border-4 border-neutral-800 overflow-y-auto max-h-[90vh]">
+    <div id="regModal" class="fixed inset-0 bg-black/95 z-[500] hidden flex items-center justify-center p-4">
+        <div id="modalFrame" class="bg-neutral-950 p-8 rounded-[40px] w-full max-w-4xl border-4 border-neutral-900 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-8">
-                <h2 class="text-3xl font-black text-yellow-500 uppercase italic">Registration Form</h2>
-                <button onclick="closeModal('regModal')" class="text-gray-500 text-2xl">&times;</button>
+                <h2 class="text-4xl font-black italic text-white uppercase">Player Registration</h2>
+                <button onclick="closeModal('regModal')" class="text-gray-500 hover:text-white text-3xl font-bold">&times;</button>
             </div>
-            
-            <form id="enrollForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label class="text-[10px] font-black text-gray-500 uppercase">Kids Full Name</label>
-                    <input type="text" id="kName" required class="isd-input mt-1">
+
+            <form id="regForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="md:col-span-2">
+                    <label class="text-[10px] font-black text-gray-500 uppercase">Kid's Full Name</label>
+                    <input type="text" id="regName" required class="isd-input text-xl font-bold">
                 </div>
+
                 <div>
                     <label class="text-[10px] font-black text-gray-500 uppercase">Date of Birth</label>
-                    <input type="date" id="kDob" required class="isd-input mt-1" onchange="handleDobChange()">
+                    <input type="date" id="regDob" required class="isd-input" onchange="calculateEnrollment()">
                 </div>
+
+                <div class="bg-neutral-900 p-4 rounded-xl border border-neutral-800 flex items-center justify-between">
+                    <div>
+                        <p class="text-[10px] font-black text-gray-500 uppercase">Age Group</p>
+                        <p id="calcAgeGroup" class="text-xl font-black">--</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-[10px] font-black text-gray-500 uppercase">Calc. Age</p>
+                        <p id="calcAge" class="text-xl font-black text-yellow-500">--</p>
+                    </div>
+                </div>
+
                 <div>
-                    <label class="text-[10px] font-black text-gray-500 uppercase">Parents Name</label>
-                    <input type="text" id="pName" required class="isd-input mt-1">
+                    <label class="text-[10px] font-black text-gray-500 uppercase">Parent's Name</label>
+                    <input type="text" id="regParent" required class="isd-input">
                 </div>
+
                 <div>
                     <label class="text-[10px] font-black text-gray-500 uppercase">WhatsApp Number</label>
-                    <input type="tel" id="pPhone" required class="isd-input mt-1">
+                    <input type="tel" id="regPhone" required class="isd-input" placeholder="+9715...">
                 </div>
+
                 <div class="md:col-span-2">
                     <label class="text-[10px] font-black text-gray-500 uppercase">Email Address</label>
-                    <input type="email" id="pEmail" required class="isd-input mt-1">
+                    <input type="email" id="regEmail" required class="isd-input">
                 </div>
 
-                <div class="md:col-span-2 p-6 bg-black/50 rounded-2xl border border-white/5">
-                    <div class="flex justify-between items-center mb-4">
-                        <span id="popGroup" class="px-4 py-1 rounded-full text-[10px] font-black bg-neutral-800">GROUP: ---</span>
-                        <span id="popAge" class="text-xs font-bold text-gray-400">AGE: --</span>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Schedule Section -->
+                <div class="md:col-span-2 p-6 bg-black rounded-3xl border border-neutral-900">
+                    <h4 class="text-xs font-black uppercase text-gray-400 mb-4">Training Schedule & Fees</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label class="text-[10px] font-black text-gray-500 uppercase">Schedule Days</label>
-                            <div class="flex gap-2 mt-2">
-                                <button type="button" onclick="setDay('Mon')" class="day-btn px-3 py-2 bg-neutral-800 rounded text-[10px] font-black">MON</button>
-                                <button type="button" onclick="setDay('Tue')" class="day-btn px-3 py-2 bg-neutral-800 rounded text-[10px] font-black">TUE</button>
-                                <button type="button" onclick="setDay('Wed')" class="day-btn px-3 py-2 bg-neutral-800 rounded text-[10px] font-black">WED</button>
-                                <button type="button" onclick="setDay('Thu')" class="day-btn px-3 py-2 bg-neutral-800 rounded text-[10px] font-black">THU</button>
-                                <button type="button" onclick="setDay('Fri')" class="day-btn px-3 py-2 bg-neutral-800 rounded text-[10px] font-black">FRI</button>
-                            </div>
+                            <label class="text-[10px] font-black text-gray-500 uppercase">Frequency</label>
+                            <select id="regFreq" class="isd-input" onchange="calculateEnrollment()">
+                                <option value="1">Once a Week</option>
+                                <option value="2">Twice a Week</option>
+                                <option value="3">Thrice a Week</option>
+                            </select>
                         </div>
                         <div>
-                            <label class="text-[10px] font-black text-gray-500 uppercase">Starting Date</label>
-                            <input type="date" id="startDate" value="2026-03-30" class="isd-input mt-1 text-xs" onchange="calcTotal()">
+                            <label class="text-[10px] font-black text-gray-500 uppercase">Start Date</label>
+                            <input type="date" id="regStart" value="2025-03-30" class="isd-input" onchange="calculateEnrollment()">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="text-[10px] font-black text-gray-500 uppercase">Preferred Days/Time</label>
+                            <input type="text" id="regSchedText" placeholder="e.g. Mon & Wed 4pm" class="isd-input">
                         </div>
                     </div>
 
-                    <div class="mt-6 pt-6 border-t border-white/5 flex justify-between items-end">
+                    <div class="mt-8 pt-6 border-t border-neutral-900 flex justify-between items-end">
                         <div>
-                            <p class="text-[10px] font-black text-gray-500 uppercase">Estimated Total</p>
-                            <h3 id="totalDisplay" class="text-4xl font-black text-yellow-500 italic">0 <span class="text-sm">AED</span></h3>
+                            <p class="text-[10px] font-black text-gray-500 uppercase">Base Rate (Term)</p>
+                            <p id="calcBase" class="text-2xl font-black text-white">AED 0.00</p>
                         </div>
-                        <div class="text-right text-[10px] text-gray-500">
-                            <p id="freqText">Sessions: 0</p>
-                            <p id="baseText">Base: 0 AED</p>
+                        <div class="text-right">
+                            <p class="text-[10px] font-black text-yellow-500 uppercase">Total to Pay (Pro-rated)</p>
+                            <p id="calcTotal" class="text-4xl font-black text-yellow-500">AED 0.00</p>
                         </div>
                     </div>
                 </div>
 
-                <button type="submit" class="md:col-span-2 bg-yellow-500 text-black font-black py-5 rounded-2xl uppercase italic text-lg">Confirm Registration</button>
-                <button type="button" onclick="handleBulkImport()" class="md:col-span-2 bg-blue-600 text-white font-black py-3 rounded-2xl uppercase text-[10px]">Migrate Initial Kids List (53 Kids)</button>
+                <button type="submit" class="md:col-span-2 bg-yellow-500 text-black py-6 rounded-2xl font-black uppercase text-xl mt-4">Complete Registration</button>
             </form>
         </div>
     </div>
 
-    <!-- Schedule Request Modal -->
-    <div id="schedModal" class="fixed inset-0 bg-black/90 z-[160] hidden flex items-center justify-center">
-        <div class="bg-neutral-900 p-8 rounded-3xl w-full max-w-md border border-neutral-800">
-            <h2 class="text-xl font-black text-yellow-500 uppercase italic mb-6">Schedule Request</h2>
-            <div class="grid grid-cols-2 gap-4 mb-6">
-                <input type="text" id="reqDay" placeholder="New Day" class="isd-input">
-                <input type="text" id="reqTime" placeholder="New Time" class="isd-input">
+    <!-- Attendance Modal -->
+    <div id="attendanceModal" class="fixed inset-0 bg-black/95 z-[500] hidden flex items-center justify-center p-4">
+        <div class="bg-neutral-950 p-8 rounded-[40px] w-full max-w-2xl border-2 border-neutral-800">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-black italic">Daily Attendance Check</h2>
+                <button onclick="closeModal('attendanceModal')" class="text-3xl">&times;</button>
             </div>
-            <button id="sendCoachBtn" class="w-full bg-green-500 text-black font-black py-4 rounded-xl uppercase">Ask Coach Aleksey</button>
+            <div id="attendeeList" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2"></div>
+            <div class="mt-6">
+                <button onclick="closeModal('attendanceModal')" class="w-full bg-neutral-800 py-4 rounded-xl font-bold uppercase">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Schedule Request Modal -->
+    <div id="schedRequestModal" class="fixed inset-0 bg-black/95 z-[500] hidden flex items-center justify-center p-4">
+        <div class="bg-neutral-950 p-8 rounded-[40px] w-full max-w-md border-2 border-blue-600">
+            <h2 class="text-xl font-black uppercase mb-4">Request New Schedule</h2>
+            <select id="reqNewSchedDay" class="isd-input mb-4">
+                <option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option>
+            </select>
+            <select id="reqNewSchedTime" class="isd-input mb-6">
+                <option>4:00 PM</option><option>5:00 PM</option><option>6:00 PM</option>
+            </select>
+            <button id="btnConfirmSchedReq" class="w-full bg-blue-600 py-4 rounded-xl font-black uppercase">Send to Coach Aleksey</button>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, addDoc, updateDoc, deleteDoc, onSnapshot, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, addDoc, updateDoc, deleteDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+        // Config & State
         const firebaseConfig = JSON.parse(__firebase_config);
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'isd-tt-term3-v1';
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'isd-tt-term3-final';
 
-        // State
         let students = [];
-        let view = 'roster'; // 'roster' or 'notJoining'
-        let selectedDays = [];
-        let currentKidId = null;
+        let viewMode = 'roster';
+        let currentUser = null;
 
-        // Login
-        window.handleLogin = () => {
-            if (document.getElementById('passcode').value.toUpperCase() === 'LEO') {
-                document.getElementById('loginOverlay').classList.add('hidden');
-                document.getElementById('mainUI').classList.remove('hidden');
-                signInAnonymously(auth);
+        const TERM_START = new Date("2025-03-30");
+        const TERM_END = new Date("2025-07-03");
+        const TOTAL_DAYS = Math.ceil((TERM_END - TERM_START) / (1000 * 60 * 60 * 24));
+
+        // Security - Critical Fix: Do not initialize listeners until AUTH IS COMPLETE
+        window.checkAccess = async () => {
+            if(document.getElementById('sysPass').value.toUpperCase() === 'LEO') {
+                document.getElementById('authBarrier').classList.add('hidden');
+                document.getElementById('appInterface').classList.remove('hidden');
+                
+                // AUTH BEFORE QUERIES (Rule 3)
+                try {
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                } catch (e) {
+                    console.error("Auth Failed", e);
+                }
+            } else {
+                alert("ACCESS DENIED");
             }
-        };
+        }
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                const q = collection(db, 'artifacts', appId, 'public', 'data', 'students');
-                onSnapshot(q, (snapshot) => {
-                    students = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-                    render();
-                    renderAttendance();
-                });
+                currentUser = user;
+                startListeners();
             }
         });
 
-        // Registration Logic
-        window.handleDobChange = () => {
-            const dob = document.getElementById('kDob').value;
-            const age = calculateAge(dob);
-            const group = getGroup(age);
+        function startListeners() {
+            if (!currentUser) return; // Safeguard
+
+            // Querying with required path structure (Rule 1)
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'students'), (snap) => {
+                students = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                render();
+            }, (err) => {
+                console.error("Snapshot Error", err);
+            });
+        }
+
+        // Calculations
+        window.calculateEnrollment = () => {
+            const dob = document.getElementById('regDob').value;
+            if(!dob) return;
+            
+            const birth = new Date(dob);
+            const today = new Date();
+            let age = today.getFullYear() - birth.getFullYear();
+            if (today.getMonth() < birth.getMonth() || (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate())) age--;
+            
+            let group = 'U16';
+            let baseRate = 1800; // U16 once week
+            if(age < 8) { group = 'U8'; baseRate = 1200; }
+            else if(age < 12) { group = 'U12'; baseRate = 1500; }
+
+            const freq = parseInt(document.getElementById('regFreq').value);
+            const freqMultiplier = freq === 1 ? 1 : (freq === 2 ? 1.8 : 2.5);
+            const termTotal = baseRate * freqMultiplier;
+
+            // Pro-rating
+            const start = new Date(document.getElementById('regStart').value);
+            const remainingDays = Math.max(0, Math.ceil((TERM_END - start) / (1000 * 60 * 60 * 24)));
+            const proRated = (termTotal / TOTAL_DAYS) * remainingDays;
+
+            document.getElementById('calcAge').innerText = age;
+            document.getElementById('calcAgeGroup').innerText = group;
+            document.getElementById('calcBase').innerText = `AED ${termTotal.toLocaleString()}`;
+            document.getElementById('calcTotal').innerText = `AED ${proRated.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+            
             const modalFrame = document.getElementById('modalFrame');
-            
-            document.getElementById('popAge').innerText = `AGE: ${age}`;
-            document.getElementById('popGroup').innerText = `GROUP: ${group}`;
-            
-            modalFrame.className = `bg-neutral-900 p-8 rounded-[30px] w-full max-w-4xl border-4 overflow-y-auto max-h-[90vh] ` + 
-                (group === 'U8' ? 'neon-border-u8' : group === 'U12' ? 'neon-border-u12' : 'neon-border-u16');
-            
-            calcTotal();
+            modalFrame.classList.remove('neon-u8', 'neon-u12', 'neon-u16');
+            modalFrame.classList.add(group === 'U8' ? 'neon-u8' : (group === 'U12' ? 'neon-u12' : 'neon-u16'));
         };
 
-        window.setDay = (day) => {
-            if (selectedDays.includes(day)) selectedDays = selectedDays.filter(d => d !== day);
-            else selectedDays.push(day);
-            
-            document.querySelectorAll('.day-btn').forEach(btn => {
-                btn.classList.toggle('bg-yellow-500', selectedDays.includes(btn.innerText));
-                btn.classList.toggle('text-black', selectedDays.includes(btn.innerText));
-            });
-            calcTotal();
-        };
+        // CRUD
+        document.getElementById('regForm').onsubmit = async (e) => {
+            e.preventDefault();
+            if (!currentUser) return;
 
-        window.calcTotal = () => {
-            const dob = document.getElementById('kDob').value;
-            const start = document.getElementById('startDate').value;
-            if (!dob || !start) return;
-
-            const age = calculateAge(dob);
-            const group = getGroup(age);
-            const basePrice = age < 8 ? 1390 : 1695;
-            const sessionsPerWeek = selectedDays.length;
-            
-            // Term logic (14 weeks)
-            const termEnd = new Date('2026-07-03');
-            const startD = new Date(start);
-            const diffTime = Math.max(0, termEnd - startD);
-            const weeksLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24 * 7));
-            
-            let total = (basePrice / 14) * weeksLeft * (sessionsPerWeek || 1);
-            if (sessionsPerWeek > 1) total = total * 0.9; // 10% multi-day discount
-
-            document.getElementById('totalDisplay').innerHTML = `${Math.round(total)} <span class="text-sm">AED</span>`;
-            document.getElementById('freqText').innerText = `Sessions: ${sessionsPerWeek} per week`;
-            document.getElementById('baseText').innerText = `Base: ${basePrice} AED`;
-        };
-
-        // Student Handlers
-        window.toggleStatus = async (id, field, value) => {
-            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'students', id);
-            await updateDoc(docRef, { [field]: value });
-        };
-
-        window.openScheduleRequest = (id) => {
-            currentKidId = id;
-            openModal('schedModal');
-            document.getElementById('sendCoachBtn').onclick = () => {
-                const s = students.find(x => x.id === id);
-                const day = document.getElementById('reqDay').value;
-                const time = document.getElementById('reqTime').value;
-                const msg = `Hi Coach @Aleksey 🏓\n${s.pName} is requesting a new schedule for ${s.name}.\nKindly confirm if it is possible, or suggest any other available slot for ${s.name}.\nThank you!`;
-                window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`);
-                closeModal('schedModal');
+            const data = {
+                name: document.getElementById('regName').value,
+                dob: document.getElementById('regDob').value,
+                parent: document.getElementById('regParent').value,
+                phone: document.getElementById('regPhone').value,
+                email: document.getElementById('regEmail').value,
+                frequency: document.getElementById('regFreq').value,
+                startDate: document.getElementById('regStart').value,
+                schedule: document.getElementById('regSchedText').value,
+                totalDue: parseFloat(document.getElementById('calcTotal').innerText.replace('AED ', '').replace(',','')),
+                status: 'registered',
+                isdb: false,
+                paymentStatus: 'unpaid',
+                paymentMethod: null,
+                attendance: {},
+                makeups: 0,
+                invitationSent: null,
+                called: false,
+                createdAt: new Date().toISOString()
             };
+            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'students'), data);
+            closeModal('regModal');
+            e.target.reset();
         };
 
-        window.sendInvite = async (id) => {
-            const s = students.find(x => x.id === id);
-            const msg = `Hello ${s.pName}! 🏓\nWe’re excited to welcome our players back for an amazing ISD Table Tennis – Term 3 filled with learning, energy, and fun!\nStudent: ${s.name}\nSchedule: ${s.schedule}\nTerm 3 Dates: 30th of March – 3rd of July\nPlease let us know if the same schedule works for Term 3.\nWe can’t wait to see ${s.name} back at the table for another fantastic term!`;
-            window.open(`https://wa.me/${s.phone}?text=${encodeURIComponent(msg)}`);
-            await toggleStatus(id, 'invitationSent', true);
-            await toggleStatus(id, 'invitationDate', new Date().toISOString());
-        };
-
-        window.sendFollowUp = (id) => {
-            const s = students.find(x => x.id === id);
-            const msg = `Hi ${s.pName}! 🏓\nJust following up regarding ${s.name}’s schedule for ISD Table Tennis – Term 3.\nKindly confirm if the same schedule works, so we can secure the slot.\nLooking forward to your reply!\nThank you 😊`;
-            window.open(`https://wa.me/${s.phone}?text=${encodeURIComponent(msg)}`);
-        };
-
-        window.sendBdayWish = (id) => {
-            const s = students.find(x => x.id === id);
-            const msg = `🎉 Birthday Wish 🎉\nHi ${s.pName}! 🥳\nYour champ ${s.name} has a special day coming up!\nWishing ${s.name} a very happy birthday filled with joy, laughter, and lots of fun! 🎂🎈\nFrom all of us at ISD Table Tennis, we hope it’s a fantastic year ahead for ${s.name}! 🏓💛`;
-            window.open(`https://wa.me/${s.phone}?text=${encodeURIComponent(msg)}`);
-        };
-
-        // Attendance Logic
-        window.markAttendance = async (id, status) => {
-            const date = document.getElementById('attDate').value;
-            const s = students.find(x => x.id === id);
-            const att = s.attendance || {};
-            const makeups = s.makeups || 0;
-            
-            const newMakeups = status === 'med' ? makeups + 1 : makeups;
-            
-            await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'students', id), {
-                [`attendance.${date}`]: status,
-                makeups: newMakeups
-            });
-        };
-
-        // Core Render
-        function render() {
-            const container = document.getElementById('kidsContainer');
-            const ageFilter = document.getElementById('filterAge').value;
+        // Rendering logic
+        window.render = () => {
+            const container = document.getElementById('studentContainer');
+            const gFilter = document.getElementById('groupFilter').value;
             
             const filtered = students.filter(s => {
-                const inView = view === 'roster' ? (s.status !== 'notJoining') : (s.status === 'notJoining');
-                const ageMatch = ageFilter === 'ALL' || getGroup(calculateAge(s.dob)) === ageFilter;
-                return inView && ageMatch;
+                const age = calculateAge(s.dob);
+                const group = getGroup(age);
+                const matchesGroup = gFilter === 'ALL' || group === gFilter;
+                const matchesView = viewMode === 'roster' ? s.status !== 'notJoining' : s.status === 'notJoining';
+                return matchesGroup && matchesView;
             });
 
             container.innerHTML = filtered.map(s => {
                 const age = calculateAge(s.dob);
                 const group = getGroup(age);
-                const isBday = isBirthdaySoon(s.dob);
-                const needsFollowUp = s.invitationSent && !s.status && (new Date() - new Date(s.invitationDate) > 86400000);
+                const isInviteSent = !!s.invitationSent;
+                const isJoining = s.status === 'joining' || s.status === 'paid';
+                const isPaid = s.status === 'paid';
+                const isIsdb = !!s.isdb;
+                
+                let classes = 'glass-card p-6 rounded-3xl flex flex-col lg:flex-row gap-6 items-start lg:items-center relative overflow-hidden transition-all duration-300 ';
+                if(isInviteSent) classes += 'neon-invitation ';
+                if(isJoining) classes += 'neon-joining ';
+                if(isPaid) classes += 'neon-paid ';
+                if(isIsdb) classes += 'neon-isdb ';
+
+                const phoneClean = s.phone.replace(/[^0-9+]/g, '');
 
                 return `
-                    <div class="kid-bullet p-6 rounded-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 
-                        ${s.invitationSent ? 'bullet-invitation-sent' : ''} 
-                        ${s.status === 'joining' ? 'bullet-joining' : ''} 
-                        ${s.status === 'paid' ? 'bullet-joining bg-green-500/5' : ''}
-                        ${s.isdbDone ? 'bullet-isdb' : ''}">
-                        
+                    <div class="${classes}">
                         <div class="flex-1">
-                            <div class="flex items-center gap-2">
-                                <span class="w-2 h-2 rounded-full ${s.status === 'paid' ? 'bg-green-500' : 'bg-red-500'}"></span>
-                                <h3 class="text-lg font-black uppercase italic">${s.name}</h3>
-                                <span class="text-[9px] font-black px-2 py-0.5 rounded border border-white/10">${group} • ${age} yrs</span>
-                                ${s.makeups > 0 ? `<span class="bg-blue-600 text-white text-[8px] font-black px-2 py-0.5 rounded">MAKEUPS: ${s.makeups}</span>` : ''}
+                            <div class="flex items-center gap-3 mb-2">
+                                <h3 class="text-2xl font-black uppercase italic">${s.name}</h3>
+                                <span class="px-2 py-0.5 rounded text-[10px] font-black ${group === 'U8' ? 'bg-pink-500' : (group === 'U12' ? 'bg-yellow-500' : 'bg-blue-500')} text-black">${group} • ${age}y</span>
+                                ${isInviteSent ? '<span class="text-[9px] font-black text-yellow-500 uppercase tracking-widest">Invitation Sent</span>' : ''}
                             </div>
-                            <div class="text-[10px] text-gray-500 font-bold mt-1 uppercase">
-                                Parent: ${s.pName} | ${s.pEmail} | <button onclick="window.open('https://wa.me/${s.phone}')" class="text-green-500">${s.phone}</button>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1 text-xs text-gray-400 font-bold uppercase">
+                                <p><span class="text-gray-600">Parent:</span> ${s.parent}</p>
+                                <p><span class="text-gray-600">Email:</span> ${s.email}</p>
+                                <button onclick="window.waAction('${s.id}', 'direct')" class="text-left bg-green-500/10 text-green-500 px-3 py-1 rounded-lg border border-green-500/20 w-fit hover:bg-green-500/20">
+                                    <i class="fa-brands fa-whatsapp mr-2"></i>${s.phone}
+                                </button>
+                                <p><span class="text-gray-600">Schedule:</span> ${s.schedule || 'TBD'}</p>
                             </div>
-                            <div class="text-[9px] text-yellow-500/80 mt-1 uppercase font-black">
-                                Schedule: ${s.schedule} ${s.invitationSent ? '• <span class="text-white">INVITATION SENT</span>' : ''}
+                            
+                            <div class="mt-4 flex flex-wrap gap-2">
+                                <button onclick="window.waAction('${s.id}', 'invite')" class="bg-neutral-800 text-[9px] font-black px-3 py-2 rounded-lg hover:bg-yellow-500 hover:text-black transition-colors">INVITE</button>
+                                <button onclick="window.updateStatus('${s.id}', 'status', 'joining')" class="bg-neutral-800 text-[9px] font-black px-3 py-2 rounded-lg hover:bg-green-500 hover:text-black transition-colors">JOINING</button>
+                                <button onclick="window.updateStatus('${s.id}', 'status', 'notJoining')" class="bg-neutral-800 text-[9px] font-black px-3 py-2 rounded-lg hover:bg-red-500 transition-colors">X</button>
+                                <button onclick="window.openScheduleRequest('${s.id}')" class="bg-blue-900/30 text-blue-400 text-[9px] font-black px-3 py-2 rounded-lg">REQ SCHED</button>
+                                <button onclick="window.payAction('${s.id}')" class="bg-green-900/30 text-green-400 text-[9px] font-black px-3 py-2 rounded-lg">PAID</button>
+                                <button onclick="window.updateStatus('${s.id}', 'isdb', true)" class="bg-yellow-900/30 text-yellow-500 text-[9px] font-black px-3 py-2 rounded-lg">ISDB DONE</button>
+                                <button onclick="window.waAction('${s.id}', 'followup')" class="bg-neutral-800 text-[9px] font-black px-3 py-2 rounded-lg">FOLLOW UP</button>
+                                <button onclick="window.updateStatus('${s.id}', 'called', true)" class="bg-neutral-800 text-[9px] font-black px-3 py-2 rounded-lg ${s.called ? 'text-green-500' : ''}">CALLED</button>
+                                ${isBirthdayApproaching(s.dob) ? `<button onclick="window.waAction('${s.id}', 'birthday')" class="bg-pink-600 text-white text-[9px] font-black px-3 py-2 rounded-lg animate-pulse">🎂 B-DAY WISH</button>` : ''}
                             </div>
                         </div>
-
-                        <div class="flex flex-wrap gap-2">
-                            ${!s.invitationSent ? `<button onclick="sendInvite('${s.id}')" class="px-3 py-2 bg-yellow-500 text-black text-[9px] font-black rounded uppercase">Send Invite</button>` : ''}
-                            ${needsFollowUp ? `<button onclick="sendFollowUp('${s.id}')" class="px-3 py-2 bg-orange-500 text-white text-[9px] font-black rounded uppercase pulse">Follow Up</button>` : ''}
-                            
-                            <button onclick="toggleStatus('${s.id}', 'status', 'joining')" class="px-3 py-2 bg-green-600 text-white text-[9px] font-black rounded uppercase">Joining</button>
-                            <button onclick="toggleStatus('${s.id}', 'status', 'notJoining')" class="px-3 py-2 bg-red-600 text-white text-[9px] font-black rounded uppercase">Not Joining</button>
-                            <button onclick="openScheduleRequest('${s.id}')" class="px-3 py-2 bg-blue-600 text-white text-[9px] font-black rounded uppercase">Sched Req</button>
-                            <button onclick="toggleStatus('${s.id}', 'status', 'paid')" class="px-3 py-2 bg-green-500 text-black text-[9px] font-black rounded uppercase">Paid</button>
-                            <button onclick="toggleStatus('${s.id}', 'isdbDone', true)" class="px-3 py-2 bg-yellow-600 text-white text-[9px] font-black rounded uppercase">ISDB Done</button>
-                            ${isBday ? `<button onclick="sendBdayWish('${s.id}')" class="px-3 py-2 bg-pink-500 text-white text-[9px] font-black rounded uppercase">🎂 Bday Wish</button>` : ''}
+                        
+                        <div class="text-right border-l border-neutral-800 pl-6 hidden lg:block">
+                            <p class="text-[10px] font-black text-gray-500 uppercase">Balance Due</p>
+                            <p class="text-xl font-black ${isPaid ? 'text-green-500' : 'text-white'}">AED ${isPaid ? '0.00' : s.totalDue.toLocaleString()}</p>
+                            <p class="text-[9px] font-bold text-gray-600 mt-1">Makeups: ${s.makeups || 0}</p>
                         </div>
                     </div>
                 `;
             }).join('');
 
             updateStats();
-            renderBdayWidget();
-        }
+            updateWidgets();
+        };
 
         function updateStats() {
-            const stats = {
+            const counts = {
                 total: students.length,
                 joining: students.filter(s => s.status === 'joining' || s.status === 'paid').length,
-                waiting: students.filter(s => s.invitationSent && !s.status).length,
+                waiting: students.filter(s => !!s.invitationSent && s.status !== 'joining' && s.status !== 'paid' && s.status !== 'notJoining').length,
                 notJoining: students.filter(s => s.status === 'notJoining').length,
                 paid: students.filter(s => s.status === 'paid').length,
-                unpaid: students.filter(s => s.status === 'joining').length,
-                rev: 0,
-                isdb: students.filter(s => s.isdbDone).length
+                unpaid: students.filter(s => (s.status === 'joining' || s.status === 'paid') && s.status !== 'paid').length,
+                revenue: students.filter(s => s.status === 'paid').reduce((a,b) => a + (b.totalDue || 0), 0),
+                cash: students.filter(s => s.status === 'paid' && s.paymentMethod === 'cash').reduce((a,b) => a + (b.totalDue || 0), 0),
+                card: students.filter(s => s.status === 'paid' && s.paymentMethod === 'card').reduce((a,b) => a + (b.totalDue || 0), 0),
+                link: students.filter(s => s.status === 'paid' && s.paymentMethod === 'link').reduce((a,b) => a + (b.totalDue || 0), 0),
+                isdb: students.filter(s => s.isdb).length
             };
-            
-            // Calculate revenue (Mock logic based on groups)
-            students.filter(s => s.status === 'paid').forEach(s => {
-                const group = getGroup(calculateAge(s.dob));
-                stats.rev += (group === 'U8' ? 1390 : 1695);
-            });
 
-            const grid = document.getElementById('statsGrid');
             const data = [
-                { label: 'Registered', val: stats.total },
-                { label: 'Joining T3', val: stats.joining, color: 'text-green-400' },
-                { label: 'Waiting', val: stats.waiting, color: 'text-yellow-400' },
-                { label: 'Not Joining', val: stats.notJoining, color: 'text-red-400' },
-                { label: 'Paid Total', val: stats.paid, color: 'text-green-500' },
-                { label: 'Unpaid', val: stats.unpaid, color: 'text-red-500' },
-                { label: 'Revenue AED', val: stats.rev.toLocaleString(), color: 'text-yellow-500' },
-                { label: 'ISDB Done', val: stats.isdb, color: 'text-amber-500' }
+                { l: 'Registered', v: counts.total, icon: 'fa-users' },
+                { l: 'Joining T3', v: counts.joining, icon: 'fa-check-circle', c: 'text-green-500' },
+                { l: 'Waiting', v: counts.waiting, icon: 'fa-clock', c: 'text-yellow-500' },
+                { l: 'Not Joining', v: counts.notJoining, icon: 'fa-times-circle', c: 'text-red-500' },
+                { l: 'Paid', v: counts.paid, icon: 'fa-money-bill', c: 'text-green-400' },
+                { l: 'Unpaid', v: counts.unpaid, icon: 'fa-receipt', c: 'text-red-400' },
+                { l: 'Revenue', v: `AED ${counts.revenue.toLocaleString()}`, icon: 'fa-vault', c: 'text-blue-400' },
+                { l: 'ISDB Done', v: counts.isdb, icon: 'fa-database', c: 'text-yellow-600' },
+                { l: 'Cash', v: `AED ${counts.cash.toLocaleString()}`, icon: 'fa-wallet' },
+                { l: 'Card', v: `AED ${counts.card.toLocaleString()}`, icon: 'fa-credit-card' },
+                { l: 'Link', v: `AED ${counts.link.toLocaleString()}`, icon: 'fa-link' }
             ];
 
-            grid.innerHTML = data.map(d => `
-                <div class="stat-card">
-                    <p class="text-[8px] font-black text-gray-500 uppercase">${d.label}</p>
-                    <h4 class="text-xl font-black ${d.color || ''}">${d.val}</h4>
-                </div>
-            `).join('');
-        }
-
-        function renderBdayWidget() {
-            const widget = document.getElementById('bdayWidget');
-            const upcoming = students.filter(s => isBirthdaySoon(s.dob));
-            if (upcoming.length === 0) {
-                widget.innerHTML = `<p class="text-[10px] text-gray-600">No birthdays this month.</p>`;
-                return;
-            }
-            widget.innerHTML = upcoming.map(s => `
-                <div class="flex justify-between items-center bg-black/40 p-3 rounded-xl border border-white/5">
-                    <div>
-                        <p class="text-xs font-black uppercase">${s.name}</p>
-                        <p class="text-[9px] text-gray-500">${s.dob}</p>
+            document.getElementById('statsGrid').innerHTML = data.map(d => `
+                <div class="stat-box p-4 rounded-2xl">
+                    <div class="flex items-center gap-2 mb-1">
+                        <i class="fa-solid ${d.icon} text-[10px] text-gray-600"></i>
+                        <p class="text-[9px] font-black text-gray-500 uppercase truncate">${d.l}</p>
                     </div>
-                    <button onclick="sendBdayWish('${s.id}')" class="text-pink-500"><i class="fa-solid fa-cake-candles"></i></button>
+                    <h4 class="text-lg font-black ${d.c || 'text-white'} truncate">${d.v}</h4>
                 </div>
             `).join('');
         }
 
-        function renderAttendance() {
-            const date = document.getElementById('attDate').value || new Date().toISOString().split('T')[0];
-            const widget = document.getElementById('attWidget');
+        // WhatsApp Messaging
+        window.waAction = async (id, type) => {
+            const s = students.find(x => x.id === id);
+            let msg = "";
+            const phone = s.phone.replace(/[^0-9]/g, '');
+
+            switch(type) {
+                case 'invite':
+                    msg = `Hello ${s.parent}! 🏓\nWe’re excited to welcome our players back for an amazing ISD Table Tennis – Term 3 filled with learning, energy, and fun!\n\nStudent: ${s.name}\nSchedule: ${s.schedule}\nTerm 3 Dates: 30th of March – 3rd of July\n\nPlease let us know if the same schedule works for Term 3.\n\nWe can’t wait to see ${s.name} back at the table for another fantastic term!`;
+                    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'students', id), { invitationSent: new Date().toISOString() });
+                    break;
+                case 'followup':
+                    msg = `Hi ${s.parent}! 🏓\nJust following up regarding ${s.name}’s schedule for ISD Table Tennis – Term 3.\nKindly confirm if the same schedule works, so we can secure the slot.\nLooking forward to your reply!\nThank you 😊`;
+                    break;
+                case 'birthday':
+                    msg = `🎉 Birthday Wish 🎉\nHi ${s.parent}! 🥳\nYour champ ${s.name} has a special day coming up!\nWishing ${s.name} a very happy birthday filled with joy, laughter, and lots of fun! 🎂🎈\nFrom all of us at ISD Table Tennis, we hope it’s a fantastic year ahead for ${s.name}! 🏓💛`;
+                    break;
+                case 'direct':
+                    msg = `Hi ${s.parent}, regarding ${s.name}...`;
+                    break;
+            }
+            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`);
+        };
+
+        window.openScheduleRequest = (id) => {
+            const s = students.find(x => x.id === id);
+            openModal('schedRequestModal');
+            document.getElementById('btnConfirmSchedReq').onclick = () => {
+                const day = document.getElementById('reqNewSchedDay').value;
+                const time = document.getElementById('reqNewSchedTime').value;
+                const msg = `Hi Coach @Aleksey 🏓\n${s.parent} is requesting a new schedule for ${s.name}.\nRequested: ${day} at ${time}.\nKindly confirm if it is possible, or suggest any other available slot for ${s.name}.\nThank you!`;
+                window.open(`https://wa.me/9715...INVITE_COACH?text=${encodeURIComponent(msg)}`);
+                closeModal('schedRequestModal');
+            };
+        };
+
+        window.payAction = (id) => {
+            const method = prompt("Payment Method (cash/card/link):", "cash")?.toLowerCase();
+            if(['cash','card','link'].includes(method)) {
+                updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'students', id), { 
+                    status: 'paid', 
+                    paymentStatus: 'paid', 
+                    paymentMethod: method 
+                });
+            }
+        };
+
+        // Attendance Logic
+        window.switchView = (v) => {
+            viewMode = v;
+            document.getElementById('btnViewRoster').classList.toggle('text-yellow-500', v === 'roster');
+            document.getElementById('btnViewArchive').classList.toggle('text-yellow-500', v === 'notJoining');
+            document.getElementById('btnViewAttendance').classList.toggle('text-yellow-500', v === 'attendance');
             
-            widget.innerHTML = students.filter(s => s.status === 'joining' || s.status === 'paid').map(s => {
-                const status = s.attendance?.[date] || '';
-                return `
-                    <div class="flex items-center justify-between bg-black/20 p-2 rounded-lg border border-white/5">
-                        <span class="text-[10px] font-bold uppercase truncate w-24">${s.name}</span>
-                        <div class="flex gap-1">
-                            <button onclick="markAttendance('${s.id}', 'present')" class="w-6 h-6 rounded ${status === 'present' ? 'bg-green-500' : 'bg-neutral-800'} text-[8px]">P</button>
-                            <button onclick="markAttendance('${s.id}', 'absent')" class="w-6 h-6 rounded ${status === 'absent' ? 'bg-red-500' : 'bg-neutral-800'} text-[8px]">A</button>
-                            <button onclick="markAttendance('${s.id}', 'med')" class="w-6 h-6 rounded ${status === 'med' ? 'bg-blue-500' : 'bg-neutral-800'} text-[8px]">M</button>
+            if(v === 'attendance') {
+                openModal('attendanceModal');
+                const list = document.getElementById('attendeeList');
+                const active = students.filter(s => s.status === 'joining' || s.status === 'paid');
+                
+                list.innerHTML = active.map(s => `
+                    <div class="flex items-center justify-between p-4 bg-neutral-900 rounded-2xl border border-neutral-800">
+                        <div>
+                            <p class="font-bold uppercase italic">${s.name}</p>
+                            <p class="text-[9px] text-gray-500 uppercase">${s.schedule}</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="window.markAttendance('${s.id}', 'present')" class="p-2 w-10 h-10 rounded-full bg-green-900/20 text-green-500 border border-green-500/30">P</button>
+                            <button onclick="window.markAttendance('${s.id}', 'absent')" class="p-2 w-10 h-10 rounded-full bg-red-900/20 text-red-500 border border-red-500/30">A</button>
+                            <button onclick="window.markAttendance('${s.id}', 'med')" class="p-2 w-10 h-10 rounded-full bg-blue-900/20 text-blue-500 border border-blue-500/30">M</button>
                         </div>
                     </div>
-                `;
-            }).join('');
+                `).join('');
+            } else {
+                render();
+            }
+        };
+
+        window.markAttendance = async (id, status) => {
+            const s = students.find(x => x.id === id);
+            const today = new Date().toISOString().split('T')[0];
+            const updates = { [`attendance.${today}`]: status };
+            if(status === 'med') updates.makeups = (s.makeups || 0) + 1;
+            await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'students', id), updates);
+        };
+
+        // Utility
+        function calculateAge(dob) {
+            if(!dob) return 0;
+            const birth = new Date(dob);
+            const today = new Date();
+            let age = today.getFullYear() - birth.getFullYear();
+            if (today.getMonth() < birth.getMonth() || (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate())) age--;
+            return age;
         }
 
-        // Utils
-        function calculateAge(dob) {
-            const diff = Date.now() - new Date(dob).getTime();
-            return Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
-        }
         function getGroup(age) {
             if (age < 8) return 'U8';
             if (age < 12) return 'U12';
             return 'U16';
         }
-        function isBirthdaySoon(dob) {
+
+        function isBirthdayApproaching(dob) {
+            if(!dob) return false;
             const b = new Date(dob);
             const today = new Date();
             return b.getMonth() === today.getMonth();
         }
+
+        function updateWidgets() {
+            const today = new Date();
+            const monthlyBdays = students.filter(s => s.dob && new Date(s.dob).getMonth() === today.getMonth());
+            document.getElementById('bdayWidget').innerHTML = monthlyBdays.map(s => `
+                <div class="flex justify-between items-center text-xs">
+                    <span class="font-bold uppercase">${s.name}</span>
+                    <span class="text-gray-500">${new Date(s.dob).toLocaleDateString('en-GB', {day:'numeric', month:'short'})}</span>
+                </div>
+            `).join('');
+
+            const followUps = students.filter(s => {
+                if(!s.invitationSent || s.status === 'joining' || s.status === 'paid' || s.status === 'notJoining') return false;
+                const sent = new Date(s.invitationSent);
+                const diff = (today - sent) / (1000 * 60 * 60);
+                return diff > 24;
+            });
+            
+            if(followUps.length) {
+                document.getElementById('alertsWidget').innerHTML = followUps.map(s => `
+                    <div class="p-2 bg-yellow-500/10 border-l-2 border-yellow-500 text-yellow-500 mb-2">
+                        Follow-up needed: <strong>${s.name}</strong>
+                    </div>
+                `).join('');
+            } else {
+                document.getElementById('alertsWidget').innerHTML = `<p class="text-gray-600">No urgent follow-ups required.</p>`;
+            }
+        }
+
+        window.updateStatus = (id, field, val) => {
+            if (!currentUser) return;
+            updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'students', id), { [field]: val });
+        };
+
         window.openModal = (id) => document.getElementById(id).classList.remove('hidden');
         window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
-        window.setView = (v) => { view = v; render(); };
 
-        // CSV Backup
-        window.downloadCSV = () => {
-            const headers = ['Name', 'DOB', 'Parent', 'Email', 'Phone', 'Schedule', 'Status'];
-            const rows = students.map(s => [s.name, s.dob, s.pName, s.pEmail, s.phone, s.schedule, s.status || 'Invited']);
-            let csv = headers.join(',') + '\n' + rows.map(r => r.join(',')).join('\n');
+        window.exportData = () => {
+            let csv = "Name,Age,Group,Parent,Phone,Email,Schedule,Status,Paid,Method,Due\n";
+            students.forEach(s => {
+                const age = calculateAge(s.dob);
+                csv += `"${s.name}",${age},${getGroup(age)},"${s.parent}","${s.phone}","${s.email}","${s.schedule}","${s.status}","${s.paymentStatus}","${s.paymentMethod}",${s.totalDue}\n`;
+            });
             const blob = new Blob([csv], { type: 'text/csv' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.setAttribute('href', url);
-            a.setAttribute('download', `ISD_TT_BACKUP_${new Date().toISOString().split('T')[0]}.csv`);
+            a.href = url;
+            a.download = `ISD_Tracker_Backup_${new Date().toISOString().split('T')[0]}.csv`;
             a.click();
-        };
-
-        // Bulk Import
-        window.handleBulkImport = async () => {
-            if(!confirm("Migrate 53 kids from initial list?")) return;
-            const data = `Musa Junego,16-Aug-2017,Reena Babar,reena7musa@gmail.com,054-7773836,Monday 4pm
-Samuel Greiner,2013-04-06,Patrick / Miriam,info@miriam-greiner.de,0507588134,"Fri 4pm & Mon 5pm"
-Ishaan Kumar,2017-09-09,Ashish Kumar,ashish.kumar02@gmail.com,052 297 6720,Tue & Thu 4pm
-Artem Arzhanov,2013-06-11,Natalia Arzanova,natalia@avispromservices.com,+7 985 802-14-67,"Wed 5pm & Fri 3pm"
-Yuri Kurdyukov,2014-05-06,Anastasia,akurdyukova@gmail.com,506651911,Tuesday 5pm
-Gherman Mustiviy,2016-06-13,Nickolay Mustiviy,n.mustiviy@gmail.com,0507701485,Friday 3pm
-Ryan Kim,2015-06-20,Rina Kwon,Riana.Kwon@gmail.com,0584496888,Monday 5pm
-Elai Fatykhov,2015-03-24,Elvira Fatykhov,Elviradxb@gmail.com,0527332988,Monday 5pm
-Arjun Arun,2015-11-10,Arun Viswanathan,rani.subassarunran@gmail.com,0522667290,Tuesday 4pm
-Mark Krutko,2015-06-18,Tanya Prykhozhia,pryhozhaya@gmail.com,0551344751,Tue & Thu 5pm
-Daniel Fady,2016-03-02,Fady Awny,fady.awny@gmail.com,0551915601,Friday 3pm
-Haider Hasan,2013-07-13,Asiya Ali,aayari0@gmail.com,0525987691,Wed 5pm
-Mark Dorogya,2015-05-10,Julia Dorogaya,juldorogaya@gmail.com,055 863 1023,Wednesday 5pm
-Jayden Chan,2015-10-02,Ellen Li,,85291283715,Thursday 4pm
-Petr,2012-06-10,Natalia Shaikina,nat7shaikina@gmail.com,+971 55 178 5179,Monday 5pm
-Daniil Gasparin,2019-03-11,Anastasia,nasty.kiseleva@gmail.com,0505121542,Thursday 4pm
-Louis Verrotte,2013-04-03,Solene Verrotte,solene.verrotte@gmail.com,+65 9144 9569,Friday 4pm
-Cameron Miller,2013-07-03,Maria Miller,mariamiller007@yahoo.com,0558505245,Thursday 4pm
-Borong Song,2018-01-22,Xue Zhang,,055-830-9836,Thursday 4pm
-Shivam Vallabh,2015-07-10,Jyoti Vallabh,Jyoti.vldd@gmail.com,0505731997,Wednesday 4pm
-Veronika Ivanuis,2016-09-28,Tatiana Ivanuis,tturchina84@mail.com,+971 55 683 9342,Wednesday 5pm
-Atuka Mandzhiev,2017-03-04,Alsa Mandzhieva,mandzhieva.a.v@gmail.com,971-58-248-4252,Mon & Wed 4pm
-Hani Omari,2013-01-16,Jummar Al JAlawi,J.Aljalawi@hotmail.com,0551769290,Tuesday 5pm
-Zaid Omari,2016-04-28,Jummar Al JAlawi,J.Aljalawi@hotmail.com,0551769290,Tuesday 5pm
-Judy El Masri,2017-04-13,Shadi El Masri,shadi2013@gmail.com,+971 50 888 7325,Friday 3pm
-Charlie Pinchbeck,2012-11-16,Henry Pinchbeck,henrypinchbeck@yahoo.com,+971 54 344 1062,Tue 4pm & 5pm
-Julia Abdelmalek,2013-03-17,Mary Raouf,mary_raouf@hotmail.com,+971 55 455 8291,Mon & Thu 5pm
-Ziad Biyouk,2011-01-20,Dina Qumuq,dinaqumuq@gmail.com,+971 50 252 8780,Friday 4pm
-Zahra Adnan,2015-11-01,Adnan/Javaria,adnanniaz@gmail.com,971 52 960 4599,Friday 4pm
-Abdul Hadi Adnan,2013-09-04,Adnan/Javaria,adnanniaz@gmail.com,971 52 960 4599,Friday 3pm
-Vihan Asarpota,2014-08-18,Hitesh Asarpota,hitesh13@gmail.com,0504529515,Tue & Thu 5pm
-Marc Galice,2015-06-30,Diana Galice,dianagalice@gmail.com,+971 52 716 1988,Wednesday 4pm
-Cagan Soylemez,2016-07-08,Murat Soylemez,Cagan.soylemez@outlook,971 52 199 2091,Thursday 5pm
-Alqaisar Wanous,2018-05-05,Bayla Kanji,Baylasanaikan@gmail.com,+971 50 662 4001,Wed 4pm & Fri 3pm
-Ishana,2013-03-02,Ram Virto,vash77.m@gmail.com,+971 55 700 8012,Mon & Thu 5pm
-Vihaan Gupta,2015-09-14,Ankita Jain,najistanford@gmail.com,971 50 972 0285,Mon & Fri
-Aryan Bansal,2011-04-11,Mitali Bansal,mitalinath@gmail.com,+971 55 104 7207,Fri 4pm & Mon 5pm
-Anna Mazkun,2019-04-29,Veronika Mazkun,worklist1111@yandex.ru,0505613510,Tue 4pm & Fri 3pm
-Anwita Shastri,2013-04-06,Navin Shastri,Navin.shastri@udtrucks.com,+971 50 347 5404,Thursday 5pm
-Theo Copper,2012-07-19,Chris Cooper,chriscopp8@gmail.com,971 50 395 9040,Wed 5pm
-Leo Girichev,2012-01-30,Andrei Girichev,andreigirichev@gmail.com,+971 55 353 1050,Tue & Wed 5pm
-Gian Hotchandani,2013-04-05,Vishakha,vishahotchandani@live.com,+971 50 262 4034,Monday 5pm
-Khloie Siniakina,2019-05-30,Viktor Siniakin,siniakin89@icloud.com,+971 58 580 9829,Monday 4pm
-Metodi,2016-02-25,Lilian Mute,nutellilian@yahoo.com,585265378,Tue & Wed 5pm
-Jaden,2013-10-02,Lilian Mute,nutellilian@yahoo.com,585265378,Tue & Wed 5pm
-Tehzeeb Ali,2010-05-22,Gows Basha,bashatehzeebali@gmail.com,+971 55 202 5369,Wed 5pm & Fri 4pm
-Flora Bae,2014-10-16,Sojin Park,jknowsmile@gmail.com,971 58 598 0512,Wed at 5pm
-Humayd Gani,2015-02-26,Mischka Tayob,Mischktagani@gmail.com,505042823,Wednesday 4pm
-Uthman Gani,2016-04-20,Mischka Tayob,Mischktagani@gmail.com,505042823,Wednesday 4pm
-Aurele,2015-09-06,Cedric Barraud,aford.alferd@gmail.com,+41 76 425 52 92,Wed & Fri 4pm
-Michele Ferriani,2014-04-05,Alina Makakaeva,alina.makakaeva@gmail.com,971 50 606 8869,Friday 4pm
-Parker Selt,2018-06-19,Jessica Selt,jessicaselt@icloud.com,971 50 773 5635,Monday 4pm
-Aydan Tejani,2014-11-26,Zhara Tejani,zhara_mughal@hotmail.com,447557118196,Thursday 5pm`;
-
-            const rows = data.split('\n');
-            for(let row of rows) {
-                const parts = row.match(/(".*?"|[^,]+)/g);
-                if(!parts) continue;
-                const [name, age, dob, pName, pEmail, pPhone, sched] = parts.map(p => p.replace(/"/g, '').trim());
-                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'students'), {
-                    name, dob: dob.includes('-') || dob.includes('.') ? dob : '2015-01-01', // Date parsing fallback
-                    pName, pEmail, phone: pPhone, schedule: sched,
-                    status: null, makeups: 0, attendance: {}, createdAt: new Date().toISOString()
-                });
-            }
-            alert("Migration finished.");
-        };
-
-        document.getElementById('enrollForm').onsubmit = async (e) => {
-            e.preventDefault();
-            const kid = {
-                name: document.getElementById('kName').value,
-                dob: document.getElementById('kDob').value,
-                pName: document.getElementById('pName').value,
-                phone: document.getElementById('pPhone').value,
-                pEmail: document.getElementById('pEmail').value,
-                schedule: selectedDays.join(' & '),
-                startDate: document.getElementById('startDate').value,
-                status: null, makeups: 0, attendance: {}, createdAt: new Date().toISOString()
-            };
-            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'students'), kid);
-            closeModal('regModal');
-            e.target.reset();
-            selectedDays = [];
         };
 
     </script>
