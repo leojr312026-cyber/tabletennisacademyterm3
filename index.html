@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -197,7 +197,7 @@
 
                 <div class="md:col-span-2">
                     <label class="text-[10px] font-black text-gray-500 uppercase">Email Address</label>
-                    <input type="email" id="regEmail" required class="isd-input">
+                    <input type="email" id="regEmail" class="isd-input">
                 </div>
 
                 <!-- Schedule Section -->
@@ -224,7 +224,7 @@
 
                     <div class="mt-8 pt-6 border-t border-neutral-900 flex justify-between items-end">
                         <div>
-                            <p class="text-[10px] font-black text-gray-500 uppercase">Base Rate (Term)</p>
+                            <p class="text-[10px] font-black text-gray-500 uppercase">Base Rate (Full Term)</p>
                             <p id="calcBase" class="text-2xl font-black text-white">AED 0.00</p>
                         </div>
                         <div class="text-right">
@@ -287,24 +287,26 @@
         const TERM_END = new Date("2025-07-03");
         const TOTAL_DAYS = Math.ceil((TERM_END - TERM_START) / (1000 * 60 * 60 * 24));
 
-        // Security - Critical Fix: Do not initialize listeners until AUTH IS COMPLETE
+        // Security
         window.checkAccess = async () => {
             if(document.getElementById('sysPass').value.toUpperCase() === 'LEO') {
                 document.getElementById('authBarrier').classList.add('hidden');
                 document.getElementById('appInterface').classList.remove('hidden');
                 
-                // AUTH BEFORE QUERIES (Rule 3)
-                try {
-                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                        await signInWithCustomToken(auth, __initial_auth_token);
-                    } else {
-                        await signInAnonymously(auth);
-                    }
-                } catch (e) {
-                    console.error("Auth Failed", e);
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
                 }
             } else {
-                alert("ACCESS DENIED");
+                const passInput = document.getElementById('sysPass');
+                passInput.value = '';
+                passInput.placeholder = 'ACCESS DENIED';
+                passInput.style.borderColor = 'red';
+                setTimeout(() => { 
+                    passInput.placeholder = 'ACCESS KEY'; 
+                    passInput.style.borderColor = '#333'; 
+                }, 2000);
             }
         }
 
@@ -316,15 +318,118 @@
         });
 
         function startListeners() {
-            if (!currentUser) return; // Safeguard
-
-            // Querying with required path structure (Rule 1)
+            if (!currentUser) return;
+            
             onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'students'), (snap) => {
+                if (snap.empty && students.length === 0) {
+                    seedData();
+                }
                 students = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                 render();
-            }, (err) => {
-                console.error("Snapshot Error", err);
+            }, (error) => {
+                console.error("Firestore Listener Error:", error);
             });
+        }
+
+        // PRICING HELPER
+        function getTermPrice(age, freq) {
+            const freqNum = parseInt(freq);
+            if (age < 8) {
+                // U8 PRICING
+                if (freqNum === 1) return 1390;
+                if (freqNum === 2) return 2645;
+                if (freqNum === 3) return 3965;
+                return 1390;
+            } else {
+                // U12 & U16 PRICING
+                if (freqNum === 1) return 1695;
+                if (freqNum === 2) return 3220;
+                if (freqNum === 3) return 4830;
+                return 1695;
+            }
+        }
+
+        async function seedData() {
+            const initialList = [
+                {name:"Musa Junego",dob:"2017-08-16",parent:"Reena Babar",phone:"0547773836"},
+                {name:"Samuel Greiner",dob:"2013-04-06",parent:"Patrick / Miriam",phone:"0507588134"},
+                {name:"Ishaan Kumar",dob:"2017-09-09",parent:"Ashish Kumar",phone:"0522976720"},
+                {name:"Artem Arzhanov",dob:"2013-06-11",parent:"Natalia Arzanova",phone:"+79858021467"},
+                {name:"Yuri Kurdyukov",dob:"2014-05-06",parent:"Anastasia",phone:"506651911"},
+                {name:"Gherman Mustiviy",dob:"2016-06-13",parent:"Nickolay Mustiviy",phone:"0507701485"},
+                {name:"Ryan Kim",dob:"2015-06-20",parent:"Rina Kwon",phone:"0584496888"},
+                {name:"Elai Fatykhov",dob:"2015-03-24",parent:"Elvira Fatykhov",phone:"0527332988"},
+                {name:"Arjun Arun",dob:"2015-11-10",parent:"Arun Viswanathan",phone:"0522667290"},
+                {name:"Mark Krutko",dob:"2015-06-18",parent:"Tanya Prykhozhia",phone:"0551344751"},
+                {name:"Daniel Fady",dob:"2016-03-02",parent:"Fady Awny",phone:"0551915601"},
+                {name:"Haider Hasan",dob:"2013-07-13",parent:"Asiya Ali",phone:"0525987691"},
+                {name:"Mark Dorogya",dob:"2015-05-10",parent:"Julia Dorogaya",phone:"0558631023"},
+                {name:"Jayden Chan",dob:"2015-10-02",parent:"Ellen Li",phone:"85291283715"},
+                {name:"Petr",dob:"2012-06-10",parent:"Natalia Shaikina",phone:"0551785179"},
+                {name:"Daniil Gasparin",dob:"2019-03-11",parent:"Anastasia",phone:"0505121542"},
+                {name:"Louis Verrotte",dob:"2013-04-03",parent:"Solene Verrotte",phone:"+6591449569"},
+                {name:"Cameron Miller",dob:"2013-07-03",parent:"Maria Miller",phone:"0558505245"},
+                {name:"Borong Song",dob:"2018-01-22",parent:"Xue Zhang",phone:"0558309836"},
+                {name:"Veronika Ivanuis",dob:"2016-09-28",parent:"Tatiana Ivanuis",phone:"0556839342"},
+                {name:"Atuka Mandzhiev",dob:"2017-03-04",parent:"Alsa Mandzhieva",phone:"0582484252"},
+                {name:"Hani Omari",dob:"2013-01-16",parent:"Jummar Al Jalawi",phone:"0551769290"},
+                {name:"Zaid Omari",dob:"2016-04-28",parent:"Jummar Al Jalawi",phone:"0551769290"},
+                {name:"Judy El Masri",dob:"2017-04-13",parent:"Shadi El Masri",phone:"0508887325"},
+                {name:"Charlie Pinchbeck",dob:"2012-11-16",parent:"Henry Pinchbeck",phone:"0543441062"},
+                {name:"Julia Abdelmalek",dob:"2013-03-17",parent:"Mary Raouf",phone:"0554558291"},
+                {name:"Ziad Biyouk",dob:"2011-01-20",parent:"Dina Qumuq",phone:"0502528780"},
+                {name:"Zahra Adnan",dob:"2015-11-01",parent:"Adnan / Javaria",phone:"0529604599"},
+                {name:"Abdul Hadi Adnan",dob:"2013-09-04",parent:"Adnan / Javaria",phone:"0529604599"},
+                {name:"Vihan Asarpota",dob:"2014-08-18",parent:"Hitesh Asarpota",phone:"0504529515"},
+                {name:"Marc Galice",dob:"2015-06-30",parent:"Diana Galice",phone:"0527161988"},
+                {name:"Cagan Soylemez",dob:"2016-08-07",parent:"Murat Soylemez",phone:"0521992091"},
+                {name:"Alqaisar Wanous",dob:"2018-05-05",parent:"Bayla Kanji",phone:"0506624001"},
+                {name:"Ishana",dob:"2013-03-02",parent:"Ram Virto",phone:"0557008012"},
+                {name:"Vihaan Gupta",dob:"2015-09-14",parent:"Ankita Jain",phone:"0509720285"},
+                {name:"Aryan Bansal",dob:"2011-11-04",parent:"Mitali Bansal",phone:"0551047207"},
+                {name:"Anna Mazkun",dob:"2019-04-29",parent:"Veronika Mazkun",phone:"0505613510"},
+                {name:"Anwita Shastri",dob:"2013-06-04",parent:"Navin Shastri",phone:"0503475404"},
+                {name:"Theo Cooper",dob:"2012-07-19",parent:"Chris Cooper",phone:"0503959040"},
+                {name:"Leo Girichev",dob:"2012-01-30",parent:"Andrei Girichev",phone:"0553531050"},
+                {name:"Gian Hotchandani",dob:"2013-05-04",parent:"Vishakha",phone:"0502624034"},
+                {name:"Khloie Siniakina",dob:"2019-05-30",parent:"Viktor Siniakin",phone:"0585809829"},
+                {name:"Metodi",dob:"2016-02-25",parent:"Lilian Mute",phone:"585265378"},
+                {name:"Jaden",dob:"2013-10-02",parent:"Lilian Mute",phone:"585265378"},
+                {name:"Tehzeeb Ali",dob:"2010-05-22",parent:"Gows Basha",phone:"0552025369"},
+                {name:"Flora Bae",dob:"2014-10-16",parent:"Sojin Park",phone:"0585980512"},
+                {name:"Humayd Gani",dob:"2015-02-26",parent:"Mischka Tayob",phone:"505042823"},
+                {name:"Uthman Gani",dob:"2016-04-20",parent:"Mischka Tayob",phone:"505042823"},
+                {name:"Aurele",dob:"2015-09-06",parent:"Cedric Barraud",phone:"+41764255292"},
+                {name:"Michele Ferriani",dob:"2014-05-04",parent:"Alina Makakaeva",phone:"0506068869"},
+                {name:"Parker Selt",dob:"2018-06-19",parent:"Jessica Selt",phone:"0507735635"},
+                {name:"Aydan Tejani",dob:"2014-11-26",parent:"Zhara Tejani",phone:"447557118196"}
+            ];
+
+            const promises = initialList.map(s => {
+                const age = calculateAge(s.dob);
+                const termTotal = getTermPrice(age, 1); // Default to 1x week for seeding
+
+                return addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'students'), {
+                    ...s,
+                    email: "",
+                    schedule: "",
+                    frequency: 1,
+                    startDate: "2025-03-30",
+                    totalDue: termTotal,
+                    status: 'registered',
+                    isdb: false,
+                    paymentStatus: 'unpaid',
+                    paymentMethod: null,
+                    attendance: {},
+                    makeups: 0,
+                    invitationSent: null,
+                    called: false,
+                    createdAt: new Date().toISOString()
+                });
+            });
+            
+            await Promise.all(promises);
+            console.log("Seed data injected successfully!");
         }
 
         // Calculations
@@ -332,21 +437,14 @@
             const dob = document.getElementById('regDob').value;
             if(!dob) return;
             
-            const birth = new Date(dob);
-            const today = new Date();
-            let age = today.getFullYear() - birth.getFullYear();
-            if (today.getMonth() < birth.getMonth() || (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate())) age--;
+            const age = calculateAge(dob);
+            const group = getGroup(age);
+            const freq = document.getElementById('regFreq').value;
             
-            let group = 'U16';
-            let baseRate = 1800; // U16 once week
-            if(age < 8) { group = 'U8'; baseRate = 1200; }
-            else if(age < 12) { group = 'U12'; baseRate = 1500; }
+            // Get proper Term 3 Pricing
+            const termTotal = getTermPrice(age, freq);
 
-            const freq = parseInt(document.getElementById('regFreq').value);
-            const freqMultiplier = freq === 1 ? 1 : (freq === 2 ? 1.8 : 2.5);
-            const termTotal = baseRate * freqMultiplier;
-
-            // Pro-rating
+            // Pro-rating Logic
             const start = new Date(document.getElementById('regStart').value);
             const remainingDays = Math.max(0, Math.ceil((TERM_END - start) / (1000 * 60 * 60 * 24)));
             const proRated = (termTotal / TOTAL_DAYS) * remainingDays;
@@ -364,18 +462,16 @@
         // CRUD
         document.getElementById('regForm').onsubmit = async (e) => {
             e.preventDefault();
-            if (!currentUser) return;
-
             const data = {
                 name: document.getElementById('regName').value,
                 dob: document.getElementById('regDob').value,
                 parent: document.getElementById('regParent').value,
                 phone: document.getElementById('regPhone').value,
-                email: document.getElementById('regEmail').value,
-                frequency: document.getElementById('regFreq').value,
+                email: document.getElementById('regEmail').value || "",
+                frequency: parseInt(document.getElementById('regFreq').value),
                 startDate: document.getElementById('regStart').value,
                 schedule: document.getElementById('regSchedText').value,
-                totalDue: parseFloat(document.getElementById('calcTotal').innerText.replace('AED ', '').replace(',','')),
+                totalDue: parseFloat(document.getElementById('calcTotal').innerText.replace('AED ', '').replace(/,/g,'')),
                 status: 'registered',
                 isdb: false,
                 paymentStatus: 'unpaid',
@@ -418,8 +514,6 @@
                 if(isPaid) classes += 'neon-paid ';
                 if(isIsdb) classes += 'neon-isdb ';
 
-                const phoneClean = s.phone.replace(/[^0-9+]/g, '');
-
                 return `
                     <div class="${classes}">
                         <div class="flex-1">
@@ -430,10 +524,8 @@
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1 text-xs text-gray-400 font-bold uppercase">
                                 <p><span class="text-gray-600">Parent:</span> ${s.parent}</p>
-                                <p><span class="text-gray-600">Email:</span> ${s.email}</p>
-                                <button onclick="window.waAction('${s.id}', 'direct')" class="text-left bg-green-500/10 text-green-500 px-3 py-1 rounded-lg border border-green-500/20 w-fit hover:bg-green-500/20">
-                                    <i class="fa-brands fa-whatsapp mr-2"></i>${s.phone}
-                                </button>
+                                <p><span class="text-gray-600">Email:</span> ${s.email || 'N/A'}</p>
+                                <button onclick="window.waAction('${s.id}', 'direct')" class="text-left hover:text-green-500"><span class="text-gray-600">Contact:</span> ${s.phone} <i class="fa-brands fa-whatsapp ml-1"></i></button>
                                 <p><span class="text-gray-600">Schedule:</span> ${s.schedule || 'TBD'}</p>
                             </div>
                             
@@ -450,9 +542,9 @@
                             </div>
                         </div>
                         
-                        <div class="text-right border-l border-neutral-800 pl-6 hidden lg:block">
+                        <div class="text-right border-l border-neutral-800 pl-6 hidden lg:block min-w-[140px]">
                             <p class="text-[10px] font-black text-gray-500 uppercase">Balance Due</p>
-                            <p class="text-xl font-black ${isPaid ? 'text-green-500' : 'text-white'}">AED ${isPaid ? '0.00' : s.totalDue.toLocaleString()}</p>
+                            <p class="text-xl font-black ${isPaid ? 'text-green-500' : 'text-white'}">AED ${isPaid ? '0.00' : (s.totalDue || 0).toLocaleString()}</p>
                             <p class="text-[9px] font-bold text-gray-600 mt-1">Makeups: ${s.makeups || 0}</p>
                         </div>
                     </div>
@@ -533,13 +625,14 @@
             document.getElementById('btnConfirmSchedReq').onclick = () => {
                 const day = document.getElementById('reqNewSchedDay').value;
                 const time = document.getElementById('reqNewSchedTime').value;
-                const msg = `Hi Coach @Aleksey 🏓\n${s.parent} is requesting a new schedule for ${s.name}.\nRequested: ${day} at ${time}.\nKindly confirm if it is possible, or suggest any other available slot for ${s.name}.\nThank you!`;
-                window.open(`https://wa.me/9715...INVITE_COACH?text=${encodeURIComponent(msg)}`);
+                const msg = `Hi Coach Aleksey 🏓\n${s.parent} is requesting a new schedule for ${s.name}.\nRequested: ${day} at ${time}.\nKindly confirm if it is possible, or suggest any other available slot for ${s.name}.\nThank you!`;
+                window.open(`https://wa.me/9715...COACH_NUMBER?text=${encodeURIComponent(msg)}`);
                 closeModal('schedRequestModal');
             };
         };
 
         window.payAction = (id) => {
+            const s = students.find(x => x.id === id);
             const method = prompt("Payment Method (cash/card/link):", "cash")?.toLowerCase();
             if(['cash','card','link'].includes(method)) {
                 updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'students', id), { 
@@ -566,7 +659,7 @@
                     <div class="flex items-center justify-between p-4 bg-neutral-900 rounded-2xl border border-neutral-800">
                         <div>
                             <p class="font-bold uppercase italic">${s.name}</p>
-                            <p class="text-[9px] text-gray-500 uppercase">${s.schedule}</p>
+                            <p class="text-[9px] text-gray-500 uppercase">${s.schedule || 'No Schedule'}</p>
                         </div>
                         <div class="flex gap-2">
                             <button onclick="window.markAttendance('${s.id}', 'present')" class="p-2 w-10 h-10 rounded-full bg-green-900/20 text-green-500 border border-green-500/30">P</button>
@@ -590,7 +683,6 @@
 
         // Utility
         function calculateAge(dob) {
-            if(!dob) return 0;
             const birth = new Date(dob);
             const today = new Date();
             let age = today.getFullYear() - birth.getFullYear();
@@ -614,12 +706,12 @@
         function updateWidgets() {
             const today = new Date();
             const monthlyBdays = students.filter(s => s.dob && new Date(s.dob).getMonth() === today.getMonth());
-            document.getElementById('bdayWidget').innerHTML = monthlyBdays.map(s => `
+            document.getElementById('bdayWidget').innerHTML = monthlyBdays.length ? monthlyBdays.map(s => `
                 <div class="flex justify-between items-center text-xs">
                     <span class="font-bold uppercase">${s.name}</span>
                     <span class="text-gray-500">${new Date(s.dob).toLocaleDateString('en-GB', {day:'numeric', month:'short'})}</span>
                 </div>
-            `).join('');
+            `).join('') : '<p class="text-xs text-gray-500">No birthdays this month.</p>';
 
             const followUps = students.filter(s => {
                 if(!s.invitationSent || s.status === 'joining' || s.status === 'paid' || s.status === 'notJoining') return false;
@@ -635,15 +727,20 @@
                     </div>
                 `).join('');
             } else {
-                document.getElementById('alertsWidget').innerHTML = `<p class="text-gray-600">No urgent follow-ups required.</p>`;
+                document.getElementById('alertsWidget').innerHTML = '<p>No urgent follow-ups required.</p>';
             }
+
+            // Finance Outlook
+            const projected = students.filter(s => s.status === 'joining' || s.status === 'paid').reduce((a,b) => a + (b.totalDue || 0), 0);
+            const received = students.filter(s => s.status === 'paid').reduce((a,b) => a + (b.totalDue || 0), 0);
+            document.getElementById('financeWidget').innerHTML = `
+                <div class="flex justify-between text-xs font-bold"><span class="text-gray-400">PROJECTED</span><span>AED ${projected.toLocaleString()}</span></div>
+                <div class="flex justify-between text-xs font-bold"><span class="text-green-500">RECEIVED</span><span>AED ${received.toLocaleString()}</span></div>
+                <div class="flex justify-between text-xs font-bold"><span class="text-red-400">PENDING</span><span>AED ${(projected - received).toLocaleString()}</span></div>
+            `;
         }
 
-        window.updateStatus = (id, field, val) => {
-            if (!currentUser) return;
-            updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'students', id), { [field]: val });
-        };
-
+        window.updateStatus = (id, field, val) => updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'students', id), { [field]: val });
         window.openModal = (id) => document.getElementById(id).classList.remove('hidden');
         window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
 
